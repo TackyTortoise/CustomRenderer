@@ -5,6 +5,7 @@ struct Color
 {
 	unsigned char b,g,r, a;
 	Color(): r(0), g(0), b(0), a(0){}
+	Color(char v): r(v), g(v), b(v), a(v){}
 	Color(char rr, char gg, char bb, char aa = 5) : r(rr), g(gg), b(bb){}
 
 	Color operator* (const float v) { return Color(r*v, g*v, b*v); }

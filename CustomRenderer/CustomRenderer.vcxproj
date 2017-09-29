@@ -129,8 +129,11 @@
     <ClCompile Include="Main.cpp" />
     <ClCompile Include="Objects\Plane.cpp" />
     <ClCompile Include="Objects\Sphere.cpp" />
+    <ClCompile Include="Base\Scene.cpp" />
+    <ClCompile Include="Base\Renderer.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="Base\Camera.h" />
     <ClInclude Include="Math\Color.h" />
     <ClInclude Include="Math\Math.h" />
     <ClInclude Include="Objects\Object.h" />
@@ -138,6 +141,8 @@
     <ClInclude Include="Objects\Sphere.h" />
     <ClInclude Include="Math\Vec2.h" />
     <ClInclude Include="Math\Vec3.h" />
+    <ClInclude Include="Base\Scene.h" />
+    <ClInclude Include="Base\Renderer.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
