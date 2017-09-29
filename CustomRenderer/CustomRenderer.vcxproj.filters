@@ -18,33 +18,33 @@
     <ClCompile Include="Main.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="Sphere.cpp">
+    <ClCompile Include="Objects\Plane.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="Plane.cpp">
+    <ClCompile Include="Objects\Sphere.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="Vec3.h">
+    <ClInclude Include="Math\Math.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="Color.h">
+    <ClInclude Include="Math\Color.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="Object.h">
+    <ClInclude Include="Math\Vec2.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="Sphere.h">
+    <ClInclude Include="Math\Vec3.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="Math.h">
+    <ClInclude Include="Objects\Object.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="Plane.h">
+    <ClInclude Include="Objects\Plane.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="Vec2.h">
+    <ClInclude Include="Objects\Sphere.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

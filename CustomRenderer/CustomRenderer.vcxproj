@@ -127,17 +127,17 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="Main.cpp" />
-    <ClCompile Include="Plane.cpp" />
-    <ClCompile Include="Sphere.cpp" />
+    <ClCompile Include="Objects\Plane.cpp" />
+    <ClCompile Include="Objects\Sphere.cpp" />
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="Color.h" />
-    <ClInclude Include="Math.h" />
-    <ClInclude Include="Object.h" />
-    <ClInclude Include="Plane.h" />
-    <ClInclude Include="Sphere.h" />
-    <ClInclude Include="Vec2.h" />
-    <ClInclude Include="Vec3.h" />
+    <ClInclude Include="Math\Color.h" />
+    <ClInclude Include="Math\Math.h" />
+    <ClInclude Include="Objects\Object.h" />
+    <ClInclude Include="Objects\Plane.h" />
+    <ClInclude Include="Objects\Sphere.h" />
+    <ClInclude Include="Math\Vec2.h" />
+    <ClInclude Include="Math\Vec3.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

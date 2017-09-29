@@ -5,10 +5,10 @@
 #include <string>
 #include <ctime>
 
-#include "Object.h"
-#include "Sphere.h"
 #include "Math.h"
-#include "Plane.h"
+#include "Objects/Object.h"
+#include "Objects/Sphere.h"
+#include "Objects/Plane.h"
 using namespace std;
 
 //#define TEST

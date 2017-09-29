@@ -1,7 +1,5 @@
 #include "Plane.h"
 
-
-
 Plane::Plane()
 {
 	m_Color = Color(120, 120, 70);

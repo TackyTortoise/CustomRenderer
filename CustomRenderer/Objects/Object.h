@@ -1,6 +1,6 @@
 #pragma once
-#include "Vec3.h"
-#include "Color.h"
+#include "../Math/Vec3.h"
+#include "../Math/Color.h"
 
 class Object
 {

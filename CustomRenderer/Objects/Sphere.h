@@ -1,6 +1,6 @@
 #pragma once
 #include "Object.h"
-#include "Color.h"
+#include "../Math/Math.h"
 
 class Sphere : public Object
 {

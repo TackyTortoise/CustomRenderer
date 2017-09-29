@@ -1,7 +1,7 @@
 #pragma once
 #include "Vec3.h"
 #include "Vec2.h"
-#include "Color.h"
+//#include "Color.h"
 
 class Math
 {

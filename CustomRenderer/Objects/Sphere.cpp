@@ -1,5 +1,4 @@
 #include "Sphere.h"
-#include "Vec3.h"
 #include <iostream>
 
 Sphere::Sphere() : m_Radius(0), m_Radius2(0)//, m_Color(Color(0,0,0))
