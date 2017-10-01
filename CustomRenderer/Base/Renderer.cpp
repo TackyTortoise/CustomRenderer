@@ -125,9 +125,16 @@ void Renderer::RenderScene()
 				if (csb != nullptr)
 					pixelColor *= 1 - m_ShadowIntensity;
 
-				//baseColor
+				//Diffuse color
 				float diffuseIntensity = Math::CalculateDiffuseIntensity(toLight, -rayDir, orgHitNormal, .15f);
 				pixelColor *= diffuseIntensity;
+
+				//specular
+				auto halfVec = (toLight + -rayDir).Normalize();
+				float specStrength = Math::Clamp(orgHitNormal.Dot(halfVec));
+				specStrength = pow(specStrength, 50);
+				Color specColor = Color(255) * specStrength;
+				pixelColor = pixelColor.ClampAdd(specColor);
 
 				m_Pixels[pixelIndex] = pixelColor;
 			}
