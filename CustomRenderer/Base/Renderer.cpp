@@ -121,9 +121,9 @@ void Renderer::RenderScene()
 
 				//shadow
 				Vec3 sh, sn;
-				auto csb = Trace(orgHitPoint, toLight, hitDistance,sh, sn, closestObj, true);
-				if (csb != nullptr)
-					pixelColor *= 1 - m_ShadowIntensity;
+				float shadowFactor = 1.f;
+				if (Trace(orgHitPoint + toLight * 0.01f, toLight, hitDistance,sh, sn, closestObj, true))
+					shadowFactor = m_ShadowIntensity;
 
 				//Diffuse color
 				float diffuseIntensity = Math::CalculateDiffuseIntensity(toLight, -rayDir, orgHitNormal, .15f);
@@ -136,7 +136,7 @@ void Renderer::RenderScene()
 				Color specColor = Color(255) * specStrength;
 				pixelColor = pixelColor.ClampAdd(specColor);
 
-				m_Pixels[pixelIndex] = pixelColor;
+				m_Pixels[pixelIndex] = pixelColor * shadowFactor;
 			}
 			//On miss clear pixel
 			else
@@ -154,14 +154,14 @@ Object* Renderer::Trace(const Vec3& rayOrg, const Vec3& rayDir, float& distance,
 	{
 		if (m_RenderObjects[i]->isHit(rayOrg, rayDir, d) && d < shortD)
 		{
-			if (keepIgnoreDistance)
-			{
-				shortD = d;
-			}
 			if (m_RenderObjects[i] != ignoreObject)
 			{
 				shortD = d;
 				closeObject = m_RenderObjects[i];
+			}
+			else if (keepIgnoreDistance)
+			{
+				shortD = d;
 			}
 		}
 	}
@@ -183,7 +183,7 @@ const Vec3 Renderer::CalculateCameraRay(float x, float y, float camTan, float as
 
 	//create ray from camera to pixel
 	Vec3 rayOrg(0); //start from camera position 0,0,0
-	Vec3 rayDir = Vec3(cX, cY, -1.f) - rayOrg;
+	Vec3 rayDir = Vec3(cX, cY, 1.f) - rayOrg;
 	//multiply with camtoworld if cam is not in 0 transform
 	rayDir.Normalize();
 	return rayDir;

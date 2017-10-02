@@ -20,4 +20,9 @@ public:
 		auto halfVec = (lightDir + viewDir).Normalize();
 		return Clamp(normal.Dot(halfVec), min);
 	}
+
+	static int GetSign(const int v)
+	{
+		return v < 0 ? -1 : 1;
+	}
 };

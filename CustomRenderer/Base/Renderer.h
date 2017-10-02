@@ -33,6 +33,6 @@ private:
 
 	Color m_ClearColor = Color(12, 12, 12);
 
-	const float m_ShadowIntensity = .8f;
+	const float m_ShadowIntensity = .2f;
 };
 
