@@ -30,7 +30,7 @@
     <ClCompile Include="Base\Renderer.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="AABox.cpp">
+    <ClCompile Include="Objects\AABox.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>
@@ -65,7 +65,7 @@
     <ClInclude Include="Base\Camera.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="AABox.h">
+    <ClInclude Include="Objects\AABox.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

@@ -1,5 +1,5 @@
 #pragma once
-#include "C:\Grad Work\CustomRenderer\CustomRenderer\Objects\Object.h"
+#include "Object.h"
 class AABox :
 	public Object
 {

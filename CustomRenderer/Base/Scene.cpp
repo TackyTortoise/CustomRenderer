@@ -1,7 +1,7 @@
 #include "Scene.h"
 #include "../Objects/Sphere.h"
 #include "../Objects/Plane.h"
-#include "../AABox.h"
+#include "../Objects/AABox.h"
 
 Scene::Scene()
 {
@@ -33,7 +33,7 @@ Scene::Scene()
 	pTest->SetReflective(.1f);
 	m_Objects.push_back(pTest);
 
-	m_Objects.push_back(new AABox(Vec3(-5, -.5, 20), 7, 5, 8));
+	m_Objects.push_back(new AABox(Vec3(-5, -.5, 20), 7, 7, 8));
 	//m_Objects.push_back(new AABox(Vec3(-1, -3.5, 20), 5, 2, 5));
 	m_Objects.push_back(new AABox(Vec3(5, 0, 20), 5, 6.5, 5, Color(29,108,129)));
 
