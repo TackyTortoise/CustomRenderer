@@ -16,6 +16,8 @@ public:
 	const std::vector<Vec3> GetLights() const { return m_Lights; }
 
 private:
+	void LoadTestScene();
+
 	Camera* m_Camera = nullptr;
 	std::vector<Object*> m_Objects;
 	std::vector<Vec3> m_Lights;

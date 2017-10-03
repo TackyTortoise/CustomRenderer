@@ -31,6 +31,7 @@ void Renderer::Close()
 
 void Renderer::SetBlockCount(const int bc)
 {
+	//divide rendertexture in blocks from which you choose random pixels -> faster result
 	m_BlockCount = bc;
 	m_RegionSize.x = m_RenderWidth / static_cast<float>(bc);
 	m_RegionSize.y = m_RenderHeight / static_cast<float>(bc);
@@ -45,6 +46,7 @@ void Renderer::SetActiveScene(const Scene* const scene)
 	}
 
 	m_ActiveScene = scene;
+	//copy scene objects into raw pointer for efficiency
 	m_RenderObjects = &scene->GetObjectPointer()[0];
 	m_ObjectCount = scene->GetObjectPointer().size();
 }
@@ -77,66 +79,15 @@ void Renderer::RenderScene()
 
 			float hitDistance = -1.f;
 			Vec3 orgHitPoint, orgHitNormal;
-			Object* closestObj = Trace(sceneCam->GetPosition(), rayDir, hitDistance, orgHitPoint, orgHitNormal);
+			Object* closestObj = Trace(sceneCam->GetPosition(), rayDir, orgHitPoint, orgHitNormal);
 
 			int pixelIndex = rX + m_RenderWidth * rY;
 			//On object hit Color it
 			if (closestObj != nullptr)
 			{
-				Color pixelColor = closestObj->GetBaseColor();
-				auto light = m_ActiveScene->GetLights()[0];
-				Vec3 toLight = (light - orgHitPoint).Normalized();
-
-				//Reflection
-				float refl = closestObj->GetReflective();
-				if (refl > 0.f)
-				{
-					auto invRay = -rayDir;
-					auto reflectedRay = invRay.ReflectAround(orgHitNormal);
-					Vec3 reflHit, reflNorm;
-					Object* reflectedObj = Trace(orgHitPoint, reflectedRay, hitDistance, reflHit, reflNorm, closestObj);
-					if (reflectedObj != nullptr)
-					{
-						pixelColor *= 1 - refl;
-						Color reflCol = reflectedObj->GetBaseColor();
-						pixelColor += reflCol * refl;
-					}
-				}
-
-				//Transparancy
-				float transp = closestObj->GetTransparancy();
-				if (transp > 0)
-				{
-					Vec3 transHit, transNorm;
-					Object* transObj = Trace(orgHitPoint, rayDir, hitDistance, transHit, transNorm, closestObj);
-					//maybe this should go in if?
-					pixelColor *= 1 - transp;
-					if (transObj != nullptr)
-					{
-						//pixelColor *= 1 - transp;
-						Color transCol = transObj->GetBaseColor();
-						pixelColor += transCol * transp;
-					}
-				}
-
-				//shadow
-				Vec3 sh, sn;
-				float shadowFactor = 1.f;
-				if (Trace(orgHitPoint + toLight * 0.01f, toLight, hitDistance,sh, sn, closestObj, true))
-					shadowFactor = m_ShadowIntensity;
-
-				//Diffuse color
-				float diffuseIntensity = Math::CalculateDiffuseIntensity(toLight, -rayDir, orgHitNormal, .15f);
-				pixelColor *= diffuseIntensity;
-
-				//specular
-				auto halfVec = (toLight + -rayDir).Normalize();
-				float specStrength = Math::Clamp(orgHitNormal.Dot(halfVec));
-				specStrength = pow(specStrength, 50);
-				Color specColor = Color(255) * specStrength;
-				pixelColor = pixelColor.ClampAdd(specColor);
-
-				m_Pixels[pixelIndex] = pixelColor * shadowFactor;
+				m_ReflectionDepth = 0;
+				m_TransparancyDepth = 0;
+				m_Pixels[pixelIndex] = GetHitColor(closestObj, orgHitPoint, rayDir);
 			}
 			//On miss clear pixel
 			else
@@ -145,20 +96,24 @@ void Renderer::RenderScene()
 	}
 }
 
-Object* Renderer::Trace(const Vec3& rayOrg, const Vec3& rayDir, float& distance, Vec3& hitPoint, Vec3& hitNormal, Object* ignoreObject, bool keepIgnoreDistance)
+Object* Renderer::Trace(const Vec3& rayOrg, const Vec3& rayDir, Vec3& hitPoint, Vec3& hitNormal, Object* ignoreObject, bool keepIgnoreDistance)
 {
 	float d = 0;
 	float shortD = std::numeric_limits<float>::max();
+	//float ignoreShort = shortD;
 	Object* closeObject = nullptr;
+	//check each object in scene
 	for (int i = 0; i < m_ObjectCount; ++i)
 	{
 		if (m_RenderObjects[i]->isHit(rayOrg, rayDir, d) && d < shortD)
 		{
+			//ignore certain object e.g. self
 			if (m_RenderObjects[i] != ignoreObject)
 			{
 				shortD = d;
 				closeObject = m_RenderObjects[i];
 			}
+			//ignore object but still "see" it as closest
 			else if (keepIgnoreDistance)
 			{
 				shortD = d;
@@ -166,7 +121,7 @@ Object* Renderer::Trace(const Vec3& rayOrg, const Vec3& rayDir, float& distance,
 		}
 	}
 
-	distance = shortD;
+	//calculate where object was hit in world + return object normal on this point
 	if (closeObject != nullptr)
 	{
 		hitPoint = rayOrg + rayDir * shortD;
@@ -187,4 +142,78 @@ const Vec3 Renderer::CalculateCameraRay(float x, float y, float camTan, float as
 	//multiply with camtoworld if cam is not in 0 transform
 	rayDir.Normalize();
 	return rayDir;
+}
+
+Color Renderer::GetHitColor(Object* co, Vec3 hitPos, const Vec3& rayDir)
+{
+	Color pixelColor = co->GetBaseColor();
+	auto light = m_ActiveScene->GetLights()[0];
+	Vec3 toLight = (light - hitPos).Normalized();
+	auto hitNormal = co->GetNormalOnHit(hitPos);
+
+
+	float diffuseIntensity = Math::CalculateDiffuseIntensity(toLight, -rayDir, hitNormal, .15f);
+
+	//Reflection
+	float refl = co->GetReflective();
+	if (refl > 0.f)
+	{
+		auto invRay = -rayDir;
+		auto reflectedRay = invRay.ReflectAround(hitNormal);
+		Vec3 reflHit, reflNorm;
+		Object* reflectedObj = Trace(hitPos, reflectedRay, reflHit, reflNorm, co);
+		if (reflectedObj != nullptr && m_ReflectionDepth < m_MaxDetph)
+		{
+			++m_ReflectionDepth;
+			pixelColor *= 1 - refl;
+			Color reflCol = GetHitColor(reflectedObj, reflHit, reflectedRay);
+			//reflCol *= Math::CalculateDiffuseIntensity((light - reflHit).Normalized(), reflectedRay, reflNorm, .15f);
+			pixelColor += reflCol * refl;
+		}
+	}
+
+	//Transparancy
+	float transp = co->GetTransparancy();
+	if (transp > 0)
+	{
+		Vec3 transHit, transNorm;
+		Object* transObj = Trace(hitPos, rayDir, transHit, transNorm, co);
+		//maybe this should go in if?
+		pixelColor *= 1 - transp;
+		if (transObj != nullptr && m_TransparancyDepth < m_MaxDetph)
+		{
+			++m_TransparancyDepth;
+			diffuseIntensity += transp;
+			Color transCol = GetHitColor(transObj, transHit, rayDir);//transObj->GetBaseColor();
+			pixelColor = pixelColor.ClampAdd(transCol * transp);
+		}
+	}
+
+	//shadow
+	Vec3 sh, sn;
+	float shadowFactor = 1.f;
+	auto shadowStart = hitPos + toLight * 0.01f;
+	Object* cs = nullptr;
+	cs = Trace(shadowStart, toLight, sh, sn);
+	if (cs != nullptr && cs != co)
+	{
+		if ((sh - shadowStart).Length2() < (light - hitPos).Length2())
+			shadowFactor = m_ShadowIntensity;
+	}
+
+	//Diffuse color
+	diffuseIntensity = Math::Clamp(diffuseIntensity, 0, 1);
+	pixelColor *= diffuseIntensity;
+
+	//specular
+	if (shadowFactor < 1.f)
+	{
+		auto halfVec = (toLight + -rayDir).Normalize();
+		float specStrength = Math::Clamp(hitNormal.Dot(halfVec));
+		specStrength = pow(specStrength, 50);
+		Color specColor = Color(255) * specStrength;
+		pixelColor = pixelColor.ClampAdd(specColor);
+	}
+
+	return pixelColor * shadowFactor;
 }

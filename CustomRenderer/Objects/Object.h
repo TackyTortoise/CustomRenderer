@@ -11,6 +11,7 @@ public:
 	virtual bool isHit(const Vec3& rayOrg, const Vec3& rayDir, float& hitDistance) = 0;
 
 	virtual const Color& GetBaseColor() const { return m_Color; }
+	virtual void SetBaseColor(const Color& col) { m_Color = col; }
 
 	Vec3 GetPosition() const { return m_Position; }
 	void SetPosition(const Vec3& newPos) { m_Position = newPos; }
