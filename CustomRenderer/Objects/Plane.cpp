@@ -17,7 +17,7 @@ bool Plane::isHit(const Vec3& rayOrg, const Vec3& rayDir, float& hitDistance)
 	auto rdn = rayDir.Dot(m_Normal);
 	if (abs(rdn) < 1e-5)
 		return false;
-
+		
 	hitDistance = bdn / rdn;
 	return (hitDistance >= 0);
 }

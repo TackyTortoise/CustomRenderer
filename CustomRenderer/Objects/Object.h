@@ -24,9 +24,17 @@ public:
 	void SetReflective(const float v) { m_Reflection = v; }
 	float GetReflective() const { return m_Reflection; }
 
+	void SetRefractive(const float v) { m_RefractionIndex = v; }
+	float GetRefractive() const { return m_RefractionIndex; }
+
+	void SetMetallic(bool v) { m_bMetallic = v; }
+	Color GetSpecColor() const { return m_bMetallic ? m_Color * (1 - m_Reflection) + Color(255) * m_Reflection : Color(255); }
+
 protected:
 	Vec3 m_Position;
 	Color m_Color;
 	float m_Transparancy = 0.f;
 	float m_Reflection = 0.f;
+	float m_RefractionIndex = 1.f;
+	bool m_bMetallic = false;
 };

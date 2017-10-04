@@ -36,6 +36,6 @@ private:
 
 	const float m_ShadowIntensity = .2f;
 	const char m_MaxDetph = 10;
-	short m_ReflectionDepth = 0, m_TransparancyDepth = 0;
+	short m_ReflectionDepth = 0, m_TransparancyDepth = 0, m_RefractionDepth = 0;
 };
 

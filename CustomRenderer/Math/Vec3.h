@@ -86,4 +86,27 @@ public:
 		result *= Length();
 		return result;
 	}
+
+	Vec3 Refract(float ior, Vec3 normal) const
+	{
+		auto rayDir = *this;
+		float i1 = 1, i2 = ior;
+		Vec3 norm = normal;
+		float ct = norm.Dot(rayDir);
+
+		if (ct < 0)
+		{
+			ct = -ct;
+		}
+		else
+		{
+			norm = -norm;
+			auto i1Copy = i1;
+			i1 = i2;
+			i2 = i1Copy;
+		}
+		auto refCoef = i1 / i2;
+		auto refRay = rayDir * refCoef + normal * (refCoef * ct - sqrt(1 - pow(refCoef, 2) * (1 - ct)));
+		return refRay.Normalized();
+	}
 };

@@ -2,27 +2,11 @@
 #include "../Objects/Sphere.h"
 #include "../Objects/Plane.h"
 #include "../Objects/AABox.h"
+#include <SDL_stdinc.h>
 
 Scene::Scene()
 {
-	/*Plane* pTest = new Plane();
-	pTest->SetPosition({ 0, -5, 0 });
-	pTest->SetReflective(.1f);
-	m_Objects.push_back(pTest);
-	pTest = new Plane();
-	pTest->SetPosition({ 0,50,0 });
-	pTest->SetBaseColor(Color(255, 0, 0));
-	m_Objects.push_back(pTest);
-
-	Sphere* s = new Sphere(Vec3(0, 0, 10), 2.5, Color(255));
-	s->SetTransparent(.5f);
-	m_Objects.push_back(s);
-	s = new Sphere(Vec3(5, 0, 20), 2.5, Color(255));
-	s->SetReflective(.5f);
-	m_Objects.push_back(s);
-
-	m_Lights.push_back({ 10,10,0 });*/
-	LoadTestScene();
+	LoadTestScene(2);
 }
 
 
@@ -49,52 +33,114 @@ void Scene::SetupCamera(const float fov, const float width, const float height)
 	m_Camera = new Camera(fov, width / height);
 }
 
-void Scene::LoadTestScene()
+void Scene::LoadTestScene(int m)
 {
-	m_Objects.push_back(new Sphere(Vec3(0, 0, 50), 2, Color(255, 50, 170))); // small pink in back
-	m_Objects.push_back(new Sphere(Vec3(5, 0, 15), 2, Color(70, 80, 255))); // reflective blue
-	m_Objects.push_back(new Sphere(Vec3(-5, 0, 10), 2, Color(60, 255, 100))); // transparant green
-	m_Objects.push_back(new Sphere(Vec3(-4, 2.9, 8.5), .5, Color(255, 255, 70))); // yellow in air
-	m_Objects.push_back(new Sphere(Vec3(-3.2, -.25f, 10), .75, Color(140, 16, 140))); // purple in green
-	m_Objects.push_back(new Sphere(Vec3(5, -2.5, 13), 1, Color(180, 120, 255))); // small purple
-	m_Objects.push_back(new Sphere(Vec3(-2.5, -1, 45), 2, Color(124, 20, 77))); // burgundi
-	m_Objects.push_back(new Sphere(Vec3(-3, -2.5, 10), .8f, Color(108, 92, 50))); // kaky
-	m_Objects.push_back(new Sphere(Vec3(4, 2, 9.5), .5, Color(244, 101, 44))); // orange
-
-	int tx = -20;
-	for (int i = 0; i < 10; ++i)
+	if (m == 1)
 	{
-		m_Objects.push_back(new Sphere(Vec3(tx, 3 + rand() % 3, 55 - tx), 2, Color(rand() % 256, rand() % 256, rand() % 256)));
-		m_Objects.back()->SetReflective(static_cast <float> (rand()) / static_cast <float> (RAND_MAX));
-		tx += 4;
+		m_Objects.push_back(new Sphere(Vec3(0, 0, 50), 2, Color(255, 50, 170))); // small pink in back
+		m_Objects.push_back(new Sphere(Vec3(5, 0, 15), 2, Color(70, 80, 255))); // reflective blue
+		m_Objects.push_back(new Sphere(Vec3(-5, 0, 10), 2, Color(60, 255, 100))); // transparant green
+		m_Objects.push_back(new Sphere(Vec3(-4, 2.9, 8.5), .5, Color(255, 255, 70))); // yellow in air
+		m_Objects.push_back(new Sphere(Vec3(-3.2, -.25f, 10), .75, Color(140, 16, 140))); // purple in green
+		m_Objects.push_back(new Sphere(Vec3(5, -2.5, 13), 1, Color(180, 120, 255))); // small purple
+		m_Objects.push_back(new Sphere(Vec3(-2.5, -1, 45), 2, Color(124, 20, 77))); // burgundi
+		m_Objects.push_back(new Sphere(Vec3(-3, -2.5, 10), .8f, Color(108, 92, 50))); // kaky
+		m_Objects.push_back(new Sphere(Vec3(4, 2, 9.5), .5, Color(244, 101, 44))); // orange
+
+		int tx = -20;
+		for (int i = 0; i < 10; ++i)
+		{
+			m_Objects.push_back(new Sphere(Vec3(tx, 3 + rand() % 3, 55 - tx), 2, Color(rand() % 256, rand() % 256, rand() % 256)));
+			m_Objects.back()->SetReflective(static_cast <float> (rand()) / static_cast <float> (RAND_MAX));
+			tx += 4;
+		}
+
+		m_Objects[2]->SetTransparent(.5f);
+		m_Objects[6]->SetReflective(.2f);
+		m_Objects[6]->SetTransparent(.2f);
+		m_Objects[1]->SetReflective(.99f);
+		m_Objects[4]->SetReflective(.5f);
+		m_Objects[4]->SetMetallic(true);
+		Plane* pTest = new Plane();
+		pTest->SetPosition({ 0, -5, 0 });
+		pTest->SetReflective(.1f);
+		m_Objects.push_back(pTest);
+
+		pTest = new Plane();
+		pTest->SetPosition({ 0,50,0 });
+		pTest->SetBaseColor(Color(255, 0, 0));
+		m_Objects.push_back(pTest);
+
+		m_Objects.push_back(new AABox(Vec3(-5, -.5, 20), 7, 7, 8));
+		m_Objects.back()->SetReflective(.85f);
+		m_Objects.back()->SetBaseColor(Color(255, 215, 0));
+		//m_Objects.push_back(new AABox(Vec3(-1, -3.5, 20), 5, 2, 5));
+		m_Objects.push_back(new AABox(Vec3(5, 0, 20), 5, 6.5, 5, Color(29, 108, 129)));
+
+
+		//for (auto o : m_Objects)
+		//{
+		//	o->SetReflective(1.f);
+		//}
+
+		m_Lights.push_back({ 10,30,0 });
 	}
+	else if (m == 2)
+	{
+		Plane* pTest = new Plane();
+		pTest->SetPosition({ 0, -5, 0 });
+		pTest->SetReflective(.3f);
+		m_Objects.push_back(pTest);
+		pTest = new Plane();
+		pTest->SetPosition({ 0,50,0 });
+		pTest->SetBaseColor(Color(0, 0, 128));
+		m_Objects.push_back(pTest);
 
-	m_Objects[2]->SetTransparent(.5f);
-	m_Objects[6]->SetReflective(.2f);
-	m_Objects[6]->SetTransparent(.2f);
-	m_Objects[1]->SetReflective(.99f);
-	m_Objects[4]->SetReflective(1.f);
-	Plane* pTest = new Plane();
-	pTest->SetPosition({ 0, -5, 0 });
-	pTest->SetReflective(.1f);
-	m_Objects.push_back(pTest);
+		Sphere* s = nullptr;
+		for (int i = 0; i <= 15; ++i)
+		{
+			s = new Sphere(Vec3(cos(2 * M_PI / 15 * i) * 9, -4, sin(2 * M_PI / 15 * i) * 9 + 20), 1.5f, Color(rand() % 255, rand() % 255, rand() % 255));
+			s->SetReflective(.8f);
+			s->SetMetallic(true);
+			s->SetRefractive(1.5f);
+			s->SetTransparent(.8f);
+			m_Objects.push_back(s);
 
-	pTest = new Plane();
-	pTest->SetPosition({ 0,50,0 });
-	pTest->SetBaseColor(Color(255, 0, 0));
-	m_Objects.push_back(pTest);
+			s = new Sphere(Vec3(cos(2 * M_PI / 15 * i) * 9, 4, sin(2 * M_PI / 15 * i) * 9 + 20), 1.5f, Color(rand() % 255, rand() % 255, rand() % 255));
+			s->SetReflective(.8f);
+			s->SetMetallic(true);
+			s->SetRefractive(1.5f);
+			s->SetTransparent(.8f);
+			m_Objects.push_back(s);
+		}
+		s = new Sphere(Vec3(0, 0, 20), 3.f, Color(rand() % 255, rand() % 255, rand() % 255));
+		s->SetReflective(.8f);
+		s->SetMetallic(true);
+		//s->SetRefrafractive(1.5f);
+		s->SetTransparent(.8f);
+		m_Objects.push_back(s);
 
-	m_Objects.push_back(new AABox(Vec3(-5, -.5, 20), 7, 7, 8));
-	m_Objects.back()->SetReflective(.85f);
-	m_Objects.back()->SetBaseColor(Color(255, 215, 0));
-	//m_Objects.push_back(new AABox(Vec3(-1, -3.5, 20), 5, 2, 5));
-	m_Objects.push_back(new AABox(Vec3(5, 0, 20), 5, 6.5, 5, Color(29, 108, 129)));
+		m_Lights.push_back({ 7,0,20 });
+	}
+	else if (m == 3)
+	{
+		Plane* pTest = new Plane();
+		pTest->SetPosition({ 0, -5, 0 });
+		pTest->SetReflective(.3f);
+		m_Objects.push_back(pTest);
+		pTest = new Plane();
+		pTest->SetPosition({ 0,50,0 });
+		pTest->SetBaseColor(Color(0, 0, 128));
+		m_Objects.push_back(pTest);
 
+		Sphere* s = new Sphere(Vec3(0, -2, 20), 3.f, Color(255));
+		s->SetTransparent(1.f);
+		s->SetRefractive(1.5f);
+		m_Objects.push_back(s);
+		
+		s = new Sphere(Vec3(2, -2, 27), 2.f, Color(255,0,0));
+		m_Objects.push_back(s);
 
-	//for (auto o : m_Objects)
-	//{
-	//	o->SetReflective(1.f);
-	//}
-
-	m_Lights.push_back({ 10,30,0 });
+		m_Lights.push_back({ 10,30,0 });
+	}
 }

@@ -1,6 +1,7 @@
 #include "Renderer.h"
 #include <iostream>
 #include <SDL_stdinc.h>
+#include "SDL.h"
 
 Renderer::Renderer()
 {
@@ -77,7 +78,6 @@ void Renderer::RenderScene()
 			//Generate ray from camera to pixel
 			Vec3 rayDir = CalculateCameraRay(rX, rY, camAngleTan, ar);
 
-			float hitDistance = -1.f;
 			Vec3 orgHitPoint, orgHitNormal;
 			Object* closestObj = Trace(sceneCam->GetPosition(), rayDir, orgHitPoint, orgHitNormal);
 
@@ -87,6 +87,7 @@ void Renderer::RenderScene()
 			{
 				m_ReflectionDepth = 0;
 				m_TransparancyDepth = 0;
+				m_RefractionDepth = 0;
 				m_Pixels[pixelIndex] = GetHitColor(closestObj, orgHitPoint, rayDir);
 			}
 			//On miss clear pixel
@@ -154,10 +155,36 @@ Color Renderer::GetHitColor(Object* co, Vec3 hitPos, const Vec3& rayDir)
 
 	float diffuseIntensity = Math::CalculateDiffuseIntensity(toLight, -rayDir, hitNormal, .15f);
 
+	//Transparancy
+	float transp = co->GetTransparancy();
+	if (transp > 0)
+	{
+		Vec3 direction = rayDir;
+		Vec3 transHit, transNorm;
+		float ior = co->GetRefractive();
+		if (abs(ior - 1.f) > 1e-5)
+		{
+			float ior2 = co->GetRefractive();
+
+			direction = rayDir.Refract(ior2, hitNormal);
+		}
+		Object* transObj = Trace(hitPos, direction, transHit, transNorm, co);
+		//maybe this should go in if?
+		pixelColor *= 1 - transp;
+		if (transObj != nullptr && m_TransparancyDepth < m_MaxDetph)
+		{
+			++m_TransparancyDepth;
+			diffuseIntensity += transp;
+			Color transCol = GetHitColor(transObj, transHit, rayDir);
+			pixelColor = pixelColor.ClampAdd(transCol * transp);
+		}
+	}
+
 	//Reflection
 	float refl = co->GetReflective();
 	if (refl > 0.f)
 	{
+		//inverse ray so reflection will be going away from object
 		auto invRay = -rayDir;
 		auto reflectedRay = invRay.ReflectAround(hitNormal);
 		Vec3 reflHit, reflNorm;
@@ -165,29 +192,12 @@ Color Renderer::GetHitColor(Object* co, Vec3 hitPos, const Vec3& rayDir)
 		if (reflectedObj != nullptr && m_ReflectionDepth < m_MaxDetph)
 		{
 			++m_ReflectionDepth;
+			//mix own and reflected color
 			pixelColor *= 1 - refl;
 			Color reflCol = GetHitColor(reflectedObj, reflHit, reflectedRay);
-			//reflCol *= Math::CalculateDiffuseIntensity((light - reflHit).Normalized(), reflectedRay, reflNorm, .15f);
 			pixelColor += reflCol * refl;
 		}
-	}
-
-	//Transparancy
-	float transp = co->GetTransparancy();
-	if (transp > 0)
-	{
-		Vec3 transHit, transNorm;
-		Object* transObj = Trace(hitPos, rayDir, transHit, transNorm, co);
-		//maybe this should go in if?
-		pixelColor *= 1 - transp;
-		if (transObj != nullptr && m_TransparancyDepth < m_MaxDetph)
-		{
-			++m_TransparancyDepth;
-			diffuseIntensity += transp;
-			Color transCol = GetHitColor(transObj, transHit, rayDir);//transObj->GetBaseColor();
-			pixelColor = pixelColor.ClampAdd(transCol * transp);
-		}
-	}
+	}	
 
 	//shadow
 	Vec3 sh, sn;
@@ -198,7 +208,7 @@ Color Renderer::GetHitColor(Object* co, Vec3 hitPos, const Vec3& rayDir)
 	if (cs != nullptr && cs != co)
 	{
 		if ((sh - shadowStart).Length2() < (light - hitPos).Length2())
-			shadowFactor = m_ShadowIntensity;
+			shadowFactor = m_ShadowIntensity;// / cs->GetTransparancy();
 	}
 
 	//Diffuse color
@@ -206,14 +216,14 @@ Color Renderer::GetHitColor(Object* co, Vec3 hitPos, const Vec3& rayDir)
 	pixelColor *= diffuseIntensity;
 
 	//specular
-	if (shadowFactor < 1.f)
+	if (shadowFactor > .1f)
 	{
 		auto halfVec = (toLight + -rayDir).Normalize();
 		float specStrength = Math::Clamp(hitNormal.Dot(halfVec));
 		specStrength = pow(specStrength, 50);
-		Color specColor = Color(255) * specStrength;
+		Color specColor = co->GetSpecColor() * specStrength * (1 - transp);
 		pixelColor = pixelColor.ClampAdd(specColor);
 	}
-
+	//pixelColor = Color(shadowFactor * 255);
 	return pixelColor * shadowFactor;
 }
