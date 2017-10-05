@@ -32,7 +32,7 @@ void Renderer::Close()
 
 void Renderer::SetBlockCount(const int bc)
 {
-	//divide rendertexture in blocks from which you choose random pixels -> faster result
+	//divide rendertexture in blocks from which you choose random pixels -> faster visual result
 	m_BlockCount = bc;
 	m_RegionSize.x = m_RenderWidth / static_cast<float>(bc);
 	m_RegionSize.y = m_RenderHeight / static_cast<float>(bc);
@@ -152,7 +152,6 @@ Color Renderer::GetHitColor(Object* co, Vec3 hitPos, const Vec3& rayDir)
 	Vec3 toLight = (light - hitPos).Normalized();
 	auto hitNormal = co->GetNormalOnHit(hitPos);
 
-
 	float diffuseIntensity = Math::CalculateDiffuseIntensity(toLight, -rayDir, hitNormal, .15f);
 
 	//Transparancy
@@ -161,21 +160,21 @@ Color Renderer::GetHitColor(Object* co, Vec3 hitPos, const Vec3& rayDir)
 	{
 		Vec3 direction = rayDir;
 		Vec3 transHit, transNorm;
+		//refract ray direction if necessary
 		float ior = co->GetRefractive();
 		if (abs(ior - 1.f) > 1e-5)
 		{
-			float ior2 = co->GetRefractive();
-
-			direction = rayDir.Refract(ior2, hitNormal);
+			direction = rayDir.Refract(ior, hitNormal);
 		}
+		//Trace further to get transparancy color
 		Object* transObj = Trace(hitPos, direction, transHit, transNorm, co);
-		//maybe this should go in if?
-		pixelColor *= 1 - transp;
 		if (transObj != nullptr && m_TransparancyDepth < m_MaxDetph)
 		{
 			++m_TransparancyDepth;
+			//adjust color
 			diffuseIntensity += transp;
-			Color transCol = GetHitColor(transObj, transHit, rayDir);
+			pixelColor *= 1 - transp;
+			Color transCol = GetHitColor(transObj, transHit, direction);
 			pixelColor = pixelColor.ClampAdd(transCol * transp);
 		}
 	}
@@ -184,9 +183,8 @@ Color Renderer::GetHitColor(Object* co, Vec3 hitPos, const Vec3& rayDir)
 	float refl = co->GetReflective();
 	if (refl > 0.f)
 	{
-		//inverse ray so reflection will be going away from object
-		auto invRay = -rayDir;
-		auto reflectedRay = invRay.ReflectAround(hitNormal);
+		//reflect incoming ray
+		auto reflectedRay = rayDir.ReflectAround(hitNormal);
 		Vec3 reflHit, reflNorm;
 		Object* reflectedObj = Trace(hitPos, reflectedRay, reflHit, reflNorm, co);
 		if (reflectedObj != nullptr && m_ReflectionDepth < m_MaxDetph)

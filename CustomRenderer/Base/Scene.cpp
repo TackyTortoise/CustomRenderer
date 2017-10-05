@@ -6,7 +6,7 @@
 
 Scene::Scene()
 {
-	LoadTestScene(2);
+	LoadTestScene(3);
 }
 
 
@@ -102,22 +102,22 @@ void Scene::LoadTestScene(int m)
 			s = new Sphere(Vec3(cos(2 * M_PI / 15 * i) * 9, -4, sin(2 * M_PI / 15 * i) * 9 + 20), 1.5f, Color(rand() % 255, rand() % 255, rand() % 255));
 			s->SetReflective(.8f);
 			s->SetMetallic(true);
-			s->SetRefractive(1.5f);
-			s->SetTransparent(.8f);
+			//s->SetRefractive(1.5f);
+			//s->SetTransparent(1.f);
 			m_Objects.push_back(s);
 
 			s = new Sphere(Vec3(cos(2 * M_PI / 15 * i) * 9, 4, sin(2 * M_PI / 15 * i) * 9 + 20), 1.5f, Color(rand() % 255, rand() % 255, rand() % 255));
 			s->SetReflective(.8f);
 			s->SetMetallic(true);
-			s->SetRefractive(1.5f);
-			s->SetTransparent(.8f);
+			//s->SetRefractive(1.5f);
+			//s->SetTransparent(1.f);
 			m_Objects.push_back(s);
 		}
 		s = new Sphere(Vec3(0, 0, 20), 3.f, Color(rand() % 255, rand() % 255, rand() % 255));
 		s->SetReflective(.8f);
 		s->SetMetallic(true);
-		//s->SetRefrafractive(1.5f);
-		s->SetTransparent(.8f);
+		//s->SetRefractive(1.5f);
+		//s->SetTransparent(1.f);
 		m_Objects.push_back(s);
 
 		m_Lights.push_back({ 7,0,20 });
@@ -125,22 +125,82 @@ void Scene::LoadTestScene(int m)
 	else if (m == 3)
 	{
 		Plane* pTest = new Plane();
-		pTest->SetPosition({ 0, -5, 0 });
-		pTest->SetReflective(.3f);
+		pTest->SetPosition({ 0, -20, 0 });
+		pTest->SetBaseColor(Color(200, 200, 0));
+		//pTest->SetReflective(.3f);
 		m_Objects.push_back(pTest);
 		pTest = new Plane();
-		pTest->SetPosition({ 0,50,0 });
-		pTest->SetBaseColor(Color(0, 0, 128));
+		pTest->SetPosition({ 0,20,0 });
+		pTest->SetBaseColor(Color(0, 200, 0));
+		m_Objects.push_back(pTest);		
+
+		pTest = new Plane;
+		pTest->SetPosition({ 20,0,0 });
+		pTest->SetNormal({ -1,0,0 });
+		pTest->SetBaseColor(Color(0, 0, 200));
 		m_Objects.push_back(pTest);
 
-		Sphere* s = new Sphere(Vec3(0, -2, 20), 3.f, Color(255));
-		s->SetTransparent(1.f);
-		s->SetRefractive(1.5f);
-		m_Objects.push_back(s);
-		
-		s = new Sphere(Vec3(2, -2, 27), 2.f, Color(255,0,0));
+		pTest = new Plane;
+		pTest->SetPosition({ -20,0,0 });
+		pTest->SetNormal({ 1,0,0 });
+		pTest->SetBaseColor(Color(200, 0, 0));
+		m_Objects.push_back(pTest);
+
+		pTest = new Plane;
+		pTest->SetPosition({ 0,0,100 });
+		pTest->SetNormal({ 0,0,-1 });
+		pTest->SetBaseColor(Color(20));
+		m_Objects.push_back(pTest);
+
+
+		Sphere* s = new Sphere(Vec3(0, 0, 25), 3.f, Color(255));
+		s->SetTransparent(1.0f);
+		s->SetRefractive(1.52f);
 		m_Objects.push_back(s);
 
-		m_Lights.push_back({ 10,30,0 });
+		s = new Sphere(Vec3(6, 4, 30), 3.f, Color(255));
+		s->SetTransparent(1.0f);
+		s->SetRefractive(1.52f);
+		m_Objects.push_back(s);
+
+		s = new Sphere(Vec3(-6, 4, 30), 3.f, Color(255));
+		s->SetTransparent(1.0f);
+		s->SetRefractive(1.52f);
+		m_Objects.push_back(s);
+
+		s = new Sphere(Vec3(6, -4, 30), 3.f, Color(255));
+		s->SetTransparent(1.0f);
+		s->SetRefractive(1.52f);
+		m_Objects.push_back(s);
+
+		s = new Sphere(Vec3(-6, -4, 30), 3.f, Color(255));
+		s->SetTransparent(1.0f);
+		s->SetRefractive(1.52f);
+		m_Objects.push_back(s);
+
+
+
+
+		s = new Sphere(Vec3(6, 4, 20), 3.f, Color(255));
+		s->SetTransparent(1.0f);
+		s->SetRefractive(1.52f);
+		m_Objects.push_back(s);
+
+		s = new Sphere(Vec3(-6, 4, 20), 3.f, Color(255));
+		s->SetTransparent(1.0f);
+		s->SetRefractive(1.52f);
+		m_Objects.push_back(s);
+
+		s = new Sphere(Vec3(6, -4, 20), 3.f, Color(255));
+		s->SetTransparent(1.0f);
+		s->SetRefractive(1.52f);
+		m_Objects.push_back(s);
+
+		s = new Sphere(Vec3(-6, -4, 20), 3.f, Color(255));
+		s->SetTransparent(1.0f);
+		s->SetRefractive(1.52f);
+		m_Objects.push_back(s);
+
+		m_Lights.push_back({ 0,0,40 });
 	}
 }

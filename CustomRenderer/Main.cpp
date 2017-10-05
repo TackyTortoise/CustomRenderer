@@ -39,7 +39,7 @@ int main(int argc, char* argv[])
 	SDL_RenderClear(renderer);
 
 	//supersampling settings
-	const float downScaling = 1.f;
+	const float downScaling = 1 / 1;
 	const unsigned int texWidth = static_cast<int>(screenWidth / downScaling);
 	const unsigned int texHeight = static_cast<int>(screenHeight / downScaling);
 

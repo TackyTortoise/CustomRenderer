@@ -77,36 +77,17 @@ public:
 
 	Vec3 ReflectAround(const Vec3& axis) const
 	{
-		auto normAxis = axis.Normalized();
-		auto normThis = (*this).Normalized();
-		auto d = normThis.Dot(normAxis);
-		auto adjustedAxis = normAxis * d;
-		auto between = normThis - adjustedAxis;
-		auto result = adjustedAxis - between;
-		result *= Length();
-		return result;
+		auto i = *this;
+		return i + axis * - 2 * i.Dot(axis);
 	}
 
 	Vec3 Refract(float ior, Vec3 normal) const
 	{
 		auto rayDir = *this;
+		float ct = -rayDir.Dot(normal);
 		float i1 = 1, i2 = ior;
-		Vec3 norm = normal;
-		float ct = norm.Dot(rayDir);
-
-		if (ct < 0)
-		{
-			ct = -ct;
-		}
-		else
-		{
-			norm = -norm;
-			auto i1Copy = i1;
-			i1 = i2;
-			i2 = i1Copy;
-		}
 		auto refCoef = i1 / i2;
-		auto refRay = rayDir * refCoef + normal * (refCoef * ct - sqrt(1 - pow(refCoef, 2) * (1 - ct)));
+		Vec3 refRay = rayDir * refCoef + normal * (refCoef * ct - sqrt(1 - pow(refCoef, 2) * (1 - pow(ct, 2))));
 		return refRay.Normalized();
 	}
 };
