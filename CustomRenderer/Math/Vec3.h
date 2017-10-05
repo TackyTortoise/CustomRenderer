@@ -17,8 +17,6 @@ public:
 
 	Vec3 operator/ (const Vec3& o) const {return Vec3(x / o.x, y / o.y, z / o.x);}
 
-	float Dot(const Vec3& o) const {return x * o.x + y * o.y + z * o.z;}
-
 	Vec3 operator+(const Vec3& o) const {return Vec3(x + o.x, y + o.y, z + o.z);}
 
 	Vec3 operator-(const Vec3& o) const { return Vec3(x - o.x, y - o.y, z - o.z);}
@@ -66,6 +64,17 @@ public:
 	{
 		Vec3 r = *this;
 		r.Normalize();
+		return r;
+	}
+
+	float Dot(const Vec3& o) const { return x * o.x + y * o.y + z * o.z; }
+
+	Vec3 Cross(const Vec3& o) const
+	{
+		Vec3 r;
+		r.x = y * o.z - z * o.y;
+		r.y = z * o.x - x * o.z;
+		r.z = x * o.y - y * o.x;
 		return r;
 	}
 

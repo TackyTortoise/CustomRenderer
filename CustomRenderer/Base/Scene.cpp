@@ -6,7 +6,7 @@
 
 Scene::Scene()
 {
-	LoadTestScene(1);
+	LoadTestScene(3);
 }
 
 
