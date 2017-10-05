@@ -6,7 +6,7 @@
 
 Scene::Scene()
 {
-	LoadTestScene(3);
+	LoadTestScene(1);
 }
 
 
@@ -152,55 +152,55 @@ void Scene::LoadTestScene(int m)
 		pTest->SetBaseColor(Color(20));
 		m_Objects.push_back(pTest);
 
+		float rv = 1.52f;
 
+		//refractive ball center
 		Sphere* s = new Sphere(Vec3(0, 0, 25), 3.f, Color(255));
 		s->SetTransparent(1.0f);
-		s->SetRefractive(1.52f);
+		s->SetRefractive(rv);
 		m_Objects.push_back(s);
-
+		//refractive top 
 		s = new Sphere(Vec3(6, 4, 30), 3.f, Color(255));
 		s->SetTransparent(1.0f);
-		s->SetRefractive(1.52f);
+		s->SetRefractive(rv);
 		m_Objects.push_back(s);
 
 		s = new Sphere(Vec3(-6, 4, 30), 3.f, Color(255));
 		s->SetTransparent(1.0f);
-		s->SetRefractive(1.52f);
+		s->SetRefractive(rv);
 		m_Objects.push_back(s);
 
 		s = new Sphere(Vec3(6, -4, 30), 3.f, Color(255));
 		s->SetTransparent(1.0f);
-		s->SetRefractive(1.52f);
+		s->SetRefractive(rv);
 		m_Objects.push_back(s);
 
 		s = new Sphere(Vec3(-6, -4, 30), 3.f, Color(255));
 		s->SetTransparent(1.0f);
-		s->SetRefractive(1.52f);
+		s->SetRefractive(rv);
 		m_Objects.push_back(s);
-
-
-
-
+		
+		//refractive bottom
 		s = new Sphere(Vec3(6, 4, 20), 3.f, Color(255));
 		s->SetTransparent(1.0f);
-		s->SetRefractive(1.52f);
+		s->SetRefractive(rv);
 		m_Objects.push_back(s);
 
 		s = new Sphere(Vec3(-6, 4, 20), 3.f, Color(255));
 		s->SetTransparent(1.0f);
-		s->SetRefractive(1.52f);
+		s->SetRefractive(rv);
 		m_Objects.push_back(s);
 
 		s = new Sphere(Vec3(6, -4, 20), 3.f, Color(255));
 		s->SetTransparent(1.0f);
-		s->SetRefractive(1.52f);
+		s->SetRefractive(rv);
 		m_Objects.push_back(s);
 
 		s = new Sphere(Vec3(-6, -4, 20), 3.f, Color(255));
 		s->SetTransparent(1.0f);
-		s->SetRefractive(1.52f);
+		s->SetRefractive(rv);
 		m_Objects.push_back(s);
-
+		
 		m_Lights.push_back({ 0,0,40 });
 	}
 }

@@ -19,8 +19,10 @@ public:
 
 private:
 	Object* Trace(const Vec3& rayOrg, const Vec3& rayDir, Vec3& hitPoint, Vec3& hitNormal, Object* ignoreObject = nullptr, bool keepIgnoreDistance = false);
-	const Vec3 CalculateCameraRay(float x, float y, float camTan, float aspectRatio) const;
+	//const Vec3 CalculateCameraRay(float x, float y, float camTan, float aspectRatio) const;
 	Color GetHitColor(Object* co, Vec3 hitPos, const Vec3& rayDir);
+
+	Color GetReflection(const Vec3& rayDir, Vec3& hitPoint, Vec3& hitNormal);
 
 	const Scene* m_ActiveScene = nullptr;
 	Object*const* m_RenderObjects = nullptr;

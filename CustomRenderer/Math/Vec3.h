@@ -74,20 +74,4 @@ public:
 		str << "[ " << v.x << ", " << v.y << ", " << v.z << " ]";
 		return str;
 	}
-
-	Vec3 ReflectAround(const Vec3& axis) const
-	{
-		auto i = *this;
-		return i + axis * - 2 * i.Dot(axis);
-	}
-
-	Vec3 Refract(float ior, Vec3 normal) const
-	{
-		auto rayDir = *this;
-		float ct = -rayDir.Dot(normal);
-		float i1 = 1, i2 = ior;
-		auto refCoef = i1 / i2;
-		Vec3 refRay = rayDir * refCoef + normal * (refCoef * ct - sqrt(1 - pow(refCoef, 2) * (1 - pow(ct, 2))));
-		return refRay.Normalized();
-	}
 };

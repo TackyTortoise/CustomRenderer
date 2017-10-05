@@ -76,7 +76,7 @@ void Renderer::RenderScene()
 			} while (rY >= m_RenderHeight);
 
 			//Generate ray from camera to pixel
-			Vec3 rayDir = CalculateCameraRay(rX, rY, camAngleTan, ar);
+			Vec3 rayDir = sceneCam->GetCameraRay(rX, rY, m_RenderWidth, m_RenderHeight);
 
 			Vec3 orgHitPoint, orgHitNormal;
 			Object* closestObj = Trace(sceneCam->GetPosition(), rayDir, orgHitPoint, orgHitNormal);
@@ -131,20 +131,6 @@ Object* Renderer::Trace(const Vec3& rayOrg, const Vec3& rayDir, Vec3& hitPoint, 
 	return closeObject;
 }
 
-const Vec3 Renderer::CalculateCameraRay(float x, float y, float camTan, float aspectRatio) const
-{
-	//transform pixel to camera space
-	float cX = (2 * ((x + .5f) / m_RenderWidth) - 1) * camTan * aspectRatio;
-	float cY = (1 - 2 * ((y + .5f) / m_RenderHeight)) * camTan;
-
-	//create ray from camera to pixel
-	Vec3 rayOrg(0); //start from camera position 0,0,0
-	Vec3 rayDir = Vec3(cX, cY, 1.f) - rayOrg;
-	//multiply with camtoworld if cam is not in 0 transform
-	rayDir.Normalize();
-	return rayDir;
-}
-
 Color Renderer::GetHitColor(Object* co, Vec3 hitPos, const Vec3& rayDir)
 {
 	Color pixelColor = co->GetBaseColor();
@@ -162,9 +148,12 @@ Color Renderer::GetHitColor(Object* co, Vec3 hitPos, const Vec3& rayDir)
 		Vec3 transHit, transNorm;
 		//refract ray direction if necessary
 		float ior = co->GetRefractive();
-		if (abs(ior - 1.f) > 1e-5)
+		bool refractive = abs(co->GetRefractive()) - 1.f > 1e-5;
+		float schlick = 0.f;
+		if (refractive)
 		{
-			direction = rayDir.Refract(ior, hitNormal);
+			direction = Math::RefractVector(1.f, ior, direction, hitNormal);
+			schlick = Math::GetSchlick(rayDir, hitNormal, 1.f, ior);
 		}
 		//Trace further to get transparancy color
 		Object* transObj = Trace(hitPos, direction, transHit, transNorm, co);
@@ -174,7 +163,12 @@ Color Renderer::GetHitColor(Object* co, Vec3 hitPos, const Vec3& rayDir)
 			//adjust color
 			diffuseIntensity += transp;
 			pixelColor *= 1 - transp;
-			Color transCol = GetHitColor(transObj, transHit, direction);
+			Color transCol = GetHitColor(transObj, transHit, direction) * (1 - schlick);
+			if (refractive)
+			{
+				Color reflectionColor = GetReflection(rayDir, hitPos, hitNormal);
+				transCol += reflectionColor * schlick;
+			}
 			pixelColor = pixelColor.ClampAdd(transCol * transp);
 		}
 	}
@@ -183,18 +177,9 @@ Color Renderer::GetHitColor(Object* co, Vec3 hitPos, const Vec3& rayDir)
 	float refl = co->GetReflective();
 	if (refl > 0.f)
 	{
-		//reflect incoming ray
-		auto reflectedRay = rayDir.ReflectAround(hitNormal);
-		Vec3 reflHit, reflNorm;
-		Object* reflectedObj = Trace(hitPos, reflectedRay, reflHit, reflNorm, co);
-		if (reflectedObj != nullptr && m_ReflectionDepth < m_MaxDetph)
-		{
-			++m_ReflectionDepth;
-			//mix own and reflected color
-			pixelColor *= 1 - refl;
-			Color reflCol = GetHitColor(reflectedObj, reflHit, reflectedRay);
-			pixelColor += reflCol * refl;
-		}
+		pixelColor *= 1 - refl;
+		Color reflCol = GetReflection(rayDir, hitPos, hitNormal);
+		pixelColor += reflCol * refl;
 	}	
 
 	//shadow
@@ -206,7 +191,7 @@ Color Renderer::GetHitColor(Object* co, Vec3 hitPos, const Vec3& rayDir)
 	if (cs != nullptr && cs != co)
 	{
 		if ((sh - shadowStart).Length2() < (light - hitPos).Length2())
-			shadowFactor = m_ShadowIntensity;// / cs->GetTransparancy();
+			shadowFactor = m_ShadowIntensity;
 	}
 
 	//Diffuse color
@@ -224,4 +209,18 @@ Color Renderer::GetHitColor(Object* co, Vec3 hitPos, const Vec3& rayDir)
 	}
 	//pixelColor = Color(shadowFactor * 255);
 	return pixelColor * shadowFactor;
+}
+
+Color Renderer::GetReflection(const Vec3& rayDir, Vec3& hitPoint, Vec3& hitNormal)
+{
+	//reflect incoming ray
+	auto reflectedRay = Math::ReflectVector(rayDir, hitNormal);
+	Vec3 reflHit, reflNorm;
+	Object* reflectedObj = Trace(hitPoint, reflectedRay, reflHit, reflNorm);
+	if (reflectedObj != nullptr && m_ReflectionDepth < m_MaxDetph)
+	{
+		++m_ReflectionDepth;
+		return GetHitColor(reflectedObj, reflHit, reflectedRay);
+	}
+	return Color(0);
 }
