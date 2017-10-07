@@ -36,8 +36,10 @@ private:
 
 	Color m_ClearColor = Color(12, 12, 12);
 
-	const float m_ShadowIntensity = .2f;
+	const float m_ShadowIntensity = .8f;
 	const char m_MaxDetph = 10;
 	short m_ReflectionDepth = 0, m_TransparancyDepth = 0, m_RefractionDepth = 0;
+
+	const int m_ShadowSamples = 4;
 };
 

@@ -27,7 +27,7 @@ public:
 	}
 
 private:
-	Vec3 m_Position = Vec3(0);
+	Vec3 m_Position = Vec3::zero;
 	float m_Fov = 60.f;
 	float m_AspectRatio = 0.f;
 	float m_CamTan = 0.f;

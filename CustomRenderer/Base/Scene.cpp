@@ -3,10 +3,11 @@
 #include "../Objects/Plane.h"
 #include "../Objects/AABox.h"
 #include <SDL_stdinc.h>
+#include "../Objects/Triangle.h"
 
 Scene::Scene()
 {
-	LoadTestScene(3);
+	LoadTestScene(1);
 }
 
 
@@ -16,6 +17,12 @@ Scene::~Scene()
 	{
 		delete m_Objects[i];
 		m_Objects[i] = nullptr;
+	}
+
+	for (int i = 0; i <m_Lights.size(); ++i)
+	{
+		delete m_Lights[i];
+		m_Lights[i] = nullptr;
 	}
 
 	delete m_Camera;
@@ -83,7 +90,7 @@ void Scene::LoadTestScene(int m)
 		//	o->SetReflective(1.f);
 		//}
 
-		m_Lights.push_back({ 10,30,0 });
+		m_Lights.push_back(new Light({10,30,0}, {0,-1,0}, 4,4));
 	}
 	else if (m == 2)
 	{
@@ -120,7 +127,7 @@ void Scene::LoadTestScene(int m)
 		//s->SetTransparent(1.f);
 		m_Objects.push_back(s);
 
-		m_Lights.push_back({ 7,0,20 });
+		m_Lights.push_back(new Light({ 7,0,20 }, { 0,-1,0 }, 2, 1));
 	}
 	else if (m == 3)
 	{
@@ -201,6 +208,13 @@ void Scene::LoadTestScene(int m)
 		s->SetRefractive(rv);
 		m_Objects.push_back(s);
 		
-		m_Lights.push_back({ 0,0,40 });
+		m_Lights.push_back(new Light({ 0,0,40 }, { 0,-1,0 }, 2, 1));
+	}
+	else if (m == 4)
+	{
+		Triangle* t = new Triangle(Vec3(-5, -3, 20), Vec3(0, 3, 30), Vec3(5, -3, 20));
+		m_Objects.push_back(t);
+
+		m_Lights.push_back(new Light({ 15,15,0 }, { 0,-1,0 }, 2, 1));
 	}
 }

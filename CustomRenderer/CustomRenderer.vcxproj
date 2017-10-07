@@ -126,14 +126,18 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="Base\Light.cpp" />
+    <ClCompile Include="Math\Vec3.cpp" />
     <ClCompile Include="Objects\AABox.cpp" />
     <ClCompile Include="Main.cpp" />
     <ClCompile Include="Objects\Plane.cpp" />
     <ClCompile Include="Objects\Sphere.cpp" />
     <ClCompile Include="Base\Scene.cpp" />
     <ClCompile Include="Base\Renderer.cpp" />
+    <ClCompile Include="Objects\Triangle.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="Base\Light.h" />
     <ClInclude Include="Objects\AABox.h" />
     <ClInclude Include="Base\Camera.h" />
     <ClInclude Include="Math\Color.h" />
@@ -145,6 +149,7 @@
     <ClInclude Include="Math\Vec3.h" />
     <ClInclude Include="Base\Scene.h" />
     <ClInclude Include="Base\Renderer.h" />
+    <ClInclude Include="Objects\Triangle.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

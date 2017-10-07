@@ -2,6 +2,7 @@
 #include <vector>
 #include "../Objects/Object.h"
 #include "Camera.h"
+#include "Light.h"
 
 class Scene
 {
@@ -13,14 +14,14 @@ public:
 	Camera* GetCamera() const { return m_Camera; }
 
 	const std::vector<Object*>& GetObjectPointer() const { return m_Objects; }
-	const std::vector<Vec3> GetLights() const { return m_Lights; }
+	const std::vector<Light*> GetLights() const { return m_Lights; }
 
 private:
 	void LoadTestScene(int num);
 
 	Camera* m_Camera = nullptr;
 	std::vector<Object*> m_Objects;
-	std::vector<Vec3> m_Lights;
+	std::vector<Light*> m_Lights;
 	Color m_BackGroundColor = Color(0);
 };
 

@@ -40,7 +40,7 @@ int main(int argc, char* argv[])
 
 	//supersampling settings
 	const float downScaling = 1 / 1;
-	const int blockCount = 75;
+	const int blockCount = 45;
 	const unsigned int texWidth = static_cast<int>(screenWidth / downScaling);
 	const unsigned int texHeight = static_cast<int>(screenHeight / downScaling);
 

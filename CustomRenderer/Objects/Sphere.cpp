@@ -1,9 +1,9 @@
 #include "Sphere.h"
 #include <iostream>
 
-Sphere::Sphere() : m_Radius(0), m_Radius2(0)//, m_Color(Color(0,0,0))
+Sphere::Sphere() : m_Radius(0), m_Radius2(0)
 {
-	m_Position = Vec3(0);
+	m_Position = Vec3::zero;
 	m_Color = Color(0, 0, 0);
 }
 

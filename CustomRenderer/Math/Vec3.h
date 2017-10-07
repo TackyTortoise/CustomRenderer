@@ -83,4 +83,6 @@ public:
 		str << "[ " << v.x << ", " << v.y << ", " << v.z << " ]";
 		return str;
 	}
+
+	static Vec3 zero;
 };

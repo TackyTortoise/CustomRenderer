@@ -85,9 +85,7 @@ void Renderer::RenderScene()
 			//On object hit Color it
 			if (closestObj != nullptr)
 			{
-				m_ReflectionDepth = 0;
-				m_TransparancyDepth = 0;
-				m_RefractionDepth = 0;
+				m_ReflectionDepth = m_TransparancyDepth = m_RefractionDepth = 0;
 				m_Pixels[pixelIndex] = GetHitColor(closestObj, orgHitPoint, rayDir);
 			}
 			//On miss clear pixel
@@ -135,7 +133,8 @@ Color Renderer::GetHitColor(Object* co, Vec3 hitPos, const Vec3& rayDir)
 {
 	Color pixelColor = co->GetBaseColor();
 	auto light = m_ActiveScene->GetLights()[0];
-	Vec3 toLight = (light - hitPos).Normalized();
+	auto lightPos = light->GetPosition();
+	Vec3 toLight = (lightPos - hitPos).Normalized();
 	auto hitNormal = co->GetNormalOnHit(hitPos);
 
 	float diffuseIntensity = Math::CalculateDiffuseIntensity(toLight, -rayDir, hitNormal, .15f);
@@ -187,11 +186,35 @@ Color Renderer::GetHitColor(Object* co, Vec3 hitPos, const Vec3& rayDir)
 	float shadowFactor = 1.f;
 	auto shadowStart = hitPos + toLight * 0.01f;
 	Object* cs = nullptr;
-	cs = Trace(shadowStart, toLight, sh, sn);
-	if (cs != nullptr && cs != co)
+	//soft shadows
+	if (m_ShadowSamples > 1)
 	{
-		if ((sh - shadowStart).Length2() < (light - hitPos).Length2())
-			shadowFactor = m_ShadowIntensity;
+		float shadowSum = 0.f;
+		for (int i = 0; i < m_ShadowSamples; ++i)
+		{
+			auto shadowRay = (light->GetPointInAreaLight() - hitPos).Normalized();
+			cs = Trace(shadowStart, shadowRay, sh, sn);
+			if (cs != nullptr && cs != co)
+			{
+				if ((sh - shadowStart).Length2() < (lightPos - hitPos).Length2())
+					shadowSum += m_ShadowIntensity * shadowRay.Dot(hitNormal);
+			}
+		}
+		shadowSum /= m_ShadowSamples;
+		if (shadowSum > 0.f)
+		{
+			shadowFactor = 1.f - shadowSum;
+		}
+	}
+	//hard shadows
+	else
+	{
+		cs = Trace(shadowStart, toLight, sh, sn);
+		if (cs != nullptr && cs != co)
+		{
+			if ((sh - shadowStart).Length2() < (lightPos - hitPos).Length2())
+				shadowFactor = 1 - m_ShadowIntensity;
+		}
 	}
 
 	//Diffuse color
