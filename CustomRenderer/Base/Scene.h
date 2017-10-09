@@ -14,7 +14,7 @@ public:
 	Camera* GetCamera() const { return m_Camera; }
 
 	const std::vector<Object*>& GetObjectPointer() const { return m_Objects; }
-	const std::vector<Light*> GetLights() const { return m_Lights; }
+	std::vector<Light*> GetLights() const { return m_Lights; }
 
 private:
 	void LoadTestScene(int num);

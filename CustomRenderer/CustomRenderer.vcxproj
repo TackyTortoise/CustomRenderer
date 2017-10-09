@@ -69,10 +69,11 @@
   </ImportGroup>
   <PropertyGroup Label="UserMacros" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
-    <IncludePath>C:\AdditionalLibraries\SDL2\include;$(IncludePath)</IncludePath>
+    <IncludePath>C:\AdditionalLibraries\Assimp\include;C:\AdditionalLibraries\SDL2\include;$(IncludePath)</IncludePath>
+    <LibraryPath>$(VC_LibraryPath_x86);$(WindowsSDK_LibraryPath_x86);$(NETFXKitsDir)Lib\um\x86</LibraryPath>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
-    <IncludePath>C:\AdditionalLibraries\SDL2\include;$(IncludePath)</IncludePath>
+    <IncludePath>C:\AdditionalLibraries\Assimp\include;C:\AdditionalLibraries\SDL2\include;$(IncludePath)</IncludePath>
   </PropertyGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <ClCompile>
@@ -81,8 +82,8 @@
       <SDLCheck>true</SDLCheck>
     </ClCompile>
     <Link>
-      <AdditionalLibraryDirectories>C:\AdditionalLibraries\SDL2\lib\x86;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
-      <AdditionalDependencies>SDL2.lib; SDL2main.lib;SDL2_ttf.lib;</AdditionalDependencies>
+      <AdditionalLibraryDirectories>C:\AdditionalLibraries\Assimp\lib\x86;C:\AdditionalLibraries\SDL2\lib\x86;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <AdditionalDependencies>SDL2.lib;SDL2main.lib;SDL2_ttf.lib;assimp.lib</AdditionalDependencies>
       <SubSystem>Console</SubSystem>
     </Link>
     <PostBuildEvent>
@@ -107,8 +108,8 @@
     <Link>
       <EnableCOMDATFolding>true</EnableCOMDATFolding>
       <OptimizeReferences>true</OptimizeReferences>
-      <AdditionalLibraryDirectories>C:\AdditionalLibraries\SDL2\lib\x86;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
-      <AdditionalDependencies>SDL2.lib; SDL2main.lib;SDL2_ttf.lib</AdditionalDependencies>
+      <AdditionalLibraryDirectories>C:\AdditionalLibraries\Assimp\lib\x86;C:\AdditionalLibraries\SDL2\lib\x86;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <AdditionalDependencies>SDL2.lib;SDL2main.lib;SDL2_ttf.lib;assimp.lib</AdditionalDependencies>
       <SubSystem>Console</SubSystem>
     </Link>
   </ItemDefinitionGroup>
@@ -126,6 +127,7 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="Objects\AssimpModel.cpp" />
     <ClCompile Include="Base\Light.cpp" />
     <ClCompile Include="Math\Vec3.cpp" />
     <ClCompile Include="Objects\AABox.cpp" />
@@ -137,6 +139,7 @@
     <ClCompile Include="Objects\Triangle.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="Objects\AssimpModel.h" />
     <ClInclude Include="Base\Light.h" />
     <ClInclude Include="Objects\AABox.h" />
     <ClInclude Include="Base\Camera.h" />
@@ -150,6 +153,7 @@
     <ClInclude Include="Base\Scene.h" />
     <ClInclude Include="Base\Renderer.h" />
     <ClInclude Include="Objects\Triangle.h" />
+    <ClInclude Include="Math\Vertex.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

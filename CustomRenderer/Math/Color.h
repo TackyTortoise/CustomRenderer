@@ -10,9 +10,12 @@ struct Color
 
 	Color operator* (const float v) const { return Color(r*v, g*v, b*v); }
 	Color operator*= (const float v) { r *= v, g *= v, b *= v; return *this; }
+	Color operator/ (const float v) const { return Color(r/v, g/v, b/v); }
+
 	Color operator+ (const float v) const { return Color(r + v, g + v, b + v); }
 	Color operator+ (const Color& c) const { return Color(r+c.r, g+c.g, b+c.b); }
 	Color operator+= (const Color& c) { r += c.r, g += c.g, b += c.b; return *this; }
+	Color operator* (const Color v) const { return Color(r*v.r, g*v.g, b*v.b); }
 	Color& ClampAdd(Color c)
 	{
 		r = Math::Clamp((int)r + c.r, 0, 255);

@@ -15,6 +15,7 @@
 #include "Objects/Plane.h"
 #include "Base/Scene.h"
 #include "Base/Renderer.h"
+
 using namespace std;
 
 int main(int argc, char* argv[])
@@ -39,8 +40,8 @@ int main(int argc, char* argv[])
 	SDL_RenderClear(renderer);
 
 	//supersampling settings
-	const float downScaling = 1 / 1;
-	const int blockCount = 45;
+	const float downScaling = 1.f / 1.f;
+	const int blockCount = 35;
 	const unsigned int texWidth = static_cast<int>(screenWidth / downScaling);
 	const unsigned int texHeight = static_cast<int>(screenHeight / downScaling);
 
@@ -61,7 +62,7 @@ int main(int argc, char* argv[])
 	Renderer* sceneRenderer = new Renderer();
 	sceneRenderer->Init(texWidth, texHeight, blockCount);
 	sceneRenderer->SetActiveScene(testScene);
-	
+
 	while (!quitApplication)
 	{
 		SDL_Event event;

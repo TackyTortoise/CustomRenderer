@@ -4,6 +4,7 @@
 #include "../Objects/AABox.h"
 #include <SDL_stdinc.h>
 #include "../Objects/Triangle.h"
+#include "../Objects/AssimpModel.h"
 
 Scene::Scene()
 {
@@ -90,7 +91,7 @@ void Scene::LoadTestScene(int m)
 		//	o->SetReflective(1.f);
 		//}
 
-		m_Lights.push_back(new Light({10,30,0}, {0,-1,0}, 4,4));
+		m_Lights.push_back(new Light({10,30,0}, {0,-1,0}, 2,2));
 	}
 	else if (m == 2)
 	{
@@ -127,7 +128,7 @@ void Scene::LoadTestScene(int m)
 		//s->SetTransparent(1.f);
 		m_Objects.push_back(s);
 
-		m_Lights.push_back(new Light({ 7,0,20 }, { 0,-1,0 }, 2, 1));
+		m_Lights.push_back(new Light({ 7,0,20 }, { 0,-1,0 }, 1, 1));
 	}
 	else if (m == 3)
 	{
@@ -208,13 +209,13 @@ void Scene::LoadTestScene(int m)
 		s->SetRefractive(rv);
 		m_Objects.push_back(s);
 		
-		m_Lights.push_back(new Light({ 0,0,40 }, { 0,-1,0 }, 2, 1));
+		m_Lights.push_back(new Light({ 0,0,40 }, { 0,-1,0 }, 1, 1));
 	}
 	else if (m == 4)
 	{
-		Triangle* t = new Triangle(Vec3(-5, -3, 20), Vec3(0, 3, 30), Vec3(5, -3, 20));
-		m_Objects.push_back(t);
+		AssimpModel* mo = new AssimpModel("../Meshes/sphere.FBX", { 0,-6,35 });
+		m_Objects.push_back(mo);
 
-		m_Lights.push_back(new Light({ 15,15,0 }, { 0,-1,0 }, 2, 1));
+		m_Lights.push_back(new Light({ 15,15,0 }, { 0,-1,0 }, 1, 1));
 	}
 }

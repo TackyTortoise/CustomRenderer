@@ -1,5 +1,6 @@
 #pragma once
 #include <ostream>
+#include <assimp/vector3.h>
 
 struct Vec3
 {
@@ -9,6 +10,7 @@ public:
 	Vec3() : x(0), y(0), z(0) {}
 	Vec3(float xx, float yy, float zz) : x(xx), y(yy), z(zz) {}
 	Vec3(float v) :x(v), y(v), z(v) {}
+	Vec3(aiVector3D v) :x(v.x), y(v.y), z(v.z) {}
 
 #pragma region operators
 	Vec3 operator* (const float& v) const {return Vec3(x * v, y * v, z * v);}

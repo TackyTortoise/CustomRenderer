@@ -14,8 +14,8 @@ Vec3 Light::GetPointInAreaLight() const
 {
 	Vec3 p = m_Position;
 	float u = -1 + static_cast <float> (rand()) / static_cast <float> (RAND_MAX / 2);
-	p += m_Right * u;
+	p += m_Right * u * m_Width;
 	u = -1 + static_cast <float> (rand()) / static_cast <float> (RAND_MAX / 2);
-	p += m_Up * u;
+	p += m_Up * u * m_Height;
 	return p;
 }
