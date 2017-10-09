@@ -23,4 +23,12 @@ struct Color
 		b = Math::Clamp((int)b + c.b, 0, 255);
 		return *this;
 	}
+
+	Color& MultiplyNormalized(const Color& c)
+	{
+		r = (float)r * (float)c.r / 255.f;
+		g = (float)g * (float)c.g / 255.f;
+		b = (float)b * (float)c.b / 255.f;
+		return *this;
+	}
 };

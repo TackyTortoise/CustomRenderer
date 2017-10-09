@@ -147,8 +147,8 @@ Color Renderer::GetHitColor(Object* co, Vec3 hitPos, const Vec3& rayDir)
 {
 	auto light = m_ActiveScene->GetLights()[0];
 	Color objectColor = co->GetBaseColor();
-	Color ligthColor = light->GetColor();
-	Color pixelColor = objectColor * (ligthColor / 255.f);
+	Color ligthColor = light->GetColor();	
+	Color pixelColor = objectColor.MultiplyNormalized(ligthColor);
 	auto lightPos = light->GetPosition();
 	Vec3 toLight = (lightPos - hitPos).Normalized();
 	auto hitNormal = co->GetNormalOnHit(hitPos);
@@ -243,7 +243,7 @@ Color Renderer::GetHitColor(Object* co, Vec3 hitPos, const Vec3& rayDir)
 		auto halfVec = (toLight + -rayDir).Normalize();
 		float specStrength = Math::Clamp(hitNormal.Dot(halfVec));
 		specStrength = pow(specStrength, 50);
-		Color specColor = co->GetSpecColor() * specStrength * (1 - transp) * (ligthColor / 255.f);
+		Color specColor = (co->GetSpecColor() * specStrength * (1 - transp)).MultiplyNormalized(ligthColor);
 		pixelColor = pixelColor.ClampAdd(specColor);
 	}
 	//pixelColor = Color(shadowFactor * 255);
