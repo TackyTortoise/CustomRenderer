@@ -3,14 +3,15 @@
 #include "../Objects/Object.h"
 #include "Camera.h"
 #include "Light.h"
+#include "RenderSettings.h"
 
 class Scene
 {
 public:
-	Scene();
+	Scene(const int n);
 	~Scene();
 
-	void SetupCamera(const float fov, const float width, const float height);
+	void SetupCamera(const RenderSettings& rs);
 	Camera* GetCamera() const { return m_Camera; }
 
 	const std::vector<Object*>& GetObjectPointer() const { return m_Objects; }

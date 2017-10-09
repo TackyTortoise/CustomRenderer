@@ -1,5 +1,6 @@
 #pragma once
 #include "Scene.h"
+#include "RenderSettings.h"
 
 class Renderer
 {
@@ -7,7 +8,7 @@ public:
 	Renderer();
 	~Renderer();
 
-	void Init(const float renderWidth, const float renderHeight, const int blockCount = 1);
+	void Init(const RenderSettings& rs);
 	void Close();
 
 	void SetBlockCount(const int bc);
@@ -25,6 +26,7 @@ private:
 	Color GetReflection(const Vec3& rayDir, const Vec3& hitPoint, const Vec3& hitNormal);
 
 	void ClearPixelMask();
+	void ClearPixelBuffer();
 
 	const Scene* m_ActiveScene = nullptr;
 	Object*const* m_RenderObjects = nullptr;
@@ -42,9 +44,13 @@ private:
 	Color m_ClearColor = Color(12, 12, 12);
 
 	const float m_ShadowIntensity = .8f;
-	const char m_MaxDepth = 10;
+	char m_MaxDepth = 10;
 	short m_ReflectionDepth = 0, m_TransparancyDepth = 0, m_RefractionDepth = 0;
 
-	const int m_ShadowSamples = 1;
+	int m_ShadowSamples = 1;
+
+	bool m_bEnableSrgb = false;
+
+	float m_LastRenderTime = 0.f;
 };
 

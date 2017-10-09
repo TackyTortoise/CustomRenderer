@@ -30,6 +30,9 @@ public:
 	void SetMetallic(bool v) { m_bMetallic = v; }
 	Color GetSpecColor() const { return m_bMetallic ? m_Color * (1 - m_Reflection) + Color(255) * m_Reflection : Color(255); }
 
+	void SetShininess(float v) { m_Shininess = v; }
+	float GetShininess() const { return m_Shininess; }
+
 protected:
 	Vec3 m_Position;
 	Color m_Color;
@@ -37,4 +40,5 @@ protected:
 	float m_Reflection = 0.f;
 	float m_RefractionIndex = 1.f;
 	bool m_bMetallic = false;
+	float m_Shininess = 50.f;
 };

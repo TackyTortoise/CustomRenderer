@@ -15,13 +15,15 @@
 #include "Objects/Plane.h"
 #include "Base/Scene.h"
 #include "Base/Renderer.h"
+#include "Base/RenderSettings.h"
+#include "Base/Timer.h"
 
 using namespace std;
 
 int main(int argc, char* argv[])
 {
 	_CrtSetDbgFlag(_CRTDBG_ALLOC_MEM_DF | _CRTDBG_LEAK_CHECK_DF); // check memory leaks
-
+	//_CrtSetBreakAlloc(5);
 	//create sdl window and renderer
 	SDL_Window *window;
 	SDL_Renderer *renderer;
@@ -29,26 +31,34 @@ int main(int argc, char* argv[])
 	TTF_Init();
 
 	std::srand(time(nullptr));
+	
+	Timer::Init();
 
-	const unsigned int screenWidth = 800;
-	const unsigned int screenHeight = 600;
+	//settings
+	const float downScaling = 1.f / 1.f;
 
-	SDL_CreateWindowAndRenderer(screenWidth, screenHeight, 0, &window, &renderer);
+	RenderSettings settings;
+	settings.screenWidth = 800;
+	settings.screenHeight = 600;
+	settings.texWidth = settings.screenWidth / downScaling;
+	settings.texHeight = settings.screenHeight / downScaling;
+	settings.blockCount = 75;
+	settings.shadowSampleCount = 4;
+	settings.cameraFOV = 60;
+	
+	//create SDL window
+	SDL_CreateWindowAndRenderer(settings.screenWidth, settings.screenHeight, 0, &window, &renderer);
 	SDL_SetWindowTitle(window, "TDR - Dieter Tack");
 
-	SDL_SetRenderDrawColor(renderer, 255, 0, 255, 255);
+	SDL_SetRenderDrawColor(renderer, settings.clearColor.r, settings.clearColor.g, settings.clearColor.b, 255);
 	SDL_RenderClear(renderer);
-
-	//supersampling settings
-	const float downScaling = 1.f / 1.f;
-	const int blockCount = 35;
-	const unsigned int texWidth = static_cast<int>(screenWidth / downScaling);
-	const unsigned int texHeight = static_cast<int>(screenHeight / downScaling);
-
-	SDL_Texture* texture = SDL_CreateTexture(renderer, SDL_PIXELFORMAT_ARGB8888, SDL_TEXTUREACCESS_STREAMING, texWidth, texHeight);
+	
+	//create rendertarget texture
+	SDL_Texture* texture = SDL_CreateTexture(renderer, SDL_PIXELFORMAT_ARGB8888, SDL_TEXTUREACCESS_STREAMING, settings.texWidth, settings.texHeight);
 
 	// Check that the window was successfully created
-	if (window == nullptr) {
+	if (window == nullptr) 
+	{
 		printf("Could not create window: %s\n", SDL_GetError());
 		return 1;
 	}
@@ -56,11 +66,14 @@ int main(int argc, char* argv[])
 	bool quitApplication = false;
 
 	//creation of scene
-	const float fov = 60;
-	Scene* testScene = new Scene();
-	testScene->SetupCamera(fov, screenWidth, screenHeight);
+	int sceneNumber = 0;
+	int totalScenes = 4;
+	Scene* testScene = new Scene(sceneNumber);
+	testScene->SetupCamera(settings);
+
 	Renderer* sceneRenderer = new Renderer();
-	sceneRenderer->Init(texWidth, texHeight, blockCount);
+	sceneRenderer->Init(settings);
+
 	sceneRenderer->SetActiveScene(testScene);
 
 	while (!quitApplication)
@@ -77,6 +90,25 @@ int main(int argc, char* argv[])
 				{
 					quitApplication = true;
 				}
+				if (event.key.keysym.scancode == SDL_SCANCODE_RIGHT)
+				{
+					++sceneNumber;
+					sceneNumber %= totalScenes;
+					delete testScene;
+					testScene = new Scene(sceneNumber);
+					testScene->SetupCamera(settings);
+					sceneRenderer->SetActiveScene(testScene);
+				}
+				if (event.key.keysym.scancode == SDL_SCANCODE_LEFT)
+				{
+					--sceneNumber;
+					if (sceneNumber < 0)
+						sceneNumber = totalScenes - 1;
+					delete testScene;
+					testScene = new Scene(sceneNumber);
+					testScene->SetupCamera(settings);
+					sceneRenderer->SetActiveScene(testScene);
+				}
 				break;
 
 			case SDL_KEYUP:
@@ -92,9 +124,12 @@ int main(int argc, char* argv[])
 		sceneRenderer->RenderScene();
 
 		//present texture on screen
-		SDL_UpdateTexture(texture, nullptr, &sceneRenderer->GetPixels()[0], texWidth * 4);
+		SDL_UpdateTexture(texture, nullptr, &sceneRenderer->GetPixels()[0], settings.texWidth * 4);
 		SDL_RenderCopy(renderer, texture, nullptr, nullptr);
 		SDL_RenderPresent(renderer);
+
+		Timer::EndFrame();
+		//std::cout << Timer::GetTotalTime() << std::endl;
 	}
 
 	delete testScene;

@@ -6,9 +6,9 @@
 #include "../Objects/Triangle.h"
 #include "../Objects/AssimpModel.h"
 
-Scene::Scene()
+Scene::Scene(const int n)
 {
-	LoadTestScene(1);
+	LoadTestScene(n);
 }
 
 
@@ -30,7 +30,7 @@ Scene::~Scene()
 	m_Camera = nullptr;
 }
 
-void Scene::SetupCamera(const float fov, const float width, const float height)
+void Scene::SetupCamera(const RenderSettings& rs)
 {
 	if (m_Camera != nullptr)
 	{
@@ -38,12 +38,12 @@ void Scene::SetupCamera(const float fov, const float width, const float height)
 		m_Camera = nullptr;
 	}
 
-	m_Camera = new Camera(fov, width / height);
+	m_Camera = new Camera(rs.cameraFOV, rs.screenWidth / static_cast<float>(rs.screenHeight));
 }
 
 void Scene::LoadTestScene(int m)
 {
-	if (m == 1)
+	if (m == 0)
 	{
 		m_Objects.push_back(new Sphere(Vec3(0, 0, 50), 2, Color(255, 50, 170))); // small pink in back
 		m_Objects.push_back(new Sphere(Vec3(5, 0, 15), 2, Color(70, 80, 255))); // reflective blue
@@ -93,7 +93,7 @@ void Scene::LoadTestScene(int m)
 
 		m_Lights.push_back(new Light({10,30,0}, {0,-1,0}, 2,2));
 	}
-	else if (m == 2)
+	else if (m == 1)
 	{
 		Plane* pTest = new Plane();
 		pTest->SetPosition({ 0, -5, 0 });
@@ -130,7 +130,7 @@ void Scene::LoadTestScene(int m)
 
 		m_Lights.push_back(new Light({ 7,0,20 }, { 0,-1,0 }, 1, 1));
 	}
-	else if (m == 3)
+	else if (m == 2)
 	{
 		Plane* pTest = new Plane();
 		pTest->SetPosition({ 0, -20, 0 });
@@ -211,9 +211,9 @@ void Scene::LoadTestScene(int m)
 		
 		m_Lights.push_back(new Light({ 0,0,40 }, { 0,-1,0 }, 1, 1));
 	}
-	else if (m == 4)
+	else if (m == 3)
 	{
-		AssimpModel* mo = new AssimpModel("../Meshes/sphere.FBX", { 0,-6,35 });
+		AssimpModel* mo = new AssimpModel("../Meshes/teapot.FBX", { 0,-6,35 });
 		m_Objects.push_back(mo);
 
 		m_Lights.push_back(new Light({ 15,15,0 }, { 0,-1,0 }, 1, 1));

@@ -3,6 +3,8 @@
 #include <SDL_stdinc.h>
 #include "SDL.h"
 #include <cmath>
+#include "Timer.h"
+#include <string>
 
 Renderer::Renderer()
 {
@@ -13,14 +15,21 @@ Renderer::~Renderer()
 	Close();
 }
 
-void Renderer::Init(const float renderWidth, const float renderHeight, const int blockCount)
+void Renderer::Init(const RenderSettings& rs)
 {
 	Close();
-	m_RenderWidth = renderWidth;
-	m_RenderHeight = renderHeight;
-	m_Pixels = new Color[renderWidth * renderHeight];
-	m_PixelMask = new char[renderWidth * renderHeight];
-	SetBlockCount(blockCount);
+	m_RenderWidth = rs.texWidth;
+	m_RenderHeight = rs.texHeight;
+	m_Pixels = new Color[m_RenderWidth * m_RenderHeight];
+	m_PixelMask = new char[m_RenderWidth * m_RenderHeight];
+	SetBlockCount(rs.blockCount);
+
+	m_MaxDepth = rs.maxRenderDepth;
+	m_ShadowSamples = rs.shadowSampleCount;
+	m_bEnableSrgb = rs.enableSrgb;
+	m_ClearColor = rs.clearColor;
+
+	m_LastRenderTime = Timer::GetTotalTime();
 }
 
 void Renderer::Close()
@@ -58,6 +67,9 @@ void Renderer::SetActiveScene(const Scene* const scene)
 	//copy scene objects into raw pointer for efficiency
 	m_RenderObjects = &scene->GetObjectPointer()[0];
 	m_ObjectCount = scene->GetObjectPointer().size();
+	m_LastRenderTime = Timer::GetTotalTime();
+	ClearPixelBuffer();
+	ClearPixelMask();
 }
 
 void Renderer::RenderScene()
@@ -87,8 +99,15 @@ void Renderer::RenderScene()
 				continue;
 			}
 
-			++m_MaskedPixelCount;
+			if (m_MaskedPixelCount == m_RenderWidth * m_RenderHeight - 1)
+			{
+				ClearPixelMask();
+				auto tt = Timer::GetTotalTime();
+				std::cout << "Scene rendered in " << tt - m_LastRenderTime << " seconds" << std::endl;
+				m_LastRenderTime = tt;
+			}
 			m_PixelMask[pixelIndex] = 1;
+			++m_MaskedPixelCount;
 
 			//Generate ray from camera to pixel
 			Vec3 rayDir = sceneCam->GetCameraRay(rX, rY, m_RenderWidth, m_RenderHeight);
@@ -100,9 +119,16 @@ void Renderer::RenderScene()
 			if (closestObj != nullptr)
 			{
 				m_ReflectionDepth = m_TransparancyDepth = m_RefractionDepth = 0;
-				m_Pixels[pixelIndex] = GetHitColor(closestObj, orgHitPoint, rayDir);
+				Color col = GetHitColor(closestObj, orgHitPoint, rayDir);
+				if (m_bEnableSrgb)
+				{
+					col.r = pow(col.r / 255.f, 1.f / 2.2f) * 255.f;
+					col.g = pow(col.g / 255.f, 1.f / 2.2f) * 255.f;
+					col.b = pow(col.b / 255.f, 1.f / 2.2f) * 255.f;
+				}
+				m_Pixels[pixelIndex] = col;// GetHitColor(closestObj, orgHitPoint, rayDir);
 			}
-			//On miss clear pixel
+			//On miss c lear pixel
 			else
 				m_Pixels[pixelIndex] = m_ClearColor;
 		}
@@ -242,7 +268,7 @@ Color Renderer::GetHitColor(Object* co, Vec3 hitPos, const Vec3& rayDir)
 	{
 		auto halfVec = (toLight + -rayDir).Normalize();
 		float specStrength = Math::Clamp(hitNormal.Dot(halfVec));
-		specStrength = pow(specStrength, 50);
+		specStrength = pow(specStrength, co->GetShininess());
 		Color specColor = (co->GetSpecColor() * specStrength * (1 - transp)).MultiplyNormalized(ligthColor);
 		pixelColor = pixelColor.ClampAdd(specColor);
 	}
@@ -271,4 +297,12 @@ void Renderer::ClearPixelMask()
 		m_PixelMask[i] = 0;
 	}
 	m_MaskedPixelCount = 0;
+}
+
+void Renderer::ClearPixelBuffer()
+{
+	for (int i = 0; i < m_RenderWidth * m_RenderHeight; ++i)
+	{
+		m_Pixels[i] = Color(0);
+	}
 }
