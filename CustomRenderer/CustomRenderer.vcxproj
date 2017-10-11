@@ -127,6 +127,8 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="Base\Camera.cpp" />
+    <ClCompile Include="Math\Matrix4x4.cpp" />
     <ClCompile Include="Objects\AssimpModel.cpp" />
     <ClCompile Include="Base\Light.cpp" />
     <ClCompile Include="Math\Vec3.cpp" />
@@ -138,9 +140,11 @@
     <ClCompile Include="Base\Renderer.cpp" />
     <ClCompile Include="Objects\Triangle.cpp" />
     <ClCompile Include="Base\Timer.cpp" />
+    <ClCompile Include="Math\Transform.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Base\RenderSettings.h" />
+    <ClInclude Include="Math\Matrix4x4.h" />
     <ClInclude Include="Objects\AssimpModel.h" />
     <ClInclude Include="Base\Light.h" />
     <ClInclude Include="Objects\AABox.h" />
@@ -157,6 +161,7 @@
     <ClInclude Include="Objects\Triangle.h" />
     <ClInclude Include="Math\Vertex.h" />
     <ClInclude Include="Base\Timer.h" />
+    <ClInclude Include="Math\Transform.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

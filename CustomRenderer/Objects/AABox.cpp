@@ -1,10 +1,11 @@
 #include "AABox.h"
 
-AABox::AABox(Vec3 pos, float width, float height, float depth, Color col): m_Position(pos), m_HalfWidth(width / 2.f), m_HalfHeight(height / 2.f), m_HalfDepth(depth / 2.f)
+AABox::AABox(Vec3 pos, float width, float height, float depth, Color col): m_HalfWidth(width / 2.f), m_HalfHeight(height / 2.f), m_HalfDepth(depth / 2.f)
 {
+	SetPosition(pos);
 	Vec3 half = Vec3(width / 2, height / 2, depth / 2);
-	m_BoundsMin = m_Position - half;
-	m_BoundsMax = m_Position + half;
+	m_BoundsMin = pos - half;
+	m_BoundsMax = pos + half;
 
 	m_Color = col;
 }
@@ -76,7 +77,7 @@ bool AABox::isHit(const Vec3& rayOrg, const Vec3& rayDir, float& hitDistance)
 
 const Vec3 AABox::GetNormalOnHit(Vec3 hitPosition) const
 {
-	auto b = hitPosition - m_Position;
+	auto b = hitPosition - GetPosition();
 	b.x = abs(abs(b.x) - m_HalfWidth) < 0.0001f ? Math::GetSign(b.x) : 0;
 	b.y = abs(abs(b.y) - m_HalfHeight) < 0.0001f ? Math::GetSign(b.y) : 0;
 	b.z = abs(abs(b.z) - m_HalfDepth) < 0.0001f ? Math::GetSign(b.z) : 0;

@@ -5,9 +5,9 @@
 #include <iostream>
 #include "Triangle.h"
 
-AssimpModel::AssimpModel(const char* filePath, Vec3 pos)
+AssimpModel::AssimpModel(const char* filePath, const Vec3& pos, const Vec3& rotation, const Vec3& scale)
 {
-	m_Position = pos;
+	m_Transform.SetFullTransform(pos, rotation, scale);
 	LoadModelFromFile(filePath);
 	GenerateTriangles();
 	m_Color = Color(255, 0, 255);
@@ -19,6 +19,12 @@ AssimpModel::~AssimpModel()
 	{
 		delete m_Triangles[i];
 		m_Triangles[i] = nullptr;
+	}
+
+	if (m_BoundingBox)
+	{
+		delete m_BoundingBox;
+		m_BoundingBox = nullptr;
 	}
 }
 
@@ -54,6 +60,8 @@ void AssimpModel::LoadModelFromFile(const char* filePath)
 	const aiScene* scene = importer.ReadFile(filePath,
 		aiProcess_Triangulate | aiProcess_JoinIdenticalVertices | aiProcess_SortByPType);
 
+	Vec3 minimum, maximum;
+
 	if (scene == nullptr)
 	{
 		std::cout << "Failed to load model " << filePath << std::endl;
@@ -78,13 +86,27 @@ void AssimpModel::LoadModelFromFile(const char* filePath)
 				}
 
 				m_Indices.push_back(index);
-				aiVector3D pos = mesh->mVertices[index];
-				aiVector3D norm = mesh->mNormals[index];
-				//p[k] = pos;
-				//n[k] = norm;
-				m_Vertices.push_back(PosNormVertex(Vec3(pos) + m_Position, norm));
+				Vec3 pos = m_Transform.GetTransformation().TransformVector(Vec3(mesh->mVertices[index]));
+
+				if (pos.x < minimum.x)
+					minimum.x = pos.x;
+				if (pos.y < minimum.y)
+					minimum.y = pos.y;
+				if (pos.z < minimum.z)
+					minimum.z = pos.z;
+
+				if (pos.x > maximum.x)
+					maximum.x = pos.x;
+				if (pos.y > maximum.y)
+					maximum.y = pos.y;
+				if (pos.z > maximum.z)
+					maximum.z = pos.z;
+
+				Vec3 norm = m_Transform.GetRotationMatrix().TransformVector(Vec3(mesh->mNormals[index]));
+				aiVector3D uv = mesh->mTextureCoords[0][index];
+
+				m_Vertices.push_back(PosNormVertex(pos, norm));
 			}
-			//m_Triangles.push_back(new Triangle(PosNormVertex(Vec3(p[0]) + m_Position, n[0]), PosNormVertex(Vec3(p[1]) + m_Position, n[1]), PosNormVertex(Vec3(p[2]) + m_Position, n[2])));
 		}
 	}
 }
@@ -93,6 +115,7 @@ void AssimpModel::GenerateTriangles()
 {
 	for (int i = 0; i < m_Indices.size() - 2; i += 3)
 	{
-		m_Triangles.push_back(new Triangle(m_Vertices[m_Indices[i]], m_Vertices[m_Indices[i + 1]], m_Vertices[m_Indices[i + 2]]));
+		auto t = new Triangle(m_Vertices[m_Indices[i]], m_Vertices[m_Indices[i + 1]], m_Vertices[m_Indices[i + 2]]);
+		m_Triangles.push_back(t);
 	}
 }

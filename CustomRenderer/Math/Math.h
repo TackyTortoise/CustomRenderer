@@ -1,6 +1,9 @@
 #pragma once
 #include "Vec3.h"
 #include "Vec2.h"
+#include "Math.h"
+#include "Matrix4x4.h"
+#include "Transform.h"
 //#include "Color.h"
 
 class Math

@@ -1,9 +1,10 @@
 #include "Triangle.h"
 #include <iostream>
+#include "../Base/Camera.h"
 
 Triangle::Triangle(const PosNormVertex& p0, const PosNormVertex& p1, const PosNormVertex& p2): m_P0(p0), m_P1(p1), m_P2(p2)
 {
-	m_Color = Color(255, 0, 255);
+	m_Color = Color(255, 255, 0);
 
 	//m_Normal = new Vec3((m_P0.normal + m_P1.normal + m_P2.normal) / 3.f);
 	auto v0 = m_P1.position - m_P0.position;
@@ -27,13 +28,18 @@ bool Triangle::isHit(const Vec3& rayOrg, const Vec3& rayDir, float& hitDistance)
 	//normal pointing away from ray
 	if (fabs(ndr) < 1e-5)
 		return false;
-	float d = normal.Dot(m_P0.position);
-	float t = (normal.Dot(rayOrg) + d) / ndr;
-	auto hp = rayOrg + rayDir * t;
-	hitDistance = t;
+
+	//float d = normal.Dot(m_P0.position);
+	auto adf = m_P0.position - rayOrg;
+	auto bdn = adf.Dot(normal);
+	float t = bdn / ndr;
+
 	//triangle behind rayorigin
 	if (t < 0)
 		return false;
+
+	auto hp = rayOrg + rayDir * t;
+	hitDistance = t;
 
 	auto v1 = m_P1.position - m_P0.position;
 	auto v2 = m_P2.position - m_P0.position;
@@ -55,7 +61,7 @@ bool Triangle::isHit(const Vec3& rayOrg, const Vec3& rayDir, float& hitDistance)
 		return true;
 	}
 
-	return false;
+	return false;/**/
 }
 
 const Vec3 Triangle::GetNormalOnHit(Vec3 hitPosition) const

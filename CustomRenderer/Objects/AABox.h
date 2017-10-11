@@ -10,7 +10,6 @@ public:
 	bool isHit(const Vec3& rayOrg, const Vec3& rayDir, float& hitDistance) override;
 	const Vec3 GetNormalOnHit(Vec3 hitPosition) const override;
 private:
-	Vec3 m_Position;
 	Vec3 m_BoundsMin, m_BoundsMax;
 	float m_HalfWidth, m_HalfHeight, m_HalfDepth;
 };

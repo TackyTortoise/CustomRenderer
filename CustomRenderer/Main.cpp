@@ -17,13 +17,14 @@
 #include "Base/Renderer.h"
 #include "Base/RenderSettings.h"
 #include "Base/Timer.h"
+#include "Math/Matrix4x4.h"
 
 using namespace std;
 
 int main(int argc, char* argv[])
 {
 	_CrtSetDbgFlag(_CRTDBG_ALLOC_MEM_DF | _CRTDBG_LEAK_CHECK_DF); // check memory leaks
-	//_CrtSetBreakAlloc(5);
+	//_CrtSetBreakAlloc(196);
 	//create sdl window and renderer
 	SDL_Window *window;
 	SDL_Renderer *renderer;
@@ -33,18 +34,19 @@ int main(int argc, char* argv[])
 	std::srand(time(nullptr));
 	
 	Timer::Init();
-
+	
 	//settings
-	const float downScaling = 1.f / 1.f;
+	const float downScaling = 3.f / 1.f;
 
 	RenderSettings settings;
 	settings.screenWidth = 800;
 	settings.screenHeight = 600;
 	settings.texWidth = settings.screenWidth / downScaling;
 	settings.texHeight = settings.screenHeight / downScaling;
-	settings.blockCount = 75;
-	settings.shadowSampleCount = 4;
+	settings.blockCount = 100;
+	settings.shadowSampleCount = 1;
 	settings.cameraFOV = 60;
+	settings.maxRenderDepth = 0;
 	
 	//create SDL window
 	SDL_CreateWindowAndRenderer(settings.screenWidth, settings.screenHeight, 0, &window, &renderer);
@@ -70,6 +72,8 @@ int main(int argc, char* argv[])
 	int totalScenes = 4;
 	Scene* testScene = new Scene(sceneNumber);
 	testScene->SetupCamera(settings);
+	//cout << cam->GetTransform().GetRotationMatrix() << std::endl;
+	//cam->GetTransform().SetRotation(Vec3(M_PI / 5, 0, 0));
 
 	Renderer* sceneRenderer = new Renderer();
 	sceneRenderer->Init(settings);
@@ -90,6 +94,7 @@ int main(int argc, char* argv[])
 				{
 					quitApplication = true;
 				}
+				//load next scene
 				if (event.key.keysym.scancode == SDL_SCANCODE_RIGHT)
 				{
 					++sceneNumber;
@@ -99,6 +104,7 @@ int main(int argc, char* argv[])
 					testScene->SetupCamera(settings);
 					sceneRenderer->SetActiveScene(testScene);
 				}
+				//load previous scene
 				if (event.key.keysym.scancode == SDL_SCANCODE_LEFT)
 				{
 					--sceneNumber;

@@ -11,7 +11,7 @@ public:
 	Scene(const int n);
 	~Scene();
 
-	void SetupCamera(const RenderSettings& rs);
+	Camera* SetupCamera(const RenderSettings& rs);
 	Camera* GetCamera() const { return m_Camera; }
 
 	const std::vector<Object*>& GetObjectPointer() const { return m_Objects; }

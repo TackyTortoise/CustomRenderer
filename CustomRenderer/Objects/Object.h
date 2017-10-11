@@ -5,7 +5,7 @@
 class Object
 {
 public:
-	Object(){}
+	Object() {}
 	virtual ~Object(){}
 
 	virtual bool isHit(const Vec3& rayOrg, const Vec3& rayDir, float& hitDistance) = 0;
@@ -13,8 +13,8 @@ public:
 	virtual const Color& GetBaseColor() const { return m_Color; }
 	virtual void SetBaseColor(const Color& col) { m_Color = col; }
 
-	Vec3 GetPosition() const { return m_Position; }
-	void SetPosition(const Vec3& newPos) { m_Position = newPos; }
+	Vec3 GetPosition() const { return m_Transform.GetPosition();}
+	void SetPosition(const Vec3& newPos) { m_Transform.SetTranslation(newPos); }
 
 	virtual const Vec3 GetNormalOnHit(Vec3 hitPosition) const = 0;
 
@@ -34,11 +34,12 @@ public:
 	float GetShininess() const { return m_Shininess; }
 
 protected:
-	Vec3 m_Position;
 	Color m_Color;
 	float m_Transparancy = 0.f;
 	float m_Reflection = 0.f;
 	float m_RefractionIndex = 1.f;
 	bool m_bMetallic = false;
 	float m_Shininess = 50.f;
+	//Vec3 m_Position;
+	Transform m_Transform;
 };
