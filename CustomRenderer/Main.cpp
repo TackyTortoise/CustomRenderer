@@ -33,20 +33,18 @@ int main(int argc, char* argv[])
 
 	std::srand(time(nullptr));
 	
-	Timer::Init();
-	
 	//settings
-	const float downScaling = 3.f / 1.f;
+	const float downScaling = 2.f / 1.f;
 
 	RenderSettings settings;
 	settings.screenWidth = 800;
 	settings.screenHeight = 600;
 	settings.texWidth = settings.screenWidth / downScaling;
 	settings.texHeight = settings.screenHeight / downScaling;
-	settings.blockCount = 100;
+	settings.blockCount = 75;
 	settings.shadowSampleCount = 1;
 	settings.cameraFOV = 60;
-	settings.maxRenderDepth = 0;
+	settings.maxRenderDepth = 10;
 	
 	//create SDL window
 	SDL_CreateWindowAndRenderer(settings.screenWidth, settings.screenHeight, 0, &window, &renderer);
@@ -79,6 +77,8 @@ int main(int argc, char* argv[])
 	sceneRenderer->Init(settings);
 
 	sceneRenderer->SetActiveScene(testScene);
+
+	Timer::Init();
 
 	while (!quitApplication)
 	{

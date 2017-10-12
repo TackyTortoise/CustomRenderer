@@ -17,12 +17,14 @@ private:
 	void LoadModelFromFile(const char* filePath);
 	void GenerateTriangles();
 
+	void ClearData();
+
 	std::vector<PosNormVertex> m_Vertices;
 	std::vector<unsigned> m_Indices;
 	std::vector<Triangle*> m_Triangles;
 	Vec3 m_LastHitNormal;
 	Vec2 m_LastHitUV;
 
-	AABox* m_BoundingBox;
+	AABox* m_BoundingBox = nullptr;
 };
 

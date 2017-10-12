@@ -15,21 +15,15 @@ AssimpModel::AssimpModel(const char* filePath, const Vec3& pos, const Vec3& rota
 
 AssimpModel::~AssimpModel()
 {
-	for (int i = 0; i < m_Triangles.size();++i)
-	{
-		delete m_Triangles[i];
-		m_Triangles[i] = nullptr;
-	}
-
-	if (m_BoundingBox)
-	{
-		delete m_BoundingBox;
-		m_BoundingBox = nullptr;
-	}
+	ClearData();
 }
 
 bool AssimpModel::isHit(const Vec3& rayOrg, const Vec3& rayDir, float& hitDistance)
 {
+	bool bbHit = m_BoundingBox->isHit(rayOrg, rayDir, hitDistance);
+	if (!bbHit)
+		return false;
+
 	float shortD = std::numeric_limits<float>::max();
 	bool hit = false;
 	for (int i = 0; i < m_Triangles.size(); ++i)
@@ -56,11 +50,12 @@ const Vec3 AssimpModel::GetNormalOnHit(Vec3 hitPosition) const
 
 void AssimpModel::LoadModelFromFile(const char* filePath)
 {
+	ClearData();
 	Assimp::Importer importer;
 	const aiScene* scene = importer.ReadFile(filePath,
 		aiProcess_Triangulate | aiProcess_JoinIdenticalVertices | aiProcess_SortByPType);
 
-	Vec3 minimum, maximum;
+	Vec3 minimum(std::numeric_limits<float>::max()), maximum(std::numeric_limits<float>::min());
 
 	if (scene == nullptr)
 	{
@@ -109,6 +104,11 @@ void AssimpModel::LoadModelFromFile(const char* filePath)
 			}
 		}
 	}
+	auto center = (minimum + maximum) / 2.f;
+	auto width = maximum.x - minimum.x;
+	auto height = maximum.y - minimum.y;
+	auto depth = maximum.z - minimum.z;
+	m_BoundingBox = new AABox(center, width, height, depth);
 }
 
 void AssimpModel::GenerateTriangles()
@@ -117,5 +117,20 @@ void AssimpModel::GenerateTriangles()
 	{
 		auto t = new Triangle(m_Vertices[m_Indices[i]], m_Vertices[m_Indices[i + 1]], m_Vertices[m_Indices[i + 2]]);
 		m_Triangles.push_back(t);
+	}
+}
+
+void AssimpModel::ClearData()
+{
+	for (int i = 0; i < m_Triangles.size(); ++i)
+	{
+		delete m_Triangles[i];
+		m_Triangles[i] = nullptr;
+	}
+
+	if (m_BoundingBox)
+	{
+		delete m_BoundingBox;
+		m_BoundingBox = nullptr;
 	}
 }

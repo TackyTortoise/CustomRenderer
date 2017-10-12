@@ -39,7 +39,8 @@ Camera* Scene::SetupCamera(const RenderSettings& rs)
 	}
 
 	m_Camera = new Camera(rs.cameraFOV, rs.screenWidth / static_cast<float>(rs.screenHeight));
-	m_Camera->GetTransform()->SetTranslation({2,0,0 });
+	//m_Camera->GetTransform()->SetTranslation({0,0,0 });
+	m_Camera->GetTransform()->SetRotation(Vec3(0, 0, M_PI / 10));
 	return m_Camera;
 }
 
@@ -47,45 +48,45 @@ void Scene::LoadTestScene(int m)
 {
 	if (m == 0)
 	{
-		//m_Objects.push_back(new Sphere(Vec3(0, 0, 50), 2, Color(255, 50, 170))); // small pink in back
-		//m_Objects.push_back(new Sphere(Vec3(5, 0, 15), 2, Color(70, 80, 255))); // reflective blue
-		//m_Objects.push_back(new Sphere(Vec3(-5, 0, 10), 2, Color(60, 255, 100))); // transparant green
-		//m_Objects.push_back(new Sphere(Vec3(-4, 2.9, 8.5), .5, Color(255, 255, 70))); // yellow in air
-		//m_Objects.push_back(new Sphere(Vec3(-3.2, -.25f, 10), .75, Color(140, 16, 140))); // purple in green
-		//m_Objects.push_back(new Sphere(Vec3(5, -2.5, 13), 1, Color(180, 120, 255))); // small purple
-		//m_Objects.push_back(new Sphere(Vec3(-2.5, -1, 45), 2, Color(124, 20, 77))); // burgundi
-		//m_Objects.push_back(new Sphere(Vec3(-3, -2.5, 10), .8f, Color(108, 92, 50))); // kaky
-		//m_Objects.push_back(new Sphere(Vec3(4, 2, 9.5), .5, Color(244, 101, 44))); // orange
-		//
-		//int tx = -20;
-		//for (int i = 0; i < 10; ++i)
-		//{
-		//	m_Objects.push_back(new Sphere(Vec3(tx, 3 + rand() % 3, 55 - tx), 2, Color(rand() % 256, rand() % 256, rand() % 256)));
-		//	m_Objects.back()->SetReflective(static_cast <float> (rand()) / static_cast <float> (RAND_MAX));
-		//	tx += 4;
-		//}
-		//
-		//m_Objects[2]->SetTransparent(.5f);
-		//m_Objects[6]->SetReflective(.2f);
-		//m_Objects[6]->SetTransparent(.2f);
-		//m_Objects[1]->SetReflective(.99f);
-		//m_Objects[4]->SetReflective(.5f);
-		//m_Objects[4]->SetMetallic(true);
+		m_Objects.push_back(new Sphere(Vec3(0, 0, 50), 2, Color(255, 50, 170))); // small pink in back
+		m_Objects.push_back(new Sphere(Vec3(5, 0, 15), 2, Color(70, 80, 255))); // reflective blue
+		m_Objects.push_back(new Sphere(Vec3(-5, 0, 10), 2, Color(60, 255, 100))); // transparant green
+		m_Objects.push_back(new Sphere(Vec3(-4, 2.9, 8.5), .5, Color(255, 255, 70))); // yellow in air
+		m_Objects.push_back(new Sphere(Vec3(-3.2, -.25f, 10), .75, Color(140, 16, 140))); // purple in green
+		m_Objects.push_back(new Sphere(Vec3(5, -2.5, 13), 1, Color(180, 120, 255))); // small purple
+		m_Objects.push_back(new Sphere(Vec3(-2.5, -1, 45), 2, Color(124, 20, 77))); // burgundi
+		m_Objects.push_back(new Sphere(Vec3(-3, -2.5, 10), .8f, Color(108, 92, 50))); // kaky
+		m_Objects.push_back(new Sphere(Vec3(4, 2, 9.5), .5, Color(244, 101, 44))); // orange
+		
+		int tx = -20;
+		for (int i = 0; i < 10; ++i)
+		{
+			m_Objects.push_back(new Sphere(Vec3(tx, 3 + rand() % 3, 55 - tx), 2, Color(rand() % 256, rand() % 256, rand() % 256)));
+			m_Objects.back()->SetReflective(static_cast <float> (rand()) / static_cast <float> (RAND_MAX));
+			tx += 4;
+		}
+		
+		m_Objects[2]->SetTransparent(.5f);
+		m_Objects[6]->SetReflective(.2f);
+		m_Objects[6]->SetTransparent(.2f);
+		m_Objects[1]->SetReflective(.99f);
+		m_Objects[4]->SetReflective(.5f);
+		m_Objects[4]->SetMetallic(true);
 		Plane* pTest = new Plane();
 		pTest->SetPosition({ 0, -5, 0 });
 		pTest->SetReflective(.1f);
 		m_Objects.push_back(pTest);
 		
-		//pTest = new Plane();
-		//pTest->SetPosition({ 0,50,0 });
-		//pTest->SetBaseColor(Color(255, 0, 0));
-		//m_Objects.push_back(pTest);
+		pTest = new Plane();
+		pTest->SetPosition({ 0,50,0 });
+		pTest->SetBaseColor(Color(255, 0, 0));
+		m_Objects.push_back(pTest);
 		
-		//m_Objects.push_back(new AABox(Vec3(-5, -.5, 20), 7, 7, 8));
-		//m_Objects.back()->SetReflective(.85f);
-		//m_Objects.back()->SetBaseColor(Color(255, 215, 0));
-		////m_Objects.push_back(new AABox(Vec3(-1, -3.5, 20), 5, 2, 5));
-		//m_Objects.push_back(new AABox(Vec3(5, 0, 20), 5, 6.5, 5, Color(29, 108, 129)));
+		m_Objects.push_back(new AABox(Vec3(-5, -.5, 20), 7, 7, 8));
+		m_Objects.back()->SetReflective(.85f);
+		m_Objects.back()->SetBaseColor(Color(255, 215, 0));
+		//m_Objects.push_back(new AABox(Vec3(-1, -3.5, 20), 5, 2, 5));
+		m_Objects.push_back(new AABox(Vec3(5, 0, 20), 5, 6.5, 5, Color(29, 108, 129)));
 		
 		//AssimpModel* mo = new AssimpModel("../Meshes/teapot.FBX", { 0,-6,35 });
 		//m_Objects.push_back(mo);
@@ -100,9 +101,9 @@ void Scene::LoadTestScene(int m)
 		//	PosNormVertex(Vec3(10, 5, 10), Vec3(0, 0, -1)),
 		//	PosNormVertex(Vec3(15, -5, 10), Vec3(0, 0, -1))));
 		
-		 m_Objects.push_back(new Triangle(PosNormVertex(Vec3(5, -5, 10), Vec3(0, 0, -1)),
-				PosNormVertex(Vec3(10, 5, 10), Vec3(0, 0, -1)),
-				PosNormVertex(Vec3(15, -5, 20), Vec3(0, 0, -1))));
+		//m_Objects.push_back(new Triangle(PosNormVertex(Vec3(5, -5, 10), Vec3(0, 0, -1)),
+		//		PosNormVertex(Vec3(10, 5, 10), Vec3(0, 0, -1)),
+		//		PosNormVertex(Vec3(15, -5, 20), Vec3(0, 0, -1))));
 		m_Lights.push_back(new Light({10,30,0}, {0,-1,0}, 2,2));
 	}
 	else if (m == 1)

@@ -1,7 +1,5 @@
 #include "Camera.h"
 
-Transform* Camera::m_CamTransform = new Transform();
-
 Camera::Camera(float fov, float aspectRatio) : m_Fov(fov), m_AspectRatio(aspectRatio)
 {
 	m_CamTan = tan(fov / 2 * M_PI / 180.f);
@@ -27,7 +25,7 @@ Vec3 Camera::GetCameraRay(int pixelX, int pixelY, float renderWidth, float rende
 	Vec3 rayOrg(0); //start from camera position 0,0,0
 	Vec3 rayDir = Vec3(cX, cY, 1.f) - rayOrg;
 	//multiply with camtoworld if cam is not in 0 transform
-	//rayDir = m_CamTransform.GetRotationMatrix().TransformVector(rayDir);
+	rayDir = m_CamTransform->GetRotationMatrix().TransformVector(rayDir);
 	rayDir.Normalize();
 	return rayDir;
 }

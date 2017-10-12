@@ -30,8 +30,8 @@ bool Triangle::isHit(const Vec3& rayOrg, const Vec3& rayDir, float& hitDistance)
 		return false;
 
 	//float d = normal.Dot(m_P0.position);
-	auto adf = m_P0.position - rayOrg;
-	auto bdn = adf.Dot(normal);
+	auto otp = m_P0.position - rayOrg;
+	auto bdn = otp.Dot(normal);
 	float t = bdn / ndr;
 
 	//triangle behind rayorigin

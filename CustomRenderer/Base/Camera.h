@@ -14,10 +14,10 @@ public:
 
 	Transform* GetTransform() { return  m_CamTransform; }
 
-	static Transform* m_CamTransform;
 private:
 	float m_Fov = 60.f;
 	float m_AspectRatio = 0.f;
 	float m_CamTan = 0.f;
 
+	Transform* m_CamTransform;
 };
