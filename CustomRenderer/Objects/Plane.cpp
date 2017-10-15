@@ -10,7 +10,7 @@ Plane::~Plane()
 {
 }
 
-bool Plane::isHit(const Vec3& rayOrg, const Vec3& rayDir, float& hitDistance)
+bool Plane::IsHit(const Vec3& rayOrg, const Vec3& rayDir, float& hitDistance)
 {
 	auto rdn = rayDir.Dot(m_Normal);
 	//Check if perpendicular

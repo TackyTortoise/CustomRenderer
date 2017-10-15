@@ -6,7 +6,7 @@ Sphere::Sphere() : m_Radius(0), m_Radius2(0)
 	m_Material.color = Color(0, 0, 0);
 }
 
-Sphere::Sphere(const Vec3& center, const float radius, const Color color) : m_Radius(radius), m_Radius2(radius * radius)//, m_Color(color) 
+Sphere::Sphere(const Vec3& center, const float radius, const Color color) : m_Radius(radius), m_Radius2(radius * radius)
 {
 	SetPosition(center);
 	m_Material.color = color;
@@ -17,7 +17,7 @@ Sphere::~Sphere()
 {
 }
 
-bool Sphere::isHit(const Vec3& rayOrg, const Vec3& rayDir, float& hitDistance)
+bool Sphere::IsHit(const Vec3& rayOrg, const Vec3& rayDir, float& hitDistance)
 {
 	Vec3 between = m_Transform.GetPosition() - rayOrg;
 	float bdr = between.Dot(rayDir);
@@ -36,6 +36,7 @@ bool Sphere::isHit(const Vec3& rayOrg, const Vec3& rayDir, float& hitDistance)
 
 const Vec3 Sphere::GetNormalOnHit(Vec3 hitPosition) const
 {
+	//vector from sphere center to hit position
 	return (hitPosition - m_Transform.GetPosition()).Normalize();
 }
 

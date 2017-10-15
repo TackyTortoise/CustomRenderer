@@ -38,8 +38,8 @@ void Transform::SetRotation(const Vec3& newAngles)
 
 void Transform::SetScale(const Vec3& newScale)
 {
-	//m_Scale = newScale;
-	/*m_mScale = Matrix4x4::GenerateScale(m_Scale);
-	m_mTransform = m_mTranslation * m_mRotation * m_mScale;*/
+	m_Scale = newScale;
+	m_mScale = Matrix4x4::GenerateScale(m_Scale);
+	m_mTransform = m_mTranslation * m_mRotation * m_mScale;
 }
 

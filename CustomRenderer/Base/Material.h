@@ -3,6 +3,7 @@
 #include <SDL.h>
 #include <SDL_image.h>
 #include "Texture.h"
+#include "MaterialManager.h"
 
 struct Material
 {
@@ -19,15 +20,14 @@ struct Material
 	{
 		if (texture)
 		{
-			delete texture;
-			texture = nullptr;
+			MaterialManager::UnLoadTexture(texture);
 		}
 	}
 
-	Texture* GetTexture()
+	Texture* GetTexture() const
 	{
 		if (!texture)
-			texture = new Texture();
+			std::cout << "Requesting non existant texture" << std::endl;
 		return texture;
 	}
 };

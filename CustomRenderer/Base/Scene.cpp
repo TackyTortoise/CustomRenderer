@@ -93,8 +93,8 @@ void Scene::LoadTestScene(int m)
 		//AssimpModel* mo = new AssimpModel("../Meshes/teapot.FBX", { 0,-6,35 });
 		//m_Objects.push_back(mo);
 
-		m_Objects.push_back(new AssimpModel("../Meshes/teapot.fbx", { 0.f,0.f,10.f }, {-(float)M_PI / 5.f,-(float)M_PI / 5.f,0.f}, {.1f,.1f,.1f}));
-		m_Objects.back()->SetTexture("../Textures/test.jpg");
+		//m_Objects.push_back(new AssimpModel("../Meshes/teapot.fbx", { 0.f,0.f,10.f }, {-(float)M_PI / 5.f,-(float)M_PI / 5.f,0.f}, {.1f,.1f,.1f}));
+		//m_Objects.back()->SetTexture("../Textures/test.jpg");
 		//m_Objects.push_back(new Triangle(PosNormVertex(Vec3(-5,-5,10), Vec3(0,0,-1)),
 		//	PosNormVertex(Vec3(0, 5, 10), Vec3(0, 0, -1)),
 		//	PosNormVertex(Vec3(5, -5, 10), Vec3(0, 0, -1))));

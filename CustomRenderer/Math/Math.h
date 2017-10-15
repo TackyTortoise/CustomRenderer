@@ -20,7 +20,6 @@ public:
 
 	static float CalculateDiffuseIntensity(const Vec3& lightDir, const Vec3& viewDir, const Vec3& normal, float min = 0)
 	{
-		//auto halfVec = (lightDir + viewDir).Normalize();
 		return Clamp(normal.Dot(lightDir), min);
 	}
 
@@ -38,6 +37,7 @@ public:
 	{
 		float ct = -rayDir.Dot(normal);
 		float i1 = ior1, i2 = ior2;
+		//going into or out of object
 		auto refCoef = ct > 0.f ? i1 / i2 : i2 / i1;
 		Vec3 refRay = rayDir * refCoef + normal * (refCoef * ct - sqrt(1 - pow(refCoef, 2) * (1 - pow(ct, 2))));
 		return refRay.Normalized();

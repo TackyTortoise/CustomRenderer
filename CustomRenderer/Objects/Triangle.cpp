@@ -6,7 +6,7 @@ Triangle::Triangle(const PosNormUVVertex& p0, const PosNormUVVertex& p1, const P
 {
 	m_Material.color = Color(255, 255, 0);
 
-	//m_Normal = new Vec3((m_P0.normal + m_P1.normal + m_P2.normal) / 3.f);
+	//calculate planar normal
 	auto v0 = m_P1.position - m_P0.position;
 	auto v1 = m_P2.position - m_P0.position;
 	m_Normal = new Vec3(v0.Cross(v1).Normalized());
@@ -21,7 +21,7 @@ Triangle::~Triangle()
 	}
 }
 
-bool Triangle::isHit(const Vec3& rayOrg, const Vec3& rayDir, float& hitDistance)
+bool Triangle::IsHit(const Vec3& rayOrg, const Vec3& rayDir, float& hitDistance)
 {
 	auto normal = *m_Normal;
 	float ndr = normal.Dot(rayDir);
@@ -29,7 +29,7 @@ bool Triangle::isHit(const Vec3& rayOrg, const Vec3& rayDir, float& hitDistance)
 	if (fabs(ndr) < 1e-5)
 		return false;
 
-	//float d = normal.Dot(m_P0.position);
+	//check if hit plane on which triangle is situated
 	auto otp = m_P0.position - rayOrg;
 	auto bdn = otp.Dot(normal);
 	float t = bdn / ndr;
@@ -38,9 +38,11 @@ bool Triangle::isHit(const Vec3& rayOrg, const Vec3& rayDir, float& hitDistance)
 	if (t < 0)
 		return false;
 
+	//calculate hit position in world
 	auto hp = rayOrg + rayDir * t;
 	hitDistance = t;
 
+	//check if hitpoin was inside triangle
 	auto v1 = m_P1.position - m_P0.position;
 	auto v2 = m_P2.position - m_P0.position;
 	auto w = hp - m_P0.position;
@@ -57,6 +59,7 @@ bool Triangle::isHit(const Vec3& rayOrg, const Vec3& rayDir, float& hitDistance)
 
 	if (o1 > 0 && o1 < 1 && o2 > 0 && o2 < 1 && o1 + o2 < 1)
 	{
+		//save normal and uv on hit to avoid recalculations
 		m_LastNormal = m_P0.normal * (1.f - o1 - o2) + m_P1.normal * o1 + m_P2.normal * o2;
 		m_LastUV = m_P0.uv * (1.f - o1 - o2) + m_P1.uv * o1 + m_P2.uv * o2;
 		return true;
@@ -68,15 +71,6 @@ bool Triangle::isHit(const Vec3& rayOrg, const Vec3& rayDir, float& hitDistance)
 const Vec3 Triangle::GetNormalOnHit(Vec3 hitPosition) const
 {
 	return m_LastNormal;
-
-	auto l1 = (hitPosition - m_P0.position).Length2();
-	auto l2 = (hitPosition - m_P1.position).Length2();
-	auto l3 = (hitPosition - m_P2.position).Length2();
-	auto total = l1 + l2 + l3;
-	auto t = -hitPosition.Normalized();
-	auto weighted = m_P0.normal * (l1 / total) + m_P1.normal * (l2 / total) + m_P2.normal * (l3 / total);
-	return weighted;// *.5f + t * .5f;
-	return m_P0.normal * (l1 / total) + m_P1.normal * (l2 / total) + m_P2.normal * (l3 / total);
 }
 
 Vec2 Triangle::GetUvCoordOnHit(Vec3 hitPosition) const

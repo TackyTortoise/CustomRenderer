@@ -10,7 +10,8 @@ class AssimpModel :	public Object
 public:
 	AssimpModel(const char* filePath, const Vec3& pos = Vec3(0), const Vec3& rotation = Vec3(0), const Vec3& scale = Vec3(1));
 	~AssimpModel();
-	bool isHit(const Vec3& rayOrg, const Vec3& rayDir, float& hitDistance) override;
+
+	bool IsHit(const Vec3& rayOrg, const Vec3& rayDir, float& hitDistance) override;
 	const Vec3 GetNormalOnHit(Vec3 hitPosition) const override;
 
 	Vec2 GetUvCoordOnHit(Vec3 hitPosition) const override;

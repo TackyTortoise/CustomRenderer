@@ -145,7 +145,7 @@ Object* Renderer::Trace(const Vec3& rayOrg, const Vec3& rayDir, Vec3& hitPoint, 
 	//check each object in scene
 	for (int i = 0; i < m_ObjectCount; ++i)
 	{
-		if (m_RenderObjects[i]->isHit(rayOrg, rayDir, d) && d < shortD)
+		if (m_RenderObjects[i]->IsHit(rayOrg, rayDir, d) && d < shortD)
 		{
 			//ignore certain object e.g. self
 			if (m_RenderObjects[i] != ignoreObject)

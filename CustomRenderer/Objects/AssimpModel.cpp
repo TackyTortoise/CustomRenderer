@@ -18,21 +18,24 @@ AssimpModel::~AssimpModel()
 	ClearData();
 }
 
-bool AssimpModel::isHit(const Vec3& rayOrg, const Vec3& rayDir, float& hitDistance)
+bool AssimpModel::IsHit(const Vec3& rayOrg, const Vec3& rayDir, float& hitDistance)
 {
-	bool bbHit = m_BoundingBox->isHit(rayOrg, rayDir, hitDistance);
+	//check for bounding box hit
+	bool bbHit = m_BoundingBox->IsHit(rayOrg, rayDir, hitDistance);
 	if (!bbHit)
 		return false;
 
+	//calculate closest triangle intersection
 	float shortD = std::numeric_limits<float>::max();
 	bool hit = false;
 	for (int i = 0; i < m_Triangles.size(); ++i)
 	{
 		float hitD;
-		if (m_Triangles[i]->isHit(rayOrg, rayDir, hitD))
+		if (m_Triangles[i]->IsHit(rayOrg, rayDir, hitD))
 		{
 			if (hitD < shortD && hitD > 1e-5)
 			{
+				//save data for closest hit
 				hit = true;
 				shortD = hitD;
 				auto hp = rayOrg + rayDir * hitD;
@@ -69,14 +72,13 @@ void AssimpModel::LoadModelFromFile(const char* filePath)
 		std::cout << "Failed to load model " << filePath << std::endl;
 	}
 
+	//load data
 	for (int i = 0; i < scene->mNumMeshes; ++i)
 	{
 		aiMesh* mesh = scene->mMeshes[i];
 		int iMeshFaces = mesh->mNumFaces;
 		for (int j = 0; j < iMeshFaces; ++j)
 		{
-			//aiVector3D p[3];
-			//aiVector3D n[3];
 			for (int k = 0; k < 3; ++k)
 			{
 				const aiFace& face = mesh->mFaces[j];
@@ -90,6 +92,7 @@ void AssimpModel::LoadModelFromFile(const char* filePath)
 				m_Indices.push_back(index);
 				Vec3 pos = m_Transform.GetTransformation().TransformVector(Vec3(mesh->mVertices[index]));
 
+				//calculate bounding box
 				if (pos.x < minimum.x)
 					minimum.x = pos.x;
 				if (pos.y < minimum.y)
@@ -111,6 +114,8 @@ void AssimpModel::LoadModelFromFile(const char* filePath)
 			}
 		}
 	}
+
+	//create bounding box
 	auto center = (minimum + maximum) / 2.f;
 	auto width = maximum.x - minimum.x;
 	auto height = maximum.y - minimum.y;
@@ -120,6 +125,7 @@ void AssimpModel::LoadModelFromFile(const char* filePath)
 
 void AssimpModel::GenerateTriangles()
 {
+	//create triangle list from index buffer
 	for (int i = 0; i < m_Indices.size() - 2; i += 3)
 	{
 		auto t = new Triangle(m_Vertices[m_Indices[i]], m_Vertices[m_Indices[i + 1]], m_Vertices[m_Indices[i + 2]]);

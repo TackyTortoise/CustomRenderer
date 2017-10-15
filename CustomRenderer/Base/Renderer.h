@@ -20,7 +20,7 @@ public:
 
 private:
 	Object* Trace(const Vec3& rayOrg, const Vec3& rayDir, Vec3& hitPoint, Vec3& hitNormal, Object* ignoreObject = nullptr, bool keepIgnoreDistance = false) const;
-	//const Vec3 CalculateCameraRay(float x, float y, float camTan, float aspectRatio) const;
+	
 	Color GetHitColor(Object* co, Vec3 hitPos, const Vec3& rayDir);
 
 	Color GetReflection(const Vec3& rayDir, const Vec3& hitPoint, const Vec3& hitNormal);
@@ -36,7 +36,7 @@ private:
 	Color* m_Pixels = nullptr;
 
 	char *m_PixelMask = nullptr;
-	unsigned m_MaskedPixelCount;
+	unsigned m_MaskedPixelCount = 0;
 
 	unsigned int m_BlockCount = 1;
 	Vec2 m_RegionSize;

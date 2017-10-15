@@ -9,7 +9,7 @@ public:
 	~Texture();
 
 	bool LoadFromFile(const char* path);
-	Color GetPixelColor(float u, float v);
+	Color GetPixelColor(float u, float v) const;
 
 private:
 	SDL_Surface* m_Surface = nullptr;

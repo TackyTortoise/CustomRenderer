@@ -14,7 +14,7 @@ AABox::~AABox()
 {
 }
 
-bool AABox::isHit(const Vec3& rayOrg, const Vec3& rayDir, float& hitDistance)
+bool AABox::IsHit(const Vec3& rayOrg, const Vec3& rayDir, float& hitDistance)
 {
 	//Get hit X distance
 	float tMinX = (m_BoundsMin.x - rayOrg.x) / rayDir.x;
@@ -91,20 +91,24 @@ Vec2 AABox::GetUvCoordOnHit(Vec3 hitPosition) const
 	diff.y /= m_HalfHeight;
 	diff.z /= m_HalfDepth;
 	float u, v;
+	//hit on left or right side
 	if (abs(abs(diff.x) - 1.f) < 1e-5)
 	{
 		u = (diff.z + 1) / 2.f;
 		v = (diff.y + 1) / 2.f;
 	}
+	//hit on top or bottom
 	else if (abs(abs(diff.y) - 1.f) < 1e-5)
 	{
 		u = (diff.x + 1) / 2.f;
 		v = (diff.z + 1) / 2.f;
 	}
+	//hit on front or back
 	else
 	{
 		u = (diff.x + 1) / 2.f;
 		v = (diff.y + 1) / 2.f;
 	}
+
 	return Vec2(u,-v);
 }

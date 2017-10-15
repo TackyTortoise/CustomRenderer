@@ -19,7 +19,9 @@ void Timer::Init()
 void Timer::EndFrame()
 {
 	auto newTime = SDL_GetPerformanceCounter();
+	//difference with last frame
 	m_DeltaTime = (float)(newTime - m_LastPerformanceCount) / (float)SDL_GetPerformanceFrequency();
+
 	m_TotalTime += m_DeltaTime;
 	m_LastPerformanceCount = newTime;
 }

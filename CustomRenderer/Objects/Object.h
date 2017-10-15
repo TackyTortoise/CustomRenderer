@@ -2,6 +2,7 @@
 #include "../Math/Vec3.h"
 #include "../Math/Color.h"
 #include "../Base/Material.h"
+#include "../Base/MaterialManager.h"
 
 class Object
 {
@@ -9,7 +10,7 @@ public:
 	Object() {}
 	virtual ~Object(){}
 
-	virtual bool isHit(const Vec3& rayOrg, const Vec3& rayDir, float& hitDistance) = 0;
+	virtual bool IsHit(const Vec3& rayOrg, const Vec3& rayDir, float& hitDistance) = 0;
 
 	virtual const Color& GetBaseColor() const { return m_Material.color; }
 	virtual void SetBaseColor(const Color& col) { m_Material.color = col; }
@@ -35,16 +36,10 @@ public:
 	void SetShininess(float v) { m_Material.shininess = v; }
 	float GetShininess() const { return m_Material.shininess; }
 
-	void SetTexture(const char* path) { m_Material.bUseTexture = m_Material.GetTexture()->LoadFromFile(path); }
+	void SetTexture(const char* path) { m_Material.texture = MaterialManager::LoadTexture(path); m_Material.bUseTexture = m_Material.texture != nullptr; }
 	Texture* GetTexture() const { return m_Material.bUseTexture ? m_Material.texture : nullptr; }
 
 protected:
-	//Color m_Color;
-	//float m_Transparancy = 0.f;
-	//float m_Reflection = 0.f;
-	//float m_RefractionIndex = 1.f;
-	//bool m_bMetallic = false;
-	//float m_Shininess = 50.f;
 	
 	Material m_Material;
 

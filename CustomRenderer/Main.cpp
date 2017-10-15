@@ -13,12 +13,10 @@
 #include "Math.h"
 #include "Objects/Object.h"
 #include "Objects/Sphere.h"
-#include "Objects/Plane.h"
 #include "Base/Scene.h"
 #include "Base/Renderer.h"
 #include "Base/RenderSettings.h"
 #include "Base/Timer.h"
-#include "Math/Matrix4x4.h"
 
 using namespace std;
 
@@ -36,7 +34,7 @@ int main(int argc, char* argv[])
 	std::srand(time(nullptr));
 	
 	//settings
-	const float downScaling = 1.f / 1.f;
+	const float downScaling = 5.f / 1.f;
 
 	RenderSettings settings;
 	settings.screenWidth = 800;
@@ -66,16 +64,13 @@ int main(int argc, char* argv[])
 		return 1;
 	}
 
-	bool quitApplication = false;
-
 	//creation of scene
 	int sceneNumber = 0;
 	int totalScenes = 4;
 	Scene* testScene = new Scene(sceneNumber);
 	testScene->SetupCamera(settings);
-	//cout << cam->GetTransform().GetRotationMatrix() << std::endl;
-	//cam->GetTransform().SetRotation(Vec3(M_PI / 5, 0, 0));
 
+	//initialize renderer
 	Renderer* sceneRenderer = new Renderer();
 	sceneRenderer->Init(settings);
 
@@ -83,17 +78,13 @@ int main(int argc, char* argv[])
 
 	Timer::Init();
 
-	SDL_Surface* image = IMG_Load("../Textures/test.jpg");
-	if (!image)
-		SDL_ShowSimpleMessageBox(0, "Failed to load image",	SDL_GetError(), window);
-	SDL_Texture* imgTexture = SDL_CreateTextureFromSurface(renderer, image);
-
+	bool quitApplication = false;
 	while (!quitApplication)
 	{
 		SDL_Event event;
 		while (SDL_PollEvent(&event))
 		{
-			//handle your event here 
+			//check for keypresses
 			switch (event.type)
 			{
 			case SDL_KEYDOWN:
@@ -125,16 +116,16 @@ int main(int argc, char* argv[])
 				}
 				break;
 
-			case SDL_KEYUP:
+			/*case SDL_KEYUP:
 				printf("Key release detected\n");
-				break;
+				break;*/
 			case SDL_QUIT:
 				quitApplication = true;
 				break;
 			}
 		}
 
-		//render scene to texture
+		//render scene to pixelbuffer
 		sceneRenderer->RenderScene();
 
 		//present texture on screen
@@ -143,12 +134,11 @@ int main(int argc, char* argv[])
 		SDL_RenderPresent(renderer);
 
 		Timer::EndFrame();
-		//std::cout << Timer::GetTotalTime() << std::endl;
 	}
 	delete testScene;
 	delete sceneRenderer;
 
-	// Close and destroy the window
+	//Clean up
 	SDL_DestroyWindow(window);
 	SDL_DestroyTexture(texture);
 
