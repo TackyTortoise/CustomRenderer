@@ -4,6 +4,7 @@
 
 #include "SDL.h"
 #include "SDL_ttf.h"
+#include "SDL_image.h"
 #include <iostream>
 #include <vector>
 #include <string>
@@ -30,11 +31,12 @@ int main(int argc, char* argv[])
 	SDL_Renderer *renderer;
 	SDL_Init(SDL_INIT_VIDEO);
 	TTF_Init();
+	IMG_Init(IMG_INIT_JPG);
 
 	std::srand(time(nullptr));
 	
 	//settings
-	const float downScaling = 2.f / 1.f;
+	const float downScaling = 1.f / 1.f;
 
 	RenderSettings settings;
 	settings.screenWidth = 800;
@@ -42,9 +44,10 @@ int main(int argc, char* argv[])
 	settings.texWidth = settings.screenWidth / downScaling;
 	settings.texHeight = settings.screenHeight / downScaling;
 	settings.blockCount = 75;
-	settings.shadowSampleCount = 1;
+	settings.shadowSampleCount = 4;
 	settings.cameraFOV = 60;
 	settings.maxRenderDepth = 10;
+	settings.enableSrgb = false;
 	
 	//create SDL window
 	SDL_CreateWindowAndRenderer(settings.screenWidth, settings.screenHeight, 0, &window, &renderer);
@@ -79,6 +82,11 @@ int main(int argc, char* argv[])
 	sceneRenderer->SetActiveScene(testScene);
 
 	Timer::Init();
+
+	SDL_Surface* image = IMG_Load("../Textures/test.jpg");
+	if (!image)
+		SDL_ShowSimpleMessageBox(0, "Failed to load image",	SDL_GetError(), window);
+	SDL_Texture* imgTexture = SDL_CreateTextureFromSurface(renderer, image);
 
 	while (!quitApplication)
 	{
@@ -137,7 +145,6 @@ int main(int argc, char* argv[])
 		Timer::EndFrame();
 		//std::cout << Timer::GetTotalTime() << std::endl;
 	}
-
 	delete testScene;
 	delete sceneRenderer;
 
@@ -145,6 +152,8 @@ int main(int argc, char* argv[])
 	SDL_DestroyWindow(window);
 	SDL_DestroyTexture(texture);
 
+	IMG_Quit();
+	TTF_Quit();
 	SDL_Quit();
 	return 0;
 }

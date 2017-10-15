@@ -11,6 +11,7 @@ public:
 	bool isHit(const Vec3& rayOrg, const Vec3& rayDir, float& hitDistance) override;
 	const Vec3 GetNormalOnHit(Vec3 hitPosition) const override;
 
+	Vec2 GetUvCoordOnHit(Vec3 hitPosition) const override;
 private:
 	float m_Radius, m_Radius2;
 };

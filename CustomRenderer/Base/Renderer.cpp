@@ -174,6 +174,14 @@ Color Renderer::GetHitColor(Object* co, Vec3 hitPos, const Vec3& rayDir)
 {
 	auto light = m_ActiveScene->GetLights()[0];
 	Color objectColor = co->GetBaseColor();
+	auto objTex = co->GetTexture();
+
+	auto texCoord = co->GetUvCoordOnHit(hitPos);
+	//return Color(texCoord.x * 255, texCoord.y * 255, 0);
+	if (objTex != nullptr)
+	{
+		objectColor = objTex->GetPixelColor(texCoord.x, texCoord.y);
+	}
 	Color ligthColor = light->GetColor();	
 	Color pixelColor = objectColor.MultiplyNormalized(ligthColor);
 	auto lightPos = light->GetPosition();

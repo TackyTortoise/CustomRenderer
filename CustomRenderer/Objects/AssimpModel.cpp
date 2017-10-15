@@ -10,7 +10,7 @@ AssimpModel::AssimpModel(const char* filePath, const Vec3& pos, const Vec3& rota
 	m_Transform.SetFullTransform(pos, rotation, scale);
 	LoadModelFromFile(filePath);
 	GenerateTriangles();
-	m_Color = Color(255, 0, 255);
+	m_Material.color = Color(255, 0, 255);
 }
 
 AssimpModel::~AssimpModel()
@@ -35,7 +35,9 @@ bool AssimpModel::isHit(const Vec3& rayOrg, const Vec3& rayDir, float& hitDistan
 			{
 				hit = true;
 				shortD = hitD;
-				m_LastHitNormal = m_Triangles[i]->GetNormalOnHit(rayOrg + rayDir * hitD);
+				auto hp = rayOrg + rayDir * hitD;
+				m_LastHitNormal = m_Triangles[i]->GetNormalOnHit(hp);
+				m_LastHitUV = m_Triangles[i]->GetUvCoordOnHit(hp);
 			}
 		}
 	}
@@ -46,6 +48,11 @@ bool AssimpModel::isHit(const Vec3& rayOrg, const Vec3& rayDir, float& hitDistan
 const Vec3 AssimpModel::GetNormalOnHit(Vec3 hitPosition) const
 {
 	return m_LastHitNormal;
+}
+
+Vec2 AssimpModel::GetUvCoordOnHit(Vec3 hitPosition) const
+{
+	return m_LastHitUV;
 }
 
 void AssimpModel::LoadModelFromFile(const char* filePath)
@@ -98,9 +105,9 @@ void AssimpModel::LoadModelFromFile(const char* filePath)
 					maximum.z = pos.z;
 
 				Vec3 norm = m_Transform.GetRotationMatrix().TransformVector(Vec3(mesh->mNormals[index]));
-				aiVector3D uv = mesh->mTextureCoords[0][index];
-
-				m_Vertices.push_back(PosNormVertex(pos, norm));
+				aiVector3D aiuv = mesh->mTextureCoords[0][index];
+				Vec2 uv(-aiuv.x, -aiuv.y);
+				m_Vertices.push_back(PosNormUVVertex(pos, norm, uv));
 			}
 		}
 	}

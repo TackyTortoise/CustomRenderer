@@ -13,13 +13,15 @@ public:
 	bool isHit(const Vec3& rayOrg, const Vec3& rayDir, float& hitDistance) override;
 	const Vec3 GetNormalOnHit(Vec3 hitPosition) const override;
 
+	Vec2 GetUvCoordOnHit(Vec3 hitPosition) const override;
+
 private:
 	void LoadModelFromFile(const char* filePath);
 	void GenerateTriangles();
 
 	void ClearData();
 
-	std::vector<PosNormVertex> m_Vertices;
+	std::vector<PosNormUVVertex> m_Vertices;
 	std::vector<unsigned> m_Indices;
 	std::vector<Triangle*> m_Triangles;
 	Vec3 m_LastHitNormal;

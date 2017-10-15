@@ -7,7 +7,7 @@ AABox::AABox(Vec3 pos, float width, float height, float depth, Color col): m_Hal
 	m_BoundsMin = pos - half;
 	m_BoundsMax = pos + half;
 
-	m_Color = col;
+	m_Material.color = col;
 }
 
 AABox::~AABox()
@@ -82,4 +82,29 @@ const Vec3 AABox::GetNormalOnHit(Vec3 hitPosition) const
 	b.y = abs(abs(b.y) - m_HalfHeight) < 0.0001f ? Math::GetSign(b.y) : 0;
 	b.z = abs(abs(b.z) - m_HalfDepth) < 0.0001f ? Math::GetSign(b.z) : 0;
 	return b;
+}
+
+Vec2 AABox::GetUvCoordOnHit(Vec3 hitPosition) const
+{
+	auto diff = hitPosition - m_Transform.GetPosition();
+	diff.x /= m_HalfWidth;
+	diff.y /= m_HalfHeight;
+	diff.z /= m_HalfDepth;
+	float u, v;
+	if (abs(abs(diff.x) - 1.f) < 1e-5)
+	{
+		u = (diff.z + 1) / 2.f;
+		v = (diff.y + 1) / 2.f;
+	}
+	else if (abs(abs(diff.y) - 1.f) < 1e-5)
+	{
+		u = (diff.x + 1) / 2.f;
+		v = (diff.z + 1) / 2.f;
+	}
+	else
+	{
+		u = (diff.x + 1) / 2.f;
+		v = (diff.y + 1) / 2.f;
+	}
+	return Vec2(u,-v);
 }

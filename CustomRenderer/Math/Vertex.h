@@ -16,11 +16,10 @@ struct PosNormColVertex
 	Color color;
 };
 
-struct PosNormColUVVertex
+struct PosNormUVVertex
 {
-	PosNormColUVVertex(Vec3 pos, Vec3 norm, Vec2 uvCoord, Color col = Color(255)) : position(pos), normal(norm), color(col), uv(uvCoord) {}
+	PosNormUVVertex(Vec3 pos, Vec3 norm, Vec2 uvCoord) : position(pos), normal(norm), uv(uvCoord) {}
 	Vec3 position;
 	Vec3 normal;
-	Color color;
 	Vec2 uv;
 };

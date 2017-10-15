@@ -20,8 +20,8 @@ public:
 
 	static float CalculateDiffuseIntensity(const Vec3& lightDir, const Vec3& viewDir, const Vec3& normal, float min = 0)
 	{
-		auto halfVec = (lightDir + viewDir).Normalize();
-		return Clamp(normal.Dot(halfVec), min);
+		//auto halfVec = (lightDir + viewDir).Normalize();
+		return Clamp(normal.Dot(lightDir), min);
 	}
 
 	static int GetSign(const int v)
@@ -56,17 +56,18 @@ public:
 		return r0 + (1 - r0) * pow(1 - ct, 5);
 	}
 
-	/*static float GetSchlick(const Vec3& incident, const Vec3& normal, float ior1, float ior2, Vec3& refractedVector)
+#define SQRT_MAGIC_F 0x5f3759df 
+	static float  sqrt2(const float x)
 	{
-		float r0 = (ior1 - ior2) / (ior1 + ior2);
-		r0 *= r0;
-		float ct = -normal.Dot(incident);
-		auto refr = RefractVector(ior1, ior2, incident, normal);
-		refractedVector = refr;
-		if (ior1 > ior2)
+		const float xhalf = 0.5f*x;
+
+		union // get bits for floating value
 		{
-			ct = -normal.Dot(refr);
-		}
-		return r0 + (1 - r0) * pow(1 - ct, 5);
-	}*/
+			float x;
+			int i;
+		} u;
+		u.x = x;
+		u.i = SQRT_MAGIC_F - (u.i >> 1);  // gives initial guess y0
+		return x*u.x*(1.5f - xhalf*u.x*u.x);// Newton step, repeating increases accuracy 
+	}
 };

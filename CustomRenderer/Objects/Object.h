@@ -1,6 +1,7 @@
 #pragma once
 #include "../Math/Vec3.h"
 #include "../Math/Color.h"
+#include "../Base/Material.h"
 
 class Object
 {
@@ -10,36 +11,42 @@ public:
 
 	virtual bool isHit(const Vec3& rayOrg, const Vec3& rayDir, float& hitDistance) = 0;
 
-	virtual const Color& GetBaseColor() const { return m_Color; }
-	virtual void SetBaseColor(const Color& col) { m_Color = col; }
+	virtual const Color& GetBaseColor() const { return m_Material.color; }
+	virtual void SetBaseColor(const Color& col) { m_Material.color = col; }
 
 	Vec3 GetPosition() const { return m_Transform.GetPosition();}
 	void SetPosition(const Vec3& newPos) { m_Transform.SetTranslation(newPos); }
 
 	virtual const Vec3 GetNormalOnHit(Vec3 hitPosition) const = 0;
+	virtual Vec2 GetUvCoordOnHit(Vec3 hitPosition) const { return Vec2(0, 0); }
 
-	void SetTransparent(const float v) { m_Transparancy = v; }
-	float GetTransparancy() const { return m_Transparancy; }
+	void SetTransparent(const float v) { m_Material.transparancy = v; }
+	float GetTransparancy() const { return m_Material.transparancy; }
 
-	void SetReflective(const float v) { m_Reflection = v; }
-	float GetReflective() const { return m_Reflection; }
+	void SetReflective(const float v) { m_Material.reflectivity = v; }
+	float GetReflective() const { return m_Material.reflectivity; }
 
-	void SetRefractive(const float v) { m_RefractionIndex = v; }
-	float GetRefractive() const { return m_RefractionIndex; }
+	void SetRefractive(const float v) { m_Material.refractiveIndex = v; }
+	float GetRefractive() const { return m_Material.refractiveIndex; }
 
-	void SetMetallic(bool v) { m_bMetallic = v; }
-	Color GetSpecColor() const { return m_bMetallic ? m_Color * (1 - m_Reflection) + Color(255) * m_Reflection : Color(255); }
+	void SetMetallic(bool v) { m_Material.bMetallic = v; }
+	Color GetSpecColor() const { return m_Material.bMetallic ? m_Material.color * (1 - m_Material.reflectivity) + Color(255) * m_Material.reflectivity : Color(255); }
 
-	void SetShininess(float v) { m_Shininess = v; }
-	float GetShininess() const { return m_Shininess; }
+	void SetShininess(float v) { m_Material.shininess = v; }
+	float GetShininess() const { return m_Material.shininess; }
+
+	void SetTexture(const char* path) { m_Material.bUseTexture = m_Material.GetTexture()->LoadFromFile(path); }
+	Texture* GetTexture() const { return m_Material.bUseTexture ? m_Material.texture : nullptr; }
 
 protected:
-	Color m_Color;
-	float m_Transparancy = 0.f;
-	float m_Reflection = 0.f;
-	float m_RefractionIndex = 1.f;
-	bool m_bMetallic = false;
-	float m_Shininess = 50.f;
-	//Vec3 m_Position;
+	//Color m_Color;
+	//float m_Transparancy = 0.f;
+	//float m_Reflection = 0.f;
+	//float m_RefractionIndex = 1.f;
+	//bool m_bMetallic = false;
+	//float m_Shininess = 50.f;
+	
+	Material m_Material;
+
 	Transform m_Transform;
 };

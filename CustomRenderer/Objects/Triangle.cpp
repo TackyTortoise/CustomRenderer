@@ -2,9 +2,9 @@
 #include <iostream>
 #include "../Base/Camera.h"
 
-Triangle::Triangle(const PosNormVertex& p0, const PosNormVertex& p1, const PosNormVertex& p2): m_P0(p0), m_P1(p1), m_P2(p2)
+Triangle::Triangle(const PosNormUVVertex& p0, const PosNormUVVertex& p1, const PosNormUVVertex& p2): m_P0(p0), m_P1(p1), m_P2(p2)
 {
-	m_Color = Color(255, 255, 0);
+	m_Material.color = Color(255, 255, 0);
 
 	//m_Normal = new Vec3((m_P0.normal + m_P1.normal + m_P2.normal) / 3.f);
 	auto v0 = m_P1.position - m_P0.position;
@@ -58,6 +58,7 @@ bool Triangle::isHit(const Vec3& rayOrg, const Vec3& rayDir, float& hitDistance)
 	if (o1 > 0 && o1 < 1 && o2 > 0 && o2 < 1 && o1 + o2 < 1)
 	{
 		m_LastNormal = m_P0.normal * (1.f - o1 - o2) + m_P1.normal * o1 + m_P2.normal * o2;
+		m_LastUV = m_P0.uv * (1.f - o1 - o2) + m_P1.uv * o1 + m_P2.uv * o2;
 		return true;
 	}
 
@@ -76,4 +77,9 @@ const Vec3 Triangle::GetNormalOnHit(Vec3 hitPosition) const
 	auto weighted = m_P0.normal * (l1 / total) + m_P1.normal * (l2 / total) + m_P2.normal * (l3 / total);
 	return weighted;// *.5f + t * .5f;
 	return m_P0.normal * (l1 / total) + m_P1.normal * (l2 / total) + m_P2.normal * (l3 / total);
+}
+
+Vec2 Triangle::GetUvCoordOnHit(Vec3 hitPosition) const
+{
+	return m_LastUV;
 }
