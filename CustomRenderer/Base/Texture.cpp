@@ -1,6 +1,7 @@
 #include "Texture.h"
-#include "Math/Color.h"
 #include <SDL_image.h>
+#include <iostream>
+#include "../Math/Color.h"
 
 Texture::Texture()
 {
