@@ -20,9 +20,6 @@ public:
 protected:
 	std::vector<Object*> m_Objects;
 	std::vector<Light*> m_Lights;
-
-private:
 	Camera* m_Camera = nullptr;
-	Color m_BackGroundColor = Color(0);
 };
 

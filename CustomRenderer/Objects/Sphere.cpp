@@ -34,7 +34,7 @@ bool Sphere::IsHit(const Vec3& rayOrg, const Vec3& rayDir, float& hitDistance)
 	return true;
 }
 
-const Vec3 Sphere::GetNormalOnHit(Vec3 hitPosition) const
+Vec3 Sphere::GetNormalOnHit(Vec3 hitPosition) const
 {
 	//vector from sphere center to hit position
 	return (hitPosition - m_Transform.GetPosition()).Normalize();

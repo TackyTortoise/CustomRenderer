@@ -13,11 +13,11 @@
 #include "Math.h"
 #include "Objects/Object.h"
 #include "Objects/Sphere.h"
-#include "Base/Scene.h"
 #include "Base/Renderer.h"
 #include "Base/RenderSettings.h"
 #include "Base/Timer.h"
 #include "Base/SceneManager.h"
+
 #include "Scenes/TestScene.h"
 #include "Scenes/ReflectiveSpheresScene.h"
 #include "Scenes/RefractionScene.h"

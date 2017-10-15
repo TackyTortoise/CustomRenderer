@@ -75,7 +75,7 @@ bool AABox::IsHit(const Vec3& rayOrg, const Vec3& rayDir, float& hitDistance)
 	return hitDistance > 0.f;
 }
 
-const Vec3 AABox::GetNormalOnHit(Vec3 hitPosition) const
+Vec3 AABox::GetNormalOnHit(Vec3 hitPosition) const
 {
 	auto b = hitPosition - GetPosition();
 	b.x = abs(abs(b.x) - m_HalfWidth) < 0.0001f ? Math::GetSign(b.x) : 0;

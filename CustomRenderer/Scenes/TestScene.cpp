@@ -32,7 +32,7 @@ TestScene::TestScene() : Scene()
 	m_Objects[4]->SetMetallic(true);
 	Plane* pTest = new Plane();
 	pTest->SetPosition({ 0, -5, 0 });
-	pTest->SetReflective(.1f);
+	pTest->SetReflective(.2f);
 	m_Objects.push_back(pTest);
 
 	pTest = new Plane();
@@ -46,24 +46,13 @@ TestScene::TestScene() : Scene()
 	m_Objects.back()->SetTexture("../Textures/test.jpg");
 	//m_Objects.push_back(new AABox(Vec3(-1, -3.5, 20), 5, 2, 5));
 	m_Objects.push_back(new AABox(Vec3(5, 0, 20), 5, 6.5, 5, Color(29, 108, 129)));
-
-	//AssimpModel* mo = new AssimpModel("../Meshes/teapot.FBX", { 0,-6,35 });
-	//m_Objects.push_back(mo);
-
+	
 	//m_Objects.push_back(new AssimpModel("../Meshes/teapot.fbx", { 0.f,0.f,10.f }, {-(float)M_PI / 5.f,-(float)M_PI / 5.f,0.f}, {.1f,.1f,.1f}));
 	//m_Objects.back()->SetTexture("../Textures/test.jpg");
-	//m_Objects.push_back(new Triangle(PosNormVertex(Vec3(-5,-5,10), Vec3(0,0,-1)),
-	//	PosNormVertex(Vec3(0, 5, 10), Vec3(0, 0, -1)),
-	//	PosNormVertex(Vec3(5, -5, 10), Vec3(0, 0, -1))));
-	//
-	//m_Objects.push_back(new Triangle(PosNormVertex(Vec3(5, -5, 10), Vec3(0, 0, -1)),
-	//	PosNormVertex(Vec3(10, 5, 10), Vec3(0, 0, -1)),
-	//	PosNormVertex(Vec3(15, -5, 10), Vec3(0, 0, -1))));
 
-	//m_Objects.push_back(new Triangle(PosNormVertex(Vec3(5, -5, 10), Vec3(0, 0, -1)),
-	//		PosNormVertex(Vec3(10, 5, 10), Vec3(0, 0, -1)),
-	//		PosNormVertex(Vec3(15, -5, 20), Vec3(0, 0, -1))));
 	m_Lights.push_back(new Light({ 10,30,0 }, { 0,-1,0 }, 2, 2));
+
+	m_Camera->GetTransform()->SetRotation({ 0.f,0.f,(float)M_PI / 15.f });
 }
 
 TestScene::~TestScene()

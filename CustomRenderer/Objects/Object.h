@@ -18,7 +18,7 @@ public:
 	Vec3 GetPosition() const { return m_Transform.GetPosition();}
 	void SetPosition(const Vec3& newPos) { m_Transform.SetTranslation(newPos); }
 
-	virtual const Vec3 GetNormalOnHit(Vec3 hitPosition) const = 0;
+	virtual Vec3 GetNormalOnHit(Vec3 hitPosition) const = 0;
 	virtual Vec2 GetUvCoordOnHit(Vec3 hitPosition) const { return Vec2(0, 0); }
 
 	void SetTransparent(const float v) { m_Material.transparancy = v; }

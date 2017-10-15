@@ -5,7 +5,7 @@ ReflectiveSpheresScene::ReflectiveSpheresScene()
 {
 	Plane* pTest = new Plane();
 	pTest->SetPosition({ 0, -5, 0 });
-	pTest->SetReflective(.3f);
+	pTest->SetReflective(.5f);
 	m_Objects.push_back(pTest);
 	pTest = new Plane();
 	pTest->SetPosition({ 0,50,0 });
@@ -29,14 +29,14 @@ ReflectiveSpheresScene::ReflectiveSpheresScene()
 		//s->SetTransparent(1.f);
 		m_Objects.push_back(s);
 	}
-	s = new Sphere(Vec3(0, 0.5, 20), 3.f, Color(rand() % 255, rand() % 255, rand() % 255));
+	s = new Sphere(Vec3(0, 0.5, 20), 3.f, Color(128,128,255));
 	s->SetReflective(.8f);
 	s->SetMetallic(true);
 	//s->SetRefractive(1.5f);
 	//s->SetTransparent(1.f);
 	m_Objects.push_back(s);
 
-	m_Lights.push_back(new Light({ 4,5.5,20 }, { 0,-1,0 }, 1, 1));
+	m_Lights.push_back(new Light({ 4, .5,20 }, { 0,-1,0 }, 1, 1));
 }
 
 

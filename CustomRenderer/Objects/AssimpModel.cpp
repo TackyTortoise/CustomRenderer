@@ -48,7 +48,7 @@ bool AssimpModel::IsHit(const Vec3& rayOrg, const Vec3& rayDir, float& hitDistan
 	return hit;
 }
 
-const Vec3 AssimpModel::GetNormalOnHit(Vec3 hitPosition) const
+Vec3 AssimpModel::GetNormalOnHit(Vec3 hitPosition) const
 {
 	return m_LastHitNormal;
 }

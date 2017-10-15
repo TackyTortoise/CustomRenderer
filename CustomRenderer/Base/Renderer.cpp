@@ -249,7 +249,7 @@ Color Renderer::GetHitColor(Object* co, Vec3 hitPos, const Vec3& rayDir)
 	if (refl > 0.f)
 	{
 		pixelColor *= 1 - refl;
-		Color reflCol = GetReflection(rayDir, hitPos, hitNormal);
+		Color reflCol = GetReflection(rayDir, hitPos - rayDir, hitNormal);
 		pixelColor += reflCol * refl;
 	}	
 

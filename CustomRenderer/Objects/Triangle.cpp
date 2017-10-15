@@ -68,7 +68,7 @@ bool Triangle::IsHit(const Vec3& rayOrg, const Vec3& rayDir, float& hitDistance)
 	return false;/**/
 }
 
-const Vec3 Triangle::GetNormalOnHit(Vec3 hitPosition) const
+Vec3 Triangle::GetNormalOnHit(Vec3 hitPosition) const
 {
 	return m_LastNormal;
 }
