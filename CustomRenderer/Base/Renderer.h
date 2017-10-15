@@ -8,6 +8,10 @@ public:
 	Renderer();
 	~Renderer();
 
+	static Renderer* GetInstance();
+	static void Destroy();
+	static const RenderSettings GetRenderSettings() { return GetInstance()->m_RenderSettings; }
+
 	void Init(const RenderSettings& rs);
 	void Close();
 
@@ -19,6 +23,8 @@ public:
 	Color* GetPixels() const { return m_Pixels; }
 
 private:
+	static Renderer* m_Instance;
+
 	Object* Trace(const Vec3& rayOrg, const Vec3& rayDir, Vec3& hitPoint, Vec3& hitNormal, Object* ignoreObject = nullptr, bool keepIgnoreDistance = false) const;
 	
 	Color GetHitColor(Object* co, Vec3 hitPos, const Vec3& rayDir);
@@ -31,6 +37,8 @@ private:
 	const Scene* m_ActiveScene = nullptr;
 	Object*const* m_RenderObjects = nullptr;
 	unsigned int m_ObjectCount = 0;
+
+	RenderSettings m_RenderSettings;
 
 	float m_RenderWidth = 0.f, m_RenderHeight = 0.f;
 	Color* m_Pixels = nullptr;

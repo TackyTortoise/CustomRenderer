@@ -143,6 +143,11 @@
     <ClCompile Include="Base\Timer.cpp" />
     <ClCompile Include="Math\Transform.cpp" />
     <ClCompile Include="Base\Texture.cpp" />
+    <ClCompile Include="Base\SceneManager.cpp" />
+    <ClCompile Include="Scenes\RefractionScene.cpp" />
+    <ClCompile Include="Scenes\ReflectiveSpheresScene.cpp" />
+    <ClCompile Include="Scenes\TestScene.cpp" />
+    <ClCompile Include="Scenes\TeapotScene.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Base\Material.h" />
@@ -155,6 +160,7 @@
     <ClInclude Include="Base\Camera.h" />
     <ClInclude Include="Math\Color.h" />
     <ClInclude Include="Math\Math.h" />
+    <ClInclude Include="Objects\CommonObjects.h" />
     <ClInclude Include="Objects\Object.h" />
     <ClInclude Include="Objects\Plane.h" />
     <ClInclude Include="Objects\Sphere.h" />
@@ -167,6 +173,11 @@
     <ClInclude Include="Base\Timer.h" />
     <ClInclude Include="Math\Transform.h" />
     <ClInclude Include="Base\Texture.h" />
+    <ClInclude Include="Base\SceneManager.h" />
+    <ClInclude Include="Scenes\RefractionScene.h" />
+    <ClInclude Include="Scenes\ReflectiveSpheresScene.h" />
+    <ClInclude Include="Scenes\TestScene.h" />
+    <ClInclude Include="Scenes\TeapotScene.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

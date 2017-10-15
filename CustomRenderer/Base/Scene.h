@@ -8,7 +8,7 @@
 class Scene
 {
 public:
-	Scene(const int n);
+	Scene();
 	~Scene();
 
 	Camera* SetupCamera(const RenderSettings& rs);
@@ -17,12 +17,12 @@ public:
 	const std::vector<Object*>& GetObjectPointer() const { return m_Objects; }
 	std::vector<Light*> GetLights() const { return m_Lights; }
 
-private:
-	void LoadTestScene(int num);
-
-	Camera* m_Camera = nullptr;
+protected:
 	std::vector<Object*> m_Objects;
 	std::vector<Light*> m_Lights;
+
+private:
+	Camera* m_Camera = nullptr;
 	Color m_BackGroundColor = Color(0);
 };
 

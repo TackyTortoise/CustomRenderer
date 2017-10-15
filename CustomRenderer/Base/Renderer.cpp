@@ -6,6 +6,8 @@
 #include "Timer.h"
 #include <string>
 
+Renderer* Renderer::m_Instance = nullptr;
+
 Renderer::Renderer()
 {
 }
@@ -15,9 +17,28 @@ Renderer::~Renderer()
 	Close();
 }
 
+Renderer* Renderer::GetInstance()
+{
+	if (!m_Instance)
+		m_Instance = new Renderer;
+
+	return m_Instance;
+}
+
+void Renderer::Destroy()
+{
+	if (!m_Instance)
+		return;
+	delete m_Instance;
+	m_Instance = nullptr;
+}
+
 void Renderer::Init(const RenderSettings& rs)
 {
 	Close();
+
+	m_RenderSettings = rs;
+
 	m_RenderWidth = rs.texWidth;
 	m_RenderHeight = rs.texHeight;
 	m_Pixels = new Color[m_RenderWidth * m_RenderHeight];
@@ -175,13 +196,12 @@ Color Renderer::GetHitColor(Object* co, Vec3 hitPos, const Vec3& rayDir)
 	auto light = m_ActiveScene->GetLights()[0];
 	Color objectColor = co->GetBaseColor();
 	auto objTex = co->GetTexture();
-
-	auto texCoord = co->GetUvCoordOnHit(hitPos);
-	//return Color(texCoord.x * 255, texCoord.y * 255, 0);
 	if (objTex != nullptr)
 	{
+		auto texCoord = co->GetUvCoordOnHit(hitPos);
 		objectColor = objTex->GetPixelColor(texCoord.x, texCoord.y);
 	}
+
 	Color ligthColor = light->GetColor();	
 	Color pixelColor = objectColor.MultiplyNormalized(ligthColor);
 	auto lightPos = light->GetPosition();

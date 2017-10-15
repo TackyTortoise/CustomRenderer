@@ -17,6 +17,11 @@
 #include "Base/Renderer.h"
 #include "Base/RenderSettings.h"
 #include "Base/Timer.h"
+#include "Base/SceneManager.h"
+#include "Scenes/TestScene.h"
+#include "Scenes/ReflectiveSpheresScene.h"
+#include "Scenes/RefractionScene.h"
+#include "Scenes/TeapotScene.h"
 
 using namespace std;
 
@@ -34,7 +39,7 @@ int main(int argc, char* argv[])
 	std::srand(time(nullptr));
 	
 	//settings
-	const float downScaling = 5.f / 1.f;
+	const float downScaling = 1.f / 1.f;
 
 	RenderSettings settings;
 	settings.screenWidth = 800;
@@ -63,18 +68,18 @@ int main(int argc, char* argv[])
 		printf("Could not create window: %s\n", SDL_GetError());
 		return 1;
 	}
-
-	//creation of scene
-	int sceneNumber = 0;
-	int totalScenes = 4;
-	Scene* testScene = new Scene(sceneNumber);
-	testScene->SetupCamera(settings);
+	
+	//Set up scenes
+	SceneManager::GetInstance()->AddScene(new TestScene());
+	SceneManager::GetInstance()->AddScene(new ReflectiveSpheresScene());
+	SceneManager::GetInstance()->AddScene(new RefractionScene());
+	SceneManager::GetInstance()->AddScene(new TeapotScene());
 
 	//initialize renderer
-	Renderer* sceneRenderer = new Renderer();
-	sceneRenderer->Init(settings);
+	Renderer* sceneRenderer = Renderer::GetInstance();
+	Renderer::GetInstance()->Init(settings);
 
-	sceneRenderer->SetActiveScene(testScene);
+	SceneManager::GetInstance()->SetActiveScene(0);
 
 	Timer::Init();
 
@@ -96,23 +101,12 @@ int main(int argc, char* argv[])
 				//load next scene
 				if (event.key.keysym.scancode == SDL_SCANCODE_RIGHT)
 				{
-					++sceneNumber;
-					sceneNumber %= totalScenes;
-					delete testScene;
-					testScene = new Scene(sceneNumber);
-					testScene->SetupCamera(settings);
-					sceneRenderer->SetActiveScene(testScene);
+					SceneManager::GetInstance()->NextScene();
 				}
 				//load previous scene
 				if (event.key.keysym.scancode == SDL_SCANCODE_LEFT)
 				{
-					--sceneNumber;
-					if (sceneNumber < 0)
-						sceneNumber = totalScenes - 1;
-					delete testScene;
-					testScene = new Scene(sceneNumber);
-					testScene->SetupCamera(settings);
-					sceneRenderer->SetActiveScene(testScene);
+					SceneManager::GetInstance()->PreviousScene();
 				}
 				break;
 
@@ -135,8 +129,9 @@ int main(int argc, char* argv[])
 
 		Timer::EndFrame();
 	}
-	delete testScene;
-	delete sceneRenderer;
+
+	Renderer::Destroy();
+	SceneManager::Destroy();
 
 	//Clean up
 	SDL_DestroyWindow(window);
