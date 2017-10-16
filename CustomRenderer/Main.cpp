@@ -25,6 +25,11 @@
 
 using namespace std;
 
+void TestThread(int i)
+{
+	cout << i << endl;
+}
+
 int main(int argc, char* argv[])
 {
 	_CrtSetDbgFlag(_CRTDBG_ALLOC_MEM_DF | _CRTDBG_LEAK_CHECK_DF); // check memory leaks
@@ -35,7 +40,7 @@ int main(int argc, char* argv[])
 	SDL_Init(SDL_INIT_VIDEO);
 	TTF_Init();
 	IMG_Init(IMG_INIT_JPG);
-
+	
 	std::srand(time(nullptr));
 	
 	//settings
@@ -47,7 +52,7 @@ int main(int argc, char* argv[])
 	settings.texWidth = settings.screenWidth / downScaling;
 	settings.texHeight = settings.screenHeight / downScaling;
 	settings.blockCount = 75;
-	settings.shadowSampleCount = 4;
+	settings.shadowSampleCount = 16;
 	settings.cameraFOV = 60;
 	settings.maxRenderDepth = 10;
 	settings.enableSrgb = false;
@@ -69,6 +74,8 @@ int main(int argc, char* argv[])
 		return 1;
 	}
 	
+	Timer::Init();
+
 	//Set up scenes
 	SceneManager::GetInstance()->AddScene(new TestScene());
 	SceneManager::GetInstance()->AddScene(new ReflectiveSpheresScene());
@@ -80,8 +87,6 @@ int main(int argc, char* argv[])
 	Renderer::GetInstance()->Init(settings);
 
 	SceneManager::GetInstance()->SetActiveScene(0);
-
-	Timer::Init();
 
 	bool quitApplication = false;
 	while (!quitApplication)
@@ -109,7 +114,6 @@ int main(int argc, char* argv[])
 					SceneManager::GetInstance()->PreviousScene();
 				}
 				break;
-
 			/*case SDL_KEYUP:
 				printf("Key release detected\n");
 				break;*/

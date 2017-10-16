@@ -5,6 +5,9 @@
 #include <cmath>
 #include "Timer.h"
 #include <string>
+#include <thread>
+#include <atomic>
+#include <future>
 
 Renderer* Renderer::m_Instance = nullptr;
 
@@ -95,7 +98,9 @@ void Renderer::SetActiveScene(const Scene* const scene)
 
 void Renderer::RenderScene()
 {
-	auto sceneCam = m_ActiveScene->GetCamera();
+	std::size_t cores = std::thread::hardware_concurrency();
+	volatile std::atomic<std::size_t> count(0);
+	std::vector<std::future<void>> future_vector;
 
 	for (int x = 0; x < m_RenderWidth; x += m_RegionSize.x)
 	{
@@ -119,42 +124,57 @@ void Renderer::RenderScene()
 			{
 				continue;
 			}
-
-			if (m_MaskedPixelCount == m_RenderWidth * m_RenderHeight - 1)
+						
+			if (cores--)
 			{
-				ClearPixelMask();
-				auto tt = Timer::GetTotalTime();
-				std::cout << "Scene rendered in " << tt - m_LastRenderTime << " seconds" << std::endl;
-				m_LastRenderTime = tt;
-			}
-			m_PixelMask[pixelIndex] = 1;
-			++m_MaskedPixelCount;
-
-			//Generate ray from camera to pixel
-			Vec3 rayDir = sceneCam->GetCameraRay(rX, rY, m_RenderWidth, m_RenderHeight);
-
-			Vec3 orgHitPoint, orgHitNormal;
-			auto pos = sceneCam->GetPosition();
-			Object* closestObj = Trace(pos, rayDir, orgHitPoint, orgHitNormal);
-
-			//On object hit Color it
-			if (closestObj != nullptr)
-			{
-				m_ReflectionDepth = m_TransparancyDepth = m_RefractionDepth = 0;
-				Color col = GetHitColor(closestObj, orgHitPoint, rayDir);
-				if (m_bEnableSrgb)
+				future_vector.emplace_back(
+				std::async([=]()
 				{
-					col.r = pow(col.r / 255.f, 1.f / 2.2f) * 255.f;
-					col.g = pow(col.g / 255.f, 1.f / 2.2f) * 255.f;
-					col.b = pow(col.b / 255.f, 1.f / 2.2f) * 255.f;
+					CalculatePixelColor(rX, rY);
+				}));
+
+				if (m_MaskedPixelCount >= m_RenderWidth * m_RenderHeight - 1)
+				{
+					ClearPixelMask();
+					auto tt = Timer::GetTotalTime();
+					std::cout << "Scene rendered in " << tt - m_LastRenderTime << " seconds" << std::endl;
+					m_LastRenderTime = tt;
 				}
-				m_Pixels[pixelIndex] = /*Color(rayDir.x *255.f, rayDir.y *255.f, rayDir.z *255.f);//*/col;
+				m_PixelMask[pixelIndex] = 1;
+				++m_MaskedPixelCount;
 			}
-			//On miss clear pixel
-			else
-				m_Pixels[pixelIndex] = /*Color(rayDir.x *255.f, rayDir.y *255.f, rayDir.z *255.f); //*/m_ClearColor;
+
+			//CalculatePixelColor(rX, rY);
 		}
 	}
+}
+
+void Renderer::CalculatePixelColor(const int x, const int y)
+{
+	//Generate ray from camera to pixel
+	auto cam = m_ActiveScene->GetCamera();
+	Vec3 rayDir = cam->GetCameraRay(x, y, m_RenderWidth, m_RenderHeight);
+	int pixelIndex = x + m_RenderWidth * y;
+	Vec3 orgHitPoint, orgHitNormal;
+	auto pos = cam->GetPosition();
+	Object* closestObj = Trace(pos, rayDir, orgHitPoint, orgHitNormal);
+
+	//On object hit Color it
+	if (closestObj != nullptr)
+	{
+		m_ReflectionDepth = m_TransparancyDepth = m_RefractionDepth = 0;
+		Color col = GetHitColor(closestObj, orgHitPoint, rayDir);
+		if (m_bEnableSrgb)
+		{
+			col.r = pow(col.r / 255.f, 1.f / 2.2f) * 255.f;
+			col.g = pow(col.g / 255.f, 1.f / 2.2f) * 255.f;
+			col.b = pow(col.b / 255.f, 1.f / 2.2f) * 255.f;
+		}
+		m_Pixels[pixelIndex] = /*Color(rayDir.x *255.f, rayDir.y *255.f, rayDir.z *255.f);//*/col;
+	}
+	//On miss clear pixel
+	else
+		m_Pixels[pixelIndex] = /*Color(rayDir.x *255.f, rayDir.y *255.f, rayDir.z *255.f); //*/m_ClearColor;
 }
 
 Object* Renderer::Trace(const Vec3& rayOrg, const Vec3& rayDir, Vec3& hitPoint, Vec3& hitNormal, Object* ignoreObject, bool keepIgnoreDistance) const

@@ -31,6 +31,8 @@ private:
 
 	Color GetReflection(const Vec3& rayDir, const Vec3& hitPoint, const Vec3& hitNormal);
 
+	void CalculatePixelColor(const int x, const int y);
+
 	void ClearPixelMask();
 	void ClearPixelBuffer();
 

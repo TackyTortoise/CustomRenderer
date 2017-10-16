@@ -17,5 +17,8 @@ private:
 	Vec3* m_Normal = nullptr;
 	Vec3 m_LastNormal;
 	Vec2 m_LastUV;
+	Vec3 m_BaryRight, m_BaryUp;
+	Vec3 m_Edge0, m_Edge1;
+	float m_EdgeBaryRatio0, m_EdgeBaryRatio1;
 };
 
