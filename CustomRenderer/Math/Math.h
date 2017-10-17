@@ -60,7 +60,8 @@ public:
 	static Vec3 TangentToWorld(const Vec3& sample, const Vec3& normal)
 	{
 		auto norm = normal;
-		auto tang = Vec3(0, 1, 0).Cross(norm);
+		//if (norm.y - 1.f < 1)
+		auto tang = abs(abs(norm.y) - 1.f) < 1e-5 ? Vec3(1,0,0) : Vec3(0, 1, 0).Cross(norm);
 		auto bitan = norm.Cross(tang);
 		Matrix4x4 m = Matrix4x4::Identity;
 
@@ -76,7 +77,7 @@ public:
 		m[2][1] = norm.y;
 		m[2][2] = norm.z;
 
-		return m.TransformVector(sample);
+		return m.TransformVector(sample).Normalized();
 	}
 
 #define SQRT_MAGIC_F 0x5f3759df 

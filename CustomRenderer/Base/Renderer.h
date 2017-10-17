@@ -4,6 +4,16 @@
 #include <atomic>
 #include <thread>
 
+enum RenderMode
+{
+	ALL,
+	BASECOLOR,
+	NORMALS,
+	SHADOWS,
+	DEPTH,
+	SIZE,
+};
+
 class Renderer
 {
 public:
@@ -25,6 +35,9 @@ public:
 	Color* GetPixels() const { return m_Pixels; }
 
 	void ClearImage();
+
+	void NextRenderMode();
+	void PreviousRenderMode();
 
 private:
 	static Renderer* m_Instance;
@@ -70,5 +83,7 @@ private:
 	bool m_bEnableSrgb = false;
 
 	float m_LastRenderTime = 0.f;
+
+	RenderMode m_CurrentRenderMode = ALL;
 };
 

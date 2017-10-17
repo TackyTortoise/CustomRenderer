@@ -131,7 +131,7 @@ void Renderer::RenderScene()
 			if (m_PixelMask[pixelIndex] == 1)
 			{
 				++m_FalseHitCounter;
-				if (m_FalseHitCounter >  100 * m_RenderWidth)
+				if (m_FalseHitCounter >  m_RenderHeight * m_RenderWidth)
 				{
 					auto tt = Timer::GetTotalTime();
 					auto rt = tt - m_LastRenderTime;
@@ -141,8 +141,6 @@ void Renderer::RenderScene()
 				}
 				continue;
 			}
-
-			m_PixelMask[pixelIndex] = 1;
 
 			m_FalseHitCounter = 0;
 
@@ -170,9 +168,35 @@ void Renderer::ClearImage()
 	m_LastRenderTime = Timer::GetTotalTime();
 }
 
+void Renderer::NextRenderMode()
+{
+	int n = m_CurrentRenderMode + 1;
+	n %= RenderMode::SIZE;
+	m_CurrentRenderMode = static_cast<RenderMode>(n);
+	ClearPixelMask();
+	m_LastRenderTime = Timer::GetTotalTime();
+}
+
+void Renderer::PreviousRenderMode()
+{
+	int n = m_CurrentRenderMode - 1;
+	if (n < 0)
+		n = SIZE - 1;
+	m_CurrentRenderMode = static_cast<RenderMode>(n);
+	ClearPixelMask();
+	m_LastRenderTime = Timer::GetTotalTime();
+}
+
 void Renderer::CalculatePixelColor(const int x, const int y)
 {
 	int pixelIndex = x + m_RenderWidth * y;
+
+	if (m_PixelMask[pixelIndex] == 1)
+	{
+		return;
+	}
+
+	m_PixelMask[pixelIndex] = 1;
 
 	//Generate ray from camera to pixel
 	auto cam = m_ActiveScene->GetCamera();
@@ -244,10 +268,13 @@ Object* Renderer::Trace(const Vec3& rayOrg, const Vec3& rayDir, HitInfo& result,
 
 Color Renderer::GetHitColor(Object* co, HitInfo& hitInfo, const Vec3& rayDir, int& currentDepth)
 {
-	//return Color(abs(hitNormal.x) * 255, abs(hitNormal.y) * 255, abs(hitNormal.z) * 255);
+	if (m_CurrentRenderMode == DEPTH)
+		return Color(hitInfo.distance / 100.f * 255.f);
+
 	auto light = m_Lights[0];
 	Color objectColor = co->GetBaseColor();
 
+	//Sample texture if there is one
 	auto objTex = co->GetTexture();
 	auto texCoord = hitInfo.uvCoordinate / co->GetMaterial().GetScale();
 	if (objTex != nullptr)
@@ -255,6 +282,11 @@ Color Renderer::GetHitColor(Object* co, HitInfo& hitInfo, const Vec3& rayDir, in
 		objectColor = objTex->GetPixelColor(texCoord.x, texCoord.y);
 	}
 
+	if (m_CurrentRenderMode == BASECOLOR)
+		return objectColor;
+
+	Vec3 orgNormal = hitInfo.normal;
+	//Sample normalmap if there is one
 	auto objNormal = co->GetNormalMap();
 	if (objNormal != nullptr)
 	{
@@ -263,10 +295,56 @@ Color Renderer::GetHitColor(Object* co, HitInfo& hitInfo, const Vec3& rayDir, in
 		hitInfo.normal = Math::TangentToWorld(sampleNormal, hitInfo.normal);
 	}
 
+	if (m_CurrentRenderMode == NORMALS)
+	{
+		auto absNormCol = hitInfo.normal * 255;
+		return Color(abs(absNormCol.x), abs(absNormCol.y), abs(absNormCol.z));
+	}
+
 	Color ligthColor = light->GetColor();
 	Color pixelColor = objectColor.MultiplyNormalized(ligthColor);
 	auto lightPos = light->GetPosition();
 	Vec3 toLight = (lightPos - hitInfo.position).Normalized();
+
+	//shadow
+	HitInfo shadowHitInfo;
+	float shadowFactor = 1.f;
+	auto shadowStart = hitInfo.position + toLight * 0.01f;
+	Object* cs = nullptr;
+	//soft shadows
+	if (m_ShadowSamples > 1)
+	{
+		float shadowSum = 0.f;
+		for (int i = 0; i < m_ShadowSamples; ++i)
+		{
+			auto shadowRay = (light->GetPointInAreaLight() - hitInfo.position).Normalized();
+			cs = Trace(shadowStart, shadowRay, shadowHitInfo);
+			if (cs != nullptr && cs != co)
+			{
+				if ((shadowHitInfo.position - shadowStart).Length2() < (lightPos - hitInfo.position).Length2())
+					shadowSum += m_ShadowIntensity;// *shadowRay.Dot(orgNormal);
+			}
+		}
+		shadowSum /= m_ShadowSamples;
+		if (shadowSum > 0.f)
+		{
+			shadowFactor = 1.f - shadowSum;
+		}
+	}
+
+	//hard shadows
+	else if (m_ShadowSamples == 1)
+	{
+		cs = Trace(shadowStart, toLight, shadowHitInfo);
+		if (cs != nullptr && cs != co)
+		{
+			if ((shadowHitInfo.position - shadowStart).Length2() < (lightPos - hitInfo.position).Length2())
+				shadowFactor = 1 - m_ShadowIntensity;
+		}
+	}
+
+	if (m_CurrentRenderMode == SHADOWS)
+		return Color(shadowFactor * 255);
 
 	float diffuseIntensity = Math::CalculateDiffuseIntensity(toLight, -rayDir, hitInfo.normal);
 
@@ -318,42 +396,6 @@ Color Renderer::GetHitColor(Object* co, HitInfo& hitInfo, const Vec3& rayDir, in
 		refinf.normal = hitInfo.normal;
 		Color reflCol = GetReflection(rayDir, refinf, currentDepth);
 		pixelColor += reflCol * refl;
-	}
-
-	//shadow
-	HitInfo shadowHitInfo;
-	float shadowFactor = 1.f;
-	auto shadowStart = hitInfo.position + toLight * 0.01f;
-	Object* cs = nullptr;
-	//soft shadows
-	if (m_ShadowSamples > 1)
-	{
-		float shadowSum = 0.f;
-		for (int i = 0; i < m_ShadowSamples; ++i)
-		{
-			auto shadowRay = (light->GetPointInAreaLight() - hitInfo.position).Normalized();
-			cs = Trace(shadowStart, shadowRay, shadowHitInfo);
-			if (cs != nullptr && cs != co)
-			{
-				if ((shadowHitInfo.position - shadowStart).Length2() < (lightPos - hitInfo.position).Length2())
-					shadowSum += m_ShadowIntensity * shadowRay.Dot(hitInfo.normal);
-			}
-		}
-		shadowSum /= m_ShadowSamples;
-		if (shadowSum > 0.f)
-		{
-			shadowFactor = 1.f - shadowSum;
-		}
-	}
-	//hard shadows
-	else if (m_ShadowSamples == 1)
-	{
-		cs = Trace(shadowStart, toLight, shadowHitInfo);
-		if (cs != nullptr && cs != co)
-		{
-			if ((shadowHitInfo.position - shadowStart).Length2() < (lightPos - hitInfo.position).Length2())
-				shadowFactor = 1 - m_ShadowIntensity;
-		}
 	}
 
 	//Diffuse color

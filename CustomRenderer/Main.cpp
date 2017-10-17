@@ -162,6 +162,21 @@ int main(int argc, char* argv[])
 					activeScene->RotateCamera(Vec3(0, -camSpeed / 2.f, 0) * Timer::GetDeltaTime());
 					Renderer::GetInstance()->ClearImage();
 				}
+
+				if (event.key.keysym.scancode == SDL_SCANCODE_UP)
+				{
+					Renderer::GetInstance()->NextRenderMode();
+				}
+
+				if (event.key.keysym.scancode == SDL_SCANCODE_DOWN)
+				{
+					Renderer::GetInstance()->PreviousRenderMode();
+				}
+
+				if (event.key.keysym.scancode == SDL_SCANCODE_SPACE)
+				{
+					Renderer::GetInstance()->ClearImage();
+				}
 				break;
 			/*case SDL_KEYUP:
 				printf("Key release detected\n");
