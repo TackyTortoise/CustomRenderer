@@ -6,7 +6,7 @@ public:
 	AABox(Vec3 pos, float width, float height, float depth, Color col = Color(255));
 	~AABox();
 
-	bool IsHit(const Vec3& rayOrg, const Vec3& rayDir, float& hitDistance) override;
+	bool IsHit(const Vec3& rayOrg, const Vec3& rayDir, HitInfo& hitInfo) override;
 	Vec3 GetNormalOnHit(Vec3 hitPosition) const override;
 
 	Vec2 GetUvCoordOnHit(Vec3 hitPosition) const override;

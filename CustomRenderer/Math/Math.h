@@ -4,6 +4,7 @@
 #include "Math.h"
 #include "Matrix4x4.h"
 #include "Transform.h"
+#include "HitInfo.h"
 //#include "Color.h"
 
 class Math

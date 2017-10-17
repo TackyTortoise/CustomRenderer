@@ -8,7 +8,7 @@ public:
 	Triangle(const PosNormUVVertex& p0, const PosNormUVVertex& p1, const PosNormUVVertex& p2);
 	~Triangle();
 
-	bool IsHit(const Vec3& rayOrg, const Vec3& rayDir, float& hitDistance) override;
+	bool IsHit(const Vec3& rayOrg, const Vec3& rayDir, HitInfo& hitInfo) override;
 	Vec3 GetNormalOnHit(Vec3 hitPosition) const override;
 
 	Vec2 GetUvCoordOnHit(Vec3 hitPosition) const override;

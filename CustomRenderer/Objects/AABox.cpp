@@ -14,7 +14,7 @@ AABox::~AABox()
 {
 }
 
-bool AABox::IsHit(const Vec3& rayOrg, const Vec3& rayDir, float& hitDistance)
+bool AABox::IsHit(const Vec3& rayOrg, const Vec3& rayDir, HitInfo& hitInfo)
 {
 	//Get hit X distance
 	float tMinX = (m_BoundsMin.x - rayOrg.x) / rayDir.x;
@@ -70,9 +70,12 @@ bool AABox::IsHit(const Vec3& rayOrg, const Vec3& rayDir, float& hitDistance)
 
 	if (secondHit < firstHit)
 		firstHit = secondHit;
-	hitDistance = firstHit;
+	hitInfo.distance = firstHit;
+	hitInfo.position = rayOrg + rayDir * hitInfo.distance;
+	hitInfo.normal = GetNormalOnHit(hitInfo.position);
+	hitInfo.uvCoordinate = GetUvCoordOnHit(hitInfo.position);
 
-	return hitDistance > 0.f;
+	return hitInfo.distance > 0.f;
 }
 
 Vec3 AABox::GetNormalOnHit(Vec3 hitPosition) const

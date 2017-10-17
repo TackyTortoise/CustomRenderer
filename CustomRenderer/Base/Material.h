@@ -15,12 +15,19 @@ struct Material
 	bool bMetallic = false;
 	bool bUseTexture = false;
 	Texture* texture = nullptr;
+	bool bUseNormalMap = false;
+	Texture* normalMap = nullptr;
 
 	~Material()
 	{
 		if (texture)
 		{
 			MaterialManager::UnLoadTexture(texture);
+		}
+
+		if (normalMap)
+		{
+			MaterialManager::UnLoadTexture(normalMap);
 		}
 	}
 

@@ -153,6 +153,7 @@
     <ClInclude Include="Base\Material.h" />
     <ClInclude Include="Base\RenderSettings.h" />
     <ClInclude Include="Base\MaterialManager.h" />
+    <ClInclude Include="Math\HitInfo.h" />
     <ClInclude Include="Math\Matrix4x4.h" />
     <ClInclude Include="Objects\AssimpModel.h" />
     <ClInclude Include="Base\Light.h" />

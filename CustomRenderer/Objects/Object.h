@@ -1,5 +1,5 @@
 #pragma once
-#include "../Math/Vec3.h"
+#include "../Math/Math.h"
 #include "../Math/Color.h"
 #include "../Base/Material.h"
 #include "../Base/MaterialManager.h"
@@ -10,7 +10,7 @@ public:
 	Object() {}
 	virtual ~Object(){}
 
-	virtual bool IsHit(const Vec3& rayOrg, const Vec3& rayDir, float& hitDistance) = 0;
+	virtual bool IsHit(const Vec3& rayOrg, const Vec3& rayDir, HitInfo& hitInfo) = 0;
 
 	virtual const Color& GetBaseColor() const { return m_Material.color; }
 	virtual void SetBaseColor(const Color& col) { m_Material.color = col; }
@@ -38,6 +38,9 @@ public:
 
 	void SetTexture(const char* path) { m_Material.texture = MaterialManager::LoadTexture(path); m_Material.bUseTexture = m_Material.texture != nullptr; }
 	Texture* GetTexture() const { return m_Material.bUseTexture ? m_Material.texture : nullptr; }
+
+	void SetNormalMap(const char* path) { m_Material.normalMap = MaterialManager::LoadTexture(path); m_Material.bUseNormalMap = m_Material.normalMap != nullptr; }
+	Texture* GetNormalMap() const { return m_Material.bUseNormalMap ? m_Material.normalMap : nullptr; }
 
 protected:
 	

@@ -15,7 +15,7 @@ public:
 	Camera* GetCamera() const { return m_Camera; }
 
 	const std::vector<Object*>& GetObjectPointer() const { return m_Objects; }
-	std::vector<Light*> GetLights() const { return m_Lights; }
+	const std::vector<Light*>& GetLights() const { return m_Lights; }
 
 protected:
 	std::vector<Object*> m_Objects;

@@ -27,7 +27,7 @@ Triangle::~Triangle()
 	}
 }
 
-bool Triangle::IsHit(const Vec3& rayOrg, const Vec3& rayDir, float& hitDistance)
+bool Triangle::IsHit(const Vec3& rayOrg, const Vec3& rayDir, HitInfo& hitInfo)
 {
 	auto normal = *m_Normal;
 	float ndr = normal.Dot(rayDir);
@@ -46,7 +46,7 @@ bool Triangle::IsHit(const Vec3& rayOrg, const Vec3& rayDir, float& hitDistance)
 
 	//calculate hit position in world
 	auto hp = rayOrg + rayDir * t;
-	hitDistance = t;
+	hitInfo.distance = t;
 
 	//check if hitpoint was inside triangle
 	//auto v1 = m_P1.position - m_P0.position;
@@ -66,8 +66,8 @@ bool Triangle::IsHit(const Vec3& rayOrg, const Vec3& rayDir, float& hitDistance)
 	if (o1 > 0 && o1 < 1 && o2 > 0 && o2 < 1 && o1 + o2 < 1)
 	{
 		//save normal and uv on hit to avoid recalculations
-		m_LastNormal = m_P0.normal * (1.f - o1 - o2) + m_P1.normal * o1 + m_P2.normal * o2;
-		m_LastUV = m_P0.uv * (1.f - o1 - o2) + m_P1.uv * o1 + m_P2.uv * o2;
+		hitInfo.normal = m_P0.normal * (1.f - o1 - o2) + m_P1.normal * o1 + m_P2.normal * o2;
+		hitInfo.uvCoordinate = m_P0.uv * (1.f - o1 - o2) + m_P1.uv * o1 + m_P2.uv * o2;
 		return true;
 	}
 

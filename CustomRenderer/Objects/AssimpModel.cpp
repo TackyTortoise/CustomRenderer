@@ -18,33 +18,36 @@ AssimpModel::~AssimpModel()
 	ClearData();
 }
 
-bool AssimpModel::IsHit(const Vec3& rayOrg, const Vec3& rayDir, float& hitDistance)
+bool AssimpModel::IsHit(const Vec3& rayOrg, const Vec3& rayDir, HitInfo& hitInfo)
 {
 	//check for bounding box hit
-	bool bbHit = m_BoundingBox->IsHit(rayOrg, rayDir, hitDistance);
+	bool bbHit = m_BoundingBox->IsHit(rayOrg, rayDir, hitInfo);
 	if (!bbHit)
 		return false;
 
 	//calculate closest triangle intersection
 	float shortD = std::numeric_limits<float>::max();
 	bool hit = false;
+	HitInfo hi;
 	for (int i = 0; i < m_Triangles.size(); ++i)
 	{
-		float hitD;
-		if (m_Triangles[i]->IsHit(rayOrg, rayDir, hitD))
+		if (m_Triangles[i]->IsHit(rayOrg, rayDir, hi))
 		{
-			if (hitD < shortD && hitD > 1e-5)
+			if (hi.distance < shortD && hi.distance > 1e-5)
 			{
 				//save data for closest hit
 				hit = true;
-				shortD = hitD;
-				auto hp = rayOrg + rayDir * hitD;
-				m_LastHitNormal = m_Triangles[i]->GetNormalOnHit(hp);
-				m_LastHitUV = m_Triangles[i]->GetUvCoordOnHit(hp);
+				shortD = hi.distance;
+				auto hp = rayOrg + rayDir * hi.distance;
+				//hitInfo.normal = hi.normal;
+				//hitInfo.uvCoordinate = hi.uvCoordinate;
+				hitInfo = hi;
+				//m_LastHitNormal = hitInfo.normal;
+				//m_LastHitUV = hi.uvCoordinate;
 			}
 		}
 	}
-	hitDistance = shortD;
+	hitInfo.distance = shortD;
 	return hit;
 }
 

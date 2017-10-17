@@ -1,6 +1,8 @@
 #pragma once
 #include "Scene.h"
 #include "RenderSettings.h"
+#include <atomic>
+#include <thread>
 
 class Renderer
 {
@@ -25,11 +27,11 @@ public:
 private:
 	static Renderer* m_Instance;
 
-	Object* Trace(const Vec3& rayOrg, const Vec3& rayDir, Vec3& hitPoint, Vec3& hitNormal, Object* ignoreObject = nullptr, bool keepIgnoreDistance = false) const;
+	Object* Trace(const Vec3& rayOrg, const Vec3& rayDir, HitInfo& result, Object* ignoreObject = nullptr, bool keepIgnoreDistance = false) const;
 	
-	Color GetHitColor(Object* co, Vec3 hitPos, const Vec3& rayDir);
+	Color GetHitColor(Object* co, HitInfo& hitInfo, const Vec3& rayDir, int& currentDepth);
 
-	Color GetReflection(const Vec3& rayDir, const Vec3& hitPoint, const Vec3& hitNormal);
+	Color GetReflection(const Vec3& rayDir, HitInfo& hitInfo, int& currentDepth);
 
 	void CalculatePixelColor(const int x, const int y);
 
@@ -40,13 +42,17 @@ private:
 	Object*const* m_RenderObjects = nullptr;
 	unsigned int m_ObjectCount = 0;
 
+	Light* const* m_Lights = nullptr;
+	unsigned int m_LightCount = 0;
+
 	RenderSettings m_RenderSettings;
 
 	float m_RenderWidth = 0.f, m_RenderHeight = 0.f;
 	Color* m_Pixels = nullptr;
 
 	char *m_PixelMask = nullptr;
-	unsigned m_MaskedPixelCount = 0;
+ 	unsigned m_MaskedPixelCount = 0;
+	unsigned m_FalseHitCounter = 0;
 
 	unsigned int m_BlockCount = 1;
 	Vec2 m_RegionSize;
@@ -55,7 +61,7 @@ private:
 
 	const float m_ShadowIntensity = .8f;
 	char m_MaxDepth = 10;
-	short m_ReflectionDepth = 0, m_TransparancyDepth = 0, m_RefractionDepth = 0;
+	//short m_ReflectionDepth = 0, m_TransparancyDepth = 0, m_RefractionDepth = 0;
 
 	int m_ShadowSamples = 1;
 

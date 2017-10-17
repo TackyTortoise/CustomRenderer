@@ -33,7 +33,7 @@ void TestThread(int i)
 int main(int argc, char* argv[])
 {
 	_CrtSetDbgFlag(_CRTDBG_ALLOC_MEM_DF | _CRTDBG_LEAK_CHECK_DF); // check memory leaks
-	//_CrtSetBreakAlloc(196);
+	//_CrtSetBreakAlloc(185);
 	//create sdl window and renderer
 	SDL_Window *window;
 	SDL_Renderer *renderer;
@@ -51,7 +51,7 @@ int main(int argc, char* argv[])
 	settings.screenHeight = 600;
 	settings.texWidth = settings.screenWidth / downScaling;
 	settings.texHeight = settings.screenHeight / downScaling;
-	settings.blockCount = 75;
+	settings.blockCount = 100;
 	settings.shadowSampleCount = 16;
 	settings.cameraFOV = 60;
 	settings.maxRenderDepth = 10;

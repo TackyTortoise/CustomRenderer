@@ -3,14 +3,15 @@
 Plane::Plane()
 {
 	m_Material.color = Color(120, 120, 70);
+	m_Right = Vec3(m_Normal.y, -m_Normal.x, m_Normal.z);
+	m_Up = m_Normal.Cross(m_Right).Normalized();
 }
-
 
 Plane::~Plane()
 {
 }
 
-bool Plane::IsHit(const Vec3& rayOrg, const Vec3& rayDir, float& hitDistance)
+bool Plane::IsHit(const Vec3& rayOrg, const Vec3& rayDir, HitInfo& hitInfo)
 {
 	auto rdn = rayDir.Dot(m_Normal);
 	//Check if perpendicular
@@ -19,7 +20,11 @@ bool Plane::IsHit(const Vec3& rayOrg, const Vec3& rayDir, float& hitDistance)
 
 	Vec3 between = m_Transform.GetPosition() - rayOrg;
 	auto bdn = between.Dot(m_Normal);
-	hitDistance = bdn / rdn;
-	return (hitDistance >= 0);
+	hitInfo.distance = bdn / rdn;
+	hitInfo.normal = m_Normal;
+	hitInfo.position = rayOrg + rayDir * hitInfo.distance;
+	auto ctp = hitInfo.position - m_Transform.GetPosition();
+	hitInfo.uvCoordinate = Vec2(ctp.Dot(m_Right) / 10.f, ctp.Dot(m_Up) / 10.f);
+	return (hitInfo.distance >= 0);
 }
 

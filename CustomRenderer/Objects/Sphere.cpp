@@ -17,7 +17,7 @@ Sphere::~Sphere()
 {
 }
 
-bool Sphere::IsHit(const Vec3& rayOrg, const Vec3& rayDir, float& hitDistance)
+bool Sphere::IsHit(const Vec3& rayOrg, const Vec3& rayDir, HitInfo& hitInfo)
 {
 	Vec3 between = m_Transform.GetPosition() - rayOrg;
 	float bdr = between.Dot(rayDir);
@@ -30,7 +30,10 @@ bool Sphere::IsHit(const Vec3& rayOrg, const Vec3& rayDir, float& hitDistance)
 
 	//calculate hit distance
 	float d = Math::sqrt2(m_Radius2 - centerOffsetSq);
-	hitDistance = bdr - d;
+	hitInfo.distance = bdr - d;
+	hitInfo.position = rayOrg + rayDir * hitInfo.distance;
+	hitInfo.normal = GetNormalOnHit(hitInfo.position);
+	hitInfo.uvCoordinate = GetUvCoordOnHit(hitInfo.position);
 	return true;
 }
 

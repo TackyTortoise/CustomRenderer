@@ -164,5 +164,8 @@
     <ClInclude Include="Scenes\TeapotScene.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="Math\HitInfo.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
 </Project>

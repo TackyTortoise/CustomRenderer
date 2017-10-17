@@ -13,15 +13,15 @@ public:
 	Vec3(aiVector3D v) :x(v.x), y(v.y), z(v.z) {}
 
 #pragma region operators
-	Vec3 operator* (const float& v) const {return Vec3(x * v, y * v, z * v);}
+	Vec3 operator* (const float& v) const { return{ x * v, y * v, z * v }; }
 
-	Vec3 operator* (const Vec3& o) const {return Vec3(x * o.x, y * o.y, z * o.x);}
+	Vec3 operator* (const Vec3& o) const { return{ x * o.x, y * o.y, z * o.x }; }
 
-	Vec3 operator/ (const Vec3& o) const {return Vec3(x / o.x, y / o.y, z / o.x);}
+	Vec3 operator/ (const Vec3& o) const { return{ x / o.x, y / o.y, z / o.x }; }
 
-	Vec3 operator+(const Vec3& o) const {return Vec3(x + o.x, y + o.y, z + o.z);}
+	Vec3 operator+(const Vec3& o) const { return{ x + o.x, y + o.y, z + o.z }; }
 
-	Vec3 operator-(const Vec3& o) const { return Vec3(x - o.x, y - o.y, z - o.z);}
+	Vec3 operator-(const Vec3& o) const { return{ x - o.x, y - o.y, z - o.z }; }
 
 	Vec3 operator+= (const Vec3& o)	
 	{
@@ -47,7 +47,7 @@ public:
 		return *this;
 	}
 
-	Vec3 operator-() const { return Vec3(-x, -y, -z); }
+	Vec3 operator-() const { return{ -x, -y, -z }; }
 #pragma endregion
 
 	float Length2() const { return x*x + y*y + z*z; }
@@ -84,6 +84,11 @@ public:
 	{
 		str << "[ " << v.x << ", " << v.y << ", " << v.z << " ]";
 		return str;
+	}
+
+	static Vec3 GetRandom()
+	{
+		return{ static_cast<float>(rand()), static_cast<float>(rand()), static_cast<float>(rand()) };
 	}
 
 	static Vec3 zero;

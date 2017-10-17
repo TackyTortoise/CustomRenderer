@@ -13,6 +13,7 @@ TestScene::TestScene() : Scene()
 	m_Objects.push_back(new Sphere(Vec3(-2.5, -1, 45), 2, Color(124, 20, 77))); // burgundi
 	m_Objects.push_back(new Sphere(Vec3(-3, -2.5, 10), 1.5f, Color(108, 92, 50))); // kaky
 	m_Objects.back()->SetTexture("../Textures/rock.jpg");
+	m_Objects.back()->SetNormalMap("../Textures/normal.jpg");
 	m_Objects.back()->SetShininess(1000.f);
 	m_Objects.push_back(new Sphere(Vec3(4, 2, 9.5), .5, Color(244, 101, 44))); // orange
 
@@ -32,7 +33,8 @@ TestScene::TestScene() : Scene()
 	m_Objects[4]->SetMetallic(true);
 	Plane* pTest = new Plane();
 	pTest->SetPosition({ 0, -5, 0 });
-	pTest->SetReflective(.2f);
+	pTest->SetTexture("../Textures/rock.jpg");
+	pTest->SetReflective(.4f);
 	m_Objects.push_back(pTest);
 
 	pTest = new Plane();
@@ -52,7 +54,7 @@ TestScene::TestScene() : Scene()
 
 	m_Lights.push_back(new Light({ 10,30,0 }, { 0,-1,0 }, 2, 2));
 
-	m_Camera->GetTransform()->SetRotation({ 0.f,0.f,(float)M_PI / 15.f });
+	m_Camera->GetTransform()->SetRotation({ 0.f,0.f,(float)M_PI / 20.f });
 }
 
 TestScene::~TestScene()
