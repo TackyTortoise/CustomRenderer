@@ -51,10 +51,10 @@ int main(int argc, char* argv[])
 	settings.screenHeight = 600;
 	settings.texWidth = settings.screenWidth / downScaling;
 	settings.texHeight = settings.screenHeight / downScaling;
-	settings.blockCount = 150;
+	settings.blockCount = 75;
 	settings.shadowSampleCount = 16;
 	settings.cameraFOV = 60;
-	settings.maxRenderDepth = 10;
+	settings.maxRenderDepth = 0;
 	settings.enableSrgb = false;
 	
 	//create SDL window
@@ -91,6 +91,8 @@ int main(int argc, char* argv[])
 	const float camSpeed = 1.5f;
 
 	bool quitApplication = false;
+	float lastPresent = 0.f;
+
 	while (!quitApplication)
 	{
 		SDL_Event event;
@@ -191,9 +193,13 @@ int main(int argc, char* argv[])
 		sceneRenderer->RenderScene();
 
 		//present texture on screen
-		SDL_UpdateTexture(texture, nullptr, &sceneRenderer->GetPixels()[0], settings.texWidth * 4);
-		SDL_RenderCopy(renderer, texture, nullptr, nullptr);
-		SDL_RenderPresent(renderer);
+		if (Timer::GetTotalTime() - lastPresent > 1 / 30.f)
+		{
+			SDL_UpdateTexture(texture, nullptr, &sceneRenderer->GetPixels()[0], settings.texWidth * 4);
+			SDL_RenderCopy(renderer, texture, nullptr, nullptr);
+			SDL_RenderPresent(renderer);
+			lastPresent = Timer::GetTotalTime();
+		}
 
 		Timer::EndFrame();
 	}

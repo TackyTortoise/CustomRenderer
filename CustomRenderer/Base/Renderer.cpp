@@ -108,7 +108,7 @@ void Renderer::RenderScene()
 	std::size_t cores = std::thread::hardware_concurrency();
 	volatile std::atomic<std::size_t> count(0);
 	std::vector<std::future<void>> future_vector;
-	
+
 	for (int x = 0; x < m_RenderWidth; x += m_RegionSize.x)
 	{
 		for (int y = 0; y < m_RenderHeight; y += m_RegionSize.y)
@@ -338,6 +338,7 @@ Color Renderer::GetHitColor(Object* co, HitInfo& hitInfo, const Vec3& rayDir, in
 		cs = Trace(shadowStart, toLight, shadowHitInfo);
 		if (cs != nullptr && cs != co)
 		{
+			//chech if not hit something behind light
 			if ((shadowHitInfo.position - shadowStart).Length2() < (lightPos - hitInfo.position).Length2())
 				shadowFactor = 1 - m_ShadowIntensity;
 		}
