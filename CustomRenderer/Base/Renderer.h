@@ -24,6 +24,8 @@ public:
 
 	Color* GetPixels() const { return m_Pixels; }
 
+	void ClearImage();
+
 private:
 	static Renderer* m_Instance;
 
@@ -34,7 +36,7 @@ private:
 	Color GetReflection(const Vec3& rayDir, HitInfo& hitInfo, int& currentDepth);
 
 	void CalculatePixelColor(const int x, const int y);
-
+	
 	void ClearPixelMask();
 	void ClearPixelBuffer();
 
@@ -57,7 +59,7 @@ private:
 	unsigned int m_BlockCount = 1;
 	Vec2 m_RegionSize;
 
-	Color m_ClearColor = Color(12, 12, 12);
+	Color m_ClearColor = Color(128, 128, 128);
 
 	const float m_ShadowIntensity = .8f;
 	char m_MaxDepth = 10;

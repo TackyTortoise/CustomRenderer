@@ -40,3 +40,13 @@ Camera* Scene::SetupCamera(const RenderSettings& rs)
 	m_Camera = new Camera(rs.cameraFOV, rs.screenWidth / static_cast<float>(rs.screenHeight));
 	return m_Camera;
 }
+
+void Scene::MoveCamera(const Vec3& movement) const
+{
+	m_Camera->GetTransform()->Move(movement);
+}
+
+void Scene::RotateCamera(const Vec3& rotation) const
+{
+	m_Camera->GetTransform()->Rotate(rotation);
+}

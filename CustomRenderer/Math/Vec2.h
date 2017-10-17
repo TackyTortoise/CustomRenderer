@@ -14,6 +14,8 @@ public:
 
 	Vec2 operator* (const Vec2& o) const { return Vec2(x * o.x, y * o.y); }
 
+	Vec2 operator/ (const float& v) const { return Vec2(x / v, y / v); }
+
 	Vec2 operator+(const Vec2& o) const { return Vec2(x + o.x, y + o.y); }
 
 	Vec2 operator-(const Vec2& o) const { return Vec2(x - o.x, y - o.y); }

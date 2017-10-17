@@ -14,6 +14,9 @@ public:
 	Camera* SetupCamera(const RenderSettings& rs);
 	Camera* GetCamera() const { return m_Camera; }
 
+	void MoveCamera(const Vec3& movement) const;
+	void RotateCamera(const Vec3& rotation) const;
+
 	const std::vector<Object*>& GetObjectPointer() const { return m_Objects; }
 	const std::vector<Light*>& GetLights() const { return m_Lights; }
 

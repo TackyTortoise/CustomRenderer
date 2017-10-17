@@ -57,6 +57,28 @@ public:
 		return r0 + (1 - r0) * pow(1 - ct, 5);
 	}
 
+	static Vec3 TangentToWorld(const Vec3& sample, const Vec3& normal)
+	{
+		auto norm = normal;
+		auto tang = Vec3(0, 1, 0).Cross(norm);
+		auto bitan = norm.Cross(tang);
+		Matrix4x4 m = Matrix4x4::Identity;
+
+		m[0][0] = tang.x;
+		m[0][1] = tang.y;
+		m[0][2] = tang.z;
+
+		m[1][0] = bitan.x;
+		m[1][1] = bitan.y;
+		m[1][2] = bitan.z;
+
+		m[2][0] = norm.x;
+		m[2][1] = norm.y;
+		m[2][2] = norm.z;
+
+		return m.TransformVector(sample);
+	}
+
 #define SQRT_MAGIC_F 0x5f3759df 
 	static float  sqrt2(const float x)
 	{

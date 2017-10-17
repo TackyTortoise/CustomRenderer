@@ -43,3 +43,17 @@ void Transform::SetScale(const Vec3& newScale)
 	m_mTransform = m_mTranslation * m_mRotation * m_mScale;
 }
 
+void Transform::Move(const Vec3& movement)
+{
+	m_Position += movement;
+	m_mTranslation = Matrix4x4::GenerateTranslation(m_Position);
+	m_mTransform = m_mTranslation * m_mRotation * m_mScale;
+}
+
+void Transform::Rotate(const Vec3& rotation)
+{
+	m_Angles += rotation;
+	m_mRotation = Matrix4x4::GenerateRotation(m_Angles);
+	m_mTransform = m_mTranslation * m_mRotation * m_mScale;
+}
+

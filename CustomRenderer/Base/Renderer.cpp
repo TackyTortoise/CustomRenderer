@@ -10,6 +10,8 @@
 #include <future>
 #include <numeric>
 
+#define MULTITHREADEDRENDER
+
 Renderer* Renderer::m_Instance = nullptr;
 
 Renderer::Renderer()
@@ -140,8 +142,11 @@ void Renderer::RenderScene()
 				continue;
 			}
 
+			m_PixelMask[pixelIndex] = 1;
+
 			m_FalseHitCounter = 0;
 
+#ifdef MULTITHREADEDRENDER
 			if (cores--)
 			{
 				future_vector.emplace_back(
@@ -150,16 +155,24 @@ void Renderer::RenderScene()
 					CalculatePixelColor(rX, rY);
 				}));
 			}
-
-			//CalculatePixelColor(rX, rY);
+#else
+			CalculatePixelColor(rX, rY);
+#endif
 		}
 	}
+}
+
+void Renderer::ClearImage()
+{
+	//memset(m_Pixels, 0, m_RenderWidth * m_RenderHeight * sizeof(Color));
+	ClearPixelMask();
+	ClearPixelBuffer();
+	m_LastRenderTime = Timer::GetTotalTime();
 }
 
 void Renderer::CalculatePixelColor(const int x, const int y)
 {
 	int pixelIndex = x + m_RenderWidth * y;
-	m_PixelMask[pixelIndex] = 1;
 
 	//Generate ray from camera to pixel
 	auto cam = m_ActiveScene->GetCamera();
@@ -234,17 +247,20 @@ Color Renderer::GetHitColor(Object* co, HitInfo& hitInfo, const Vec3& rayDir, in
 	//return Color(abs(hitNormal.x) * 255, abs(hitNormal.y) * 255, abs(hitNormal.z) * 255);
 	auto light = m_Lights[0];
 	Color objectColor = co->GetBaseColor();
+
 	auto objTex = co->GetTexture();
-	auto objNormal = co->GetNormalMap();
-	auto texCoord = hitInfo.uvCoordinate;
+	auto texCoord = hitInfo.uvCoordinate / co->GetMaterial().GetScale();
 	if (objTex != nullptr)
 	{
 		objectColor = objTex->GetPixelColor(texCoord.x, texCoord.y);
 	}
+
+	auto objNormal = co->GetNormalMap();
 	if (objNormal != nullptr)
 	{
 		Color sampleColor = objNormal->GetPixelColor(texCoord.x, texCoord.y);
-		Vec3 sampleNormal = Vec3(sampleColor.r, sampleColor.g, sampleColor.b) * 2 - Vec3(1);
+		Vec3 sampleNormal = Vec3(sampleColor.r / 255.f, sampleColor.g / 255.f, sampleColor.b / 255.f) * 2 - Vec3(1);
+		hitInfo.normal = Math::TangentToWorld(sampleNormal, hitInfo.normal);
 	}
 
 	Color ligthColor = light->GetColor();
@@ -374,17 +390,15 @@ Color Renderer::GetReflection(const Vec3& rayDir, HitInfo& hitInfo, int& current
 
 void Renderer::ClearPixelMask()
 {
-	for (int i = 0; i < m_RenderWidth * m_RenderHeight; ++i)
+	/*for (int i = 0; i < m_RenderWidth * m_RenderHeight; ++i)
 	{
 		m_PixelMask[i] = 0;
-	}
+	}*/
+	memset(m_PixelMask, 0, m_RenderWidth * m_RenderHeight);
 	m_MaskedPixelCount = 0;
 }
 
 void Renderer::ClearPixelBuffer()
 {
-	for (int i = 0; i < m_RenderWidth * m_RenderHeight; ++i)
-	{
-		m_Pixels[i] = Color(0);
-	}
+	memset(m_Pixels, 0, m_RenderWidth * m_RenderHeight * sizeof(Color));
 }

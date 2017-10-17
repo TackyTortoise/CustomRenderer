@@ -12,8 +12,9 @@ TestScene::TestScene() : Scene()
 	m_Objects.push_back(new Sphere(Vec3(5, -2.5, 13), 1, Color(180, 120, 255))); // small purple
 	m_Objects.push_back(new Sphere(Vec3(-2.5, -1, 45), 2, Color(124, 20, 77))); // burgundi
 	m_Objects.push_back(new Sphere(Vec3(-3, -2.5, 10), 1.5f, Color(108, 92, 50))); // kaky
-	m_Objects.back()->SetTexture("../Textures/rock.jpg");
-	m_Objects.back()->SetNormalMap("../Textures/normal.jpg");
+	m_Objects.back()->SetTexture("../Textures/checker.jpg");
+	m_Objects.back()->SetNormalMap("../Textures/checkernormal.jpg");
+	m_Objects.back()->GetMaterial().SetTexScale(.2f);
 	m_Objects.back()->SetShininess(1000.f);
 	m_Objects.push_back(new Sphere(Vec3(4, 2, 9.5), .5, Color(244, 101, 44))); // orange
 
@@ -34,7 +35,9 @@ TestScene::TestScene() : Scene()
 	Plane* pTest = new Plane();
 	pTest->SetPosition({ 0, -5, 0 });
 	pTest->SetTexture("../Textures/rock.jpg");
+	pTest->SetNormalMap("../Textures/RockNormal.jpg");
 	pTest->SetReflective(.4f);
+	pTest->GetMaterial().SetTexScale(2.f);
 	m_Objects.push_back(pTest);
 
 	pTest = new Plane();

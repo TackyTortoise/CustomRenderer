@@ -23,3 +23,14 @@ struct PosNormUVVertex
 	Vec3 normal;
 	Vec2 uv;
 };
+
+struct PosNormUVTangentBitangentVertex
+{
+	PosNormUVTangentBitangentVertex(Vec3 pos, Vec3 norm, Vec2 uvCoord, Vec3 tangent, Vec3 biTangent) : position(pos), normal(norm), uv(uvCoord) {}
+	Vec3 position;
+	Vec3 normal;
+	Vec3 tangent;
+	Vec3 biTangent;
+	Vec2 uv;
+
+};

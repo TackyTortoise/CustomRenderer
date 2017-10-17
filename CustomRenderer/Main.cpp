@@ -51,7 +51,7 @@ int main(int argc, char* argv[])
 	settings.screenHeight = 600;
 	settings.texWidth = settings.screenWidth / downScaling;
 	settings.texHeight = settings.screenHeight / downScaling;
-	settings.blockCount = 100;
+	settings.blockCount = 150;
 	settings.shadowSampleCount = 16;
 	settings.cameraFOV = 60;
 	settings.maxRenderDepth = 10;
@@ -88,6 +88,8 @@ int main(int argc, char* argv[])
 
 	SceneManager::GetInstance()->SetActiveScene(0);
 
+	const float camSpeed = 1.5f;
+
 	bool quitApplication = false;
 	while (!quitApplication)
 	{
@@ -98,7 +100,6 @@ int main(int argc, char* argv[])
 			switch (event.type)
 			{
 			case SDL_KEYDOWN:
-				std::cout << "Key press detected\n";
 				if (event.key.keysym.scancode == SDL_SCANCODE_ESCAPE)
 				{
 					quitApplication = true;
@@ -112,6 +113,54 @@ int main(int argc, char* argv[])
 				if (event.key.keysym.scancode == SDL_SCANCODE_LEFT)
 				{
 					SceneManager::GetInstance()->PreviousScene();
+				}
+				if (event.key.keysym.scancode == SDL_SCANCODE_D)
+				{
+					auto activeScene = SceneManager::GetInstance()->GetActiveScene();
+					activeScene->MoveCamera(Vec3(camSpeed, 0, 0) * Timer::GetDeltaTime());
+					Renderer::GetInstance()->ClearImage();
+				}
+				if (event.key.keysym.scancode == SDL_SCANCODE_A)
+				{
+					auto activeScene = SceneManager::GetInstance()->GetActiveScene();
+					activeScene->MoveCamera(Vec3(-camSpeed, 0, 0) * Timer::GetDeltaTime());
+					Renderer::GetInstance()->ClearImage();
+				}
+				if (event.key.keysym.scancode == SDL_SCANCODE_W)
+				{
+					auto activeScene = SceneManager::GetInstance()->GetActiveScene();
+					activeScene->MoveCamera(Vec3(0, 0, camSpeed) * Timer::GetDeltaTime());
+					Renderer::GetInstance()->ClearImage();
+				}
+				if (event.key.keysym.scancode == SDL_SCANCODE_S)
+				{
+					auto activeScene = SceneManager::GetInstance()->GetActiveScene();
+					activeScene->MoveCamera(Vec3(0, 0, -camSpeed) * Timer::GetDeltaTime());
+					Renderer::GetInstance()->ClearImage();
+				}
+				if (event.key.keysym.scancode == SDL_SCANCODE_E)
+				{
+					auto activeScene = SceneManager::GetInstance()->GetActiveScene();
+					activeScene->MoveCamera(Vec3(0, camSpeed, 0) * Timer::GetDeltaTime());
+					Renderer::GetInstance()->ClearImage();
+				}
+				if (event.key.keysym.scancode == SDL_SCANCODE_Q)
+				{
+					auto activeScene = SceneManager::GetInstance()->GetActiveScene();
+					activeScene->MoveCamera(Vec3(0, -camSpeed, 0) * Timer::GetDeltaTime());
+					Renderer::GetInstance()->ClearImage();
+				}
+				if (event.key.keysym.scancode == SDL_SCANCODE_X)
+				{
+					auto activeScene = SceneManager::GetInstance()->GetActiveScene();
+					activeScene->RotateCamera(Vec3(0, camSpeed / 2.f, 0) * Timer::GetDeltaTime());
+					Renderer::GetInstance()->ClearImage();
+				}
+				if (event.key.keysym.scancode == SDL_SCANCODE_Z)
+				{
+					auto activeScene = SceneManager::GetInstance()->GetActiveScene();
+					activeScene->RotateCamera(Vec3(0, -camSpeed / 2.f, 0) * Timer::GetDeltaTime());
+					Renderer::GetInstance()->ClearImage();
 				}
 				break;
 			/*case SDL_KEYUP:

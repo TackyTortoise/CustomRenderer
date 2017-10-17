@@ -36,11 +36,13 @@ public:
 	void SetShininess(float v) { m_Material.shininess = v; }
 	float GetShininess() const { return m_Material.shininess; }
 
-	void SetTexture(const char* path) { m_Material.texture = MaterialManager::LoadTexture(path); m_Material.bUseTexture = m_Material.texture != nullptr; }
+	void SetTexture(const char* path) { m_Material.SetTexture(path); }
 	Texture* GetTexture() const { return m_Material.bUseTexture ? m_Material.texture : nullptr; }
 
-	void SetNormalMap(const char* path) { m_Material.normalMap = MaterialManager::LoadTexture(path); m_Material.bUseNormalMap = m_Material.normalMap != nullptr; }
+	void SetNormalMap(const char* path) { m_Material.SetNormalMap(path); }
 	Texture* GetNormalMap() const { return m_Material.bUseNormalMap ? m_Material.normalMap : nullptr; }
+
+	Material& GetMaterial() { return m_Material; }
 
 protected:
 	

@@ -112,6 +112,7 @@ void AssimpModel::LoadModelFromFile(const char* filePath)
 
 				Vec3 norm = m_Transform.GetRotationMatrix().TransformVector(Vec3(mesh->mNormals[index]));
 				aiVector3D aiuv = mesh->mTextureCoords[0][index];
+
 				Vec2 uv(-aiuv.x, -aiuv.y);
 				m_Vertices.push_back(PosNormUVVertex(pos, norm, uv));
 			}

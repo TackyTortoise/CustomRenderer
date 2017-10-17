@@ -2,6 +2,7 @@
 #include "Renderer.h"
 
 SceneManager* SceneManager::m_Instance = nullptr;
+Scene* SceneManager::m_ActiveScene = nullptr;
 
 SceneManager::SceneManager()
 {
@@ -66,5 +67,6 @@ void SceneManager::PreviousScene()
 
 void SceneManager::SetActiveScene(unsigned index)
 {
+	m_ActiveScene = m_Scenes[index];
 	Renderer::GetInstance()->SetActiveScene(m_Scenes[index]);
 }

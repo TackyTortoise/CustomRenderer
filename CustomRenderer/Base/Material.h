@@ -17,6 +17,7 @@ struct Material
 	Texture* texture = nullptr;
 	bool bUseNormalMap = false;
 	Texture* normalMap = nullptr;
+	float m_TextureScale = 1.f;
 
 	~Material()
 	{
@@ -29,6 +30,28 @@ struct Material
 		{
 			MaterialManager::UnLoadTexture(normalMap);
 		}
+	}
+
+	void SetTexture(const char* path)
+	{
+		texture = MaterialManager::LoadTexture(path);
+		bUseTexture = texture != nullptr;
+	}
+
+	void SetNormalMap(const char* path)
+	{
+		normalMap = MaterialManager::LoadTexture(path);
+		bUseNormalMap = normalMap != nullptr;
+	}
+
+	void SetTexScale(float s)
+	{
+		m_TextureScale = s;
+	}
+
+	float GetScale() const
+	{
+		return m_TextureScale;
 	}
 
 	Texture* GetTexture() const

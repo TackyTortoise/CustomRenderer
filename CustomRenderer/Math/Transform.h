@@ -14,6 +14,9 @@ public:
 	void SetRotation(const Vec3& newAngles);
 	void SetScale(const Vec3& newScale);
 
+	void Move(const Vec3& movement);
+	void Rotate(const Vec3& rotation);
+
 	Matrix4x4& GetTranslationMatrix()  { return m_mTranslation; }
 	Matrix4x4& GetRotationMatrix()  { return m_mRotation; }
 	Matrix4x4& GetScaleMatrix()  { return m_mScale; }
