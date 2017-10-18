@@ -1,6 +1,6 @@
 #include "Light.h"
 
-Light::Light(Vec3 pos, Vec3 normal, float width, float height): m_Position(pos), m_Normal(normal), m_Width(width), m_Height(height)
+Light::Light(Vec3 pos, Vec3 normal, float width, float height, Color col) : m_Position(pos), m_Normal(normal), m_Width(width), m_Height(height), m_Color(col)
 {
 	//calculate light quad axes
 	m_Right = Vec3(1, 0, 0);

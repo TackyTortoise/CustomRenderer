@@ -94,4 +94,9 @@ public:
 		u.i = SQRT_MAGIC_F - (u.i >> 1);  // gives initial guess y0
 		return x*u.x*(1.5f - xhalf*u.x*u.x);// Newton step, repeating increases accuracy 
 	}
+
+	static float GetRandomFloat(const float low = 0, const float high = 1)
+	{
+		return low + static_cast <float> (rand()) / (static_cast <float> (RAND_MAX / (high - low)));
+	}
 };

@@ -6,11 +6,12 @@
 class Light
 {
 public:
-	Light(Vec3 pos, Vec3 normal, float width, float height);
+	Light(Vec3 pos, Vec3 normal, float width, float height, Color col = Color(255));
 	~Light();
 
 	Vec3 GetPosition() const { return m_Position; }
 	Vec3 GetPointInAreaLight() const;
+	void SetColor(const Color& col) { m_Color = col; }
 	Color GetColor() const { return m_Color; }
 
 private:

@@ -25,11 +25,6 @@
 
 using namespace std;
 
-void TestThread(int i)
-{
-	cout << i << endl;
-}
-
 int main(int argc, char* argv[])
 {
 	_CrtSetDbgFlag(_CRTDBG_ALLOC_MEM_DF | _CRTDBG_LEAK_CHECK_DF); // check memory leaks
@@ -54,8 +49,10 @@ int main(int argc, char* argv[])
 	settings.blockCount = 75;
 	settings.shadowSampleCount = 16;
 	settings.cameraFOV = 60;
-	settings.maxRenderDepth = 0;
+	settings.maxRenderDepth = 10;
 	settings.enableSrgb = false;
+
+	Renderer::GetInstance()->Init(settings);
 	
 	//create SDL window
 	SDL_CreateWindowAndRenderer(settings.screenWidth, settings.screenHeight, 0, &window, &renderer);
@@ -84,11 +81,10 @@ int main(int argc, char* argv[])
 
 	//initialize renderer
 	Renderer* sceneRenderer = Renderer::GetInstance();
-	Renderer::GetInstance()->Init(settings);
 
 	SceneManager::GetInstance()->SetActiveScene(0);
 
-	const float camSpeed = 1.5f;
+	const float camSpeed = 2.f;
 
 	bool quitApplication = false;
 	float lastPresent = 0.f;

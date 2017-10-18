@@ -131,7 +131,7 @@ void Renderer::RenderScene()
 			if (m_PixelMask[pixelIndex] == 1)
 			{
 				++m_FalseHitCounter;
-				if (m_FalseHitCounter >  m_RenderHeight * m_RenderWidth)
+				if (m_FalseHitCounter > m_RenderHeight * m_RenderWidth)
 				{
 					auto tt = Timer::GetTotalTime();
 					auto rt = tt - m_LastRenderTime;
@@ -196,8 +196,6 @@ void Renderer::CalculatePixelColor(const int x, const int y)
 		return;
 	}
 
-	m_PixelMask[pixelIndex] = 1;
-
 	//Generate ray from camera to pixel
 	auto cam = m_ActiveScene->GetCamera();
 	Vec3 rayDir = cam->GetCameraRay(x, y, m_RenderWidth, m_RenderHeight);
@@ -217,13 +215,16 @@ void Renderer::CalculatePixelColor(const int x, const int y)
 			col.g = pow(col.g / 255.f, 1.f / 2.2f) * 255.f;
 			col.b = pow(col.b / 255.f, 1.f / 2.2f) * 255.f;
 		}
-		m_Pixels[pixelIndex] = /*Color(abs(orgHitNormal.x) *255.f, abs(orgHitNormal.y) *255.f, abs(orgHitNormal.z) *255.f);//*/col;
+		if (m_PixelMask[pixelIndex] != 1)
+			m_Pixels[pixelIndex] = /*Color(abs(orgHitNormal.x) *255.f, abs(orgHitNormal.y) *255.f, abs(orgHitNormal.z) *255.f);//*/col;
 	}
 	//On miss clear pixel
-	else
+	else if (m_PixelMask[pixelIndex] != 1)
 		m_Pixels[pixelIndex] = /*Color(rayDir.x *255.f, rayDir.y *255.f, rayDir.z *255.f); //*/m_ClearColor;
 
 	++m_MaskedPixelCount;
+
+	m_PixelMask[pixelIndex] = 1;
 }
 
 Object* Renderer::Trace(const Vec3& rayOrg, const Vec3& rayDir, HitInfo& result, Object* ignoreObject, bool keepIgnoreDistance) const
@@ -271,7 +272,6 @@ Color Renderer::GetHitColor(Object* co, HitInfo& hitInfo, const Vec3& rayDir, in
 	if (m_CurrentRenderMode == DEPTH)
 		return Color(hitInfo.distance / 100.f * 255.f);
 
-	auto light = m_Lights[0];
 	Color objectColor = co->GetBaseColor();
 
 	//Sample texture if there is one
@@ -301,53 +301,84 @@ Color Renderer::GetHitColor(Object* co, HitInfo& hitInfo, const Vec3& rayDir, in
 		return Color(abs(absNormCol.x), abs(absNormCol.y), abs(absNormCol.z));
 	}
 
-	Color ligthColor = light->GetColor();
-	Color pixelColor = objectColor.MultiplyNormalized(ligthColor);
-	auto lightPos = light->GetPosition();
-	Vec3 toLight = (lightPos - hitInfo.position).Normalized();
-
-	//shadow
-	HitInfo shadowHitInfo;
+	float diffuseIntensity = 0.f;
 	float shadowFactor = 1.f;
-	auto shadowStart = hitInfo.position + toLight * 0.01f;
-	Object* cs = nullptr;
-	//soft shadows
-	if (m_ShadowSamples > 1)
+	Color specColor;
+	Color pixelColor = objectColor;
+	Color combinedLightColor;
+	Color occludeColor;
+	//calculations for each light
+	for (int l = 0; l < m_LightCount; ++l)
 	{
-		float shadowSum = 0.f;
-		for (int i = 0; i < m_ShadowSamples; ++i)
+		//get light variables
+		auto light = m_Lights[l];
+		Color lightColor = light->GetColor();
+		auto lightPos = light->GetPosition();
+		Vec3 toLight = (lightPos - hitInfo.position).Normalized();
+
+		//adjust color to light color
+		combinedLightColor = combinedLightColor.ClampAdd(lightColor);
+
+		//diffuse
+		diffuseIntensity += Math::CalculateDiffuseIntensity(toLight, -rayDir, hitInfo.normal);// / m_LightCount;
+
+		//specular
+		if (shadowFactor > .1f)
 		{
-			auto shadowRay = (light->GetPointInAreaLight() - hitInfo.position).Normalized();
-			cs = Trace(shadowStart, shadowRay, shadowHitInfo);
-			if (cs != nullptr && cs != co)
+			auto halfVec = (toLight + -rayDir).Normalize();
+			float specStrength = Math::Clamp(hitInfo.normal.Dot(halfVec));
+			specStrength = pow(specStrength, co->GetShininess());
+			if (specStrength > 0.5f)
+				int c = 0;
+			specColor = specColor.ClampAdd((co->GetSpecColor() * specStrength).MultiplyNormalized(lightColor));
+			int t = 0;
+			//pixelColor = pixelColor.ClampAdd(specColor);
+		}
+
+		//shadow
+		HitInfo shadowHitInfo;
+		auto shadowStart = hitInfo.position + toLight * 0.01f;
+		Object* cs = nullptr;
+		//soft shadows
+		if (m_ShadowSamples > 1)
+		{
+			float shadowSum = 0.f;
+			for (int i = 0; i < m_ShadowSamples; ++i)
 			{
-				if ((shadowHitInfo.position - shadowStart).Length2() < (lightPos - hitInfo.position).Length2())
-					shadowSum += m_ShadowIntensity;// *shadowRay.Dot(orgNormal);
+				auto shadowRay = (light->GetPointInAreaLight() - hitInfo.position).Normalized();
+				cs = Trace(shadowStart, shadowRay, shadowHitInfo);
+				if (cs != nullptr && cs != co)
+				{
+					if ((shadowHitInfo.position - shadowStart).Length2() < (lightPos - hitInfo.position).Length2())
+						shadowSum += m_ShadowIntensity;// *shadowRay.Dot(orgNormal);
+				}
+			}
+			shadowSum /= m_ShadowSamples;
+			if (shadowSum > 1e-5f)
+			{
+				shadowFactor -= shadowSum / m_LightCount;
+				occludeColor += lightColor;
 			}
 		}
-		shadowSum /= m_ShadowSamples;
-		if (shadowSum > 0.f)
+
+		//hard shadows
+		else if (m_ShadowSamples == 1)
 		{
-			shadowFactor = 1.f - shadowSum;
+			cs = Trace(shadowStart, toLight, shadowHitInfo);
+			if (cs != nullptr && cs != co)
+			{
+				//chech if not hit something behind light
+				if ((shadowHitInfo.position - shadowStart).Length2() < (lightPos - hitInfo.position).Length2())
+					shadowFactor -= m_ShadowIntensity / m_LightCount;
+			}
 		}
 	}
 
-	//hard shadows
-	else if (m_ShadowSamples == 1)
-	{
-		cs = Trace(shadowStart, toLight, shadowHitInfo);
-		if (cs != nullptr && cs != co)
-		{
-			//chech if not hit something behind light
-			if ((shadowHitInfo.position - shadowStart).Length2() < (lightPos - hitInfo.position).Length2())
-				shadowFactor = 1 - m_ShadowIntensity;
-		}
-	}
-
+	pixelColor = pixelColor.MultiplyNormalized(combinedLightColor);
+		
 	if (m_CurrentRenderMode == SHADOWS)
 		return Color(shadowFactor * 255);
 
-	float diffuseIntensity = Math::CalculateDiffuseIntensity(toLight, -rayDir, hitInfo.normal);
 
 	//Transparancy
 	float transp = co->GetTransparancy();
@@ -389,7 +420,7 @@ Color Renderer::GetHitColor(Object* co, HitInfo& hitInfo, const Vec3& rayDir, in
 
 	//Reflection
 	float refl = co->GetReflective();
-	if (refl > 1e-5)
+	if (refl > 1e-5 && currentDepth < m_MaxDepth)
 	{
 		pixelColor *= 1 - refl;
 		HitInfo refinf;
@@ -402,17 +433,9 @@ Color Renderer::GetHitColor(Object* co, HitInfo& hitInfo, const Vec3& rayDir, in
 	//Diffuse color
 	diffuseIntensity = Math::Clamp(diffuseIntensity, 0.15, 1);
 	pixelColor *= diffuseIntensity;
+	pixelColor = pixelColor.ClampAdd(specColor);
 
-	//specular
-	if (shadowFactor > .1f)
-	{
-		auto halfVec = (toLight + -rayDir).Normalize();
-		float specStrength = Math::Clamp(hitInfo.normal.Dot(halfVec));
-		specStrength = pow(specStrength, co->GetShininess());
-		Color specColor = (co->GetSpecColor() * specStrength)/** (1 - transp)).MultiplyNormalized(ligthColor)*/;
-		pixelColor = pixelColor.ClampAdd(specColor);
-	}
-	//pixelColor = Color(shadowFactor * 255);
+
 	return  pixelColor * shadowFactor;
 }
 
@@ -420,15 +443,44 @@ Color Renderer::GetReflection(const Vec3& rayDir, HitInfo& hitInfo, int& current
 {
 	//reflect incoming ray
 	auto reflectedRay = Math::ReflectVector(rayDir, hitInfo.normal);
+
 	HitInfo reflHitInfo;
 	Object* reflectedObj = Trace(hitInfo.position, reflectedRay, reflHitInfo);
 	if (reflectedObj != nullptr && currentDepth < m_MaxDepth)
 	{
 		++currentDepth;
 		reflHitInfo.position += reflectedRay * .1f;
-		return GetHitColor(reflectedObj, reflHitInfo, reflectedRay, currentDepth);
+		return  GetHitColor(reflectedObj, reflHitInfo, reflectedRay, currentDepth);
 	}
+
 	return Color(0);
+
+	float cf[3];
+	memset(&cf, 0, 3 * sizeof(float));
+	for (int i = 0; i < 5; ++i)
+	{
+		auto reflectedRay = Math::ReflectVector(rayDir, hitInfo.normal);
+
+		auto randAdd = Vec3(Math::GetRandomFloat(-1.f, 1.f), Math::GetRandomFloat(-1.f, 1.f), Math::GetRandomFloat(-1.f, 1.f));
+		reflectedRay += randAdd * .1f;
+		reflectedRay.Normalize();
+
+		HitInfo reflHitInfo;
+		Object* reflectedObj = Trace(hitInfo.position, reflectedRay, reflHitInfo);
+		if (reflectedObj != nullptr && currentDepth < m_MaxDepth)
+		{
+			++currentDepth;
+			reflHitInfo.position += reflectedRay * .1f;
+			auto c = GetHitColor(reflectedObj, reflHitInfo, reflectedRay, currentDepth);
+			cf[0] += c.r;
+			cf[1] += c.g;
+			cf[2] += c.b;
+		}
+	}
+	cf[0] /= 5;
+	cf[1] /= 5;
+	cf[2] /= 5;
+	return Color(cf[0], cf[1], cf[2]);
 }
 
 void Renderer::ClearPixelMask()

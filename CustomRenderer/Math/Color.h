@@ -14,13 +14,35 @@ struct Color
 
 	Color operator+ (const float v) const { return{ (char)(r + v), (char)(g + v), (char)(b + v) }; }
 	Color operator+ (const Color& c) const { return{ r + c.r, g + c.g, b + c.b }; }
+	Color operator- (const Color& c) const { return{ r - c.r, g - c.g, b - c.b }; }
 	Color operator+= (const Color& c) { r += c.r, g += c.g, b += c.b; return *this; }
+	Color operator-= (const Color& c) { r -= c.r, g -= c.g, b -= c.b; return *this; }
 	Color operator* (const Color v) const { return{ r*v.r, g*v.g, b*v.b }; }
-	Color& ClampAdd(Color c)
+	Color operator*= (const Color v) { r *= v.r, g *= v.g, b *= v.b; return *this; }
+
+	bool operator== (const Color& c) const { return r == c.r && g == c.g && b == c.b && a == c.a; }
+
+	Color& ClampAdd(const Color& c)
 	{
 		r = Math::Clamp((int)r + c.r, 0, 255);
 		g = Math::Clamp((int)g + c.g, 0, 255);
 		b = Math::Clamp((int)b + c.b, 0, 255);
+		return *this;
+	}
+
+	Color& ClampMultiply(const Color& c)
+	{
+		r = Math::Clamp((int)r * c.r, 0, 255);
+		g = Math::Clamp((int)g * c.g, 0, 255);
+		b = Math::Clamp((int)b * c.b, 0, 255);
+		return *this;
+	}
+
+	Color& ClampMultiply(const float f)
+	{
+		r = Math::Clamp((int)r * f, 0, 255);
+		g = Math::Clamp((int)g * f, 0, 255);
+		b = Math::Clamp((int)b * f, 0, 255);
 		return *this;
 	}
 
