@@ -78,7 +78,7 @@
     <ClCompile Include="Scenes\TeapotScene.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="Objects\KDTree.cpp">
+    <ClCompile Include="Objects\KDNode.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>
@@ -170,7 +170,7 @@
     <ClInclude Include="Math\HitInfo.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="Objects\KDTree.h">
+    <ClInclude Include="Objects\KDNode.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

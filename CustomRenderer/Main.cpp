@@ -22,6 +22,7 @@
 #include "Scenes/ReflectiveSpheresScene.h"
 #include "Scenes/RefractionScene.h"
 #include "Scenes/TeapotScene.h"
+#include "Objects/Triangle.h"
 
 using namespace std;
 

@@ -19,6 +19,9 @@ struct Material
 	Texture* normalMap = nullptr;
 	float m_TextureScale = 1.f;
 
+	Material():texture(nullptr), normalMap(nullptr)
+	{}
+
 	~Material()
 	{
 		if (texture)

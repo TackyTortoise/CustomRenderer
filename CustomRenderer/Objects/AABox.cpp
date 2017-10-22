@@ -1,4 +1,5 @@
 #include "AABox.h"
+#include <algorithm>
 
 AABox::AABox(Vec3 pos, float width, float height, float depth, Color col): m_HalfWidth(width / 2.f), m_HalfHeight(height / 2.f), m_HalfDepth(depth / 2.f)
 {
@@ -114,4 +115,18 @@ Vec2 AABox::GetUvCoordOnHit(Vec3 hitPosition) const
 	}
 
 	return Vec2(u,-v);
+}
+
+unsigned AABox::GetLongestAxis() const
+{
+	auto max = std::max(m_HalfWidth, std::max(m_HalfHeight, m_HalfDepth));
+
+	if (m_HalfWidth == max)
+		return 0;
+	if (m_HalfHeight == max)
+		return 1;
+	if (m_HalfDepth == max)
+		return 2;
+
+	return -1;
 }

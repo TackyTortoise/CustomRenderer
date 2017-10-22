@@ -10,6 +10,10 @@ public:
 	Vec3 GetNormalOnHit(Vec3 hitPosition) const override;
 
 	Vec2 GetUvCoordOnHit(Vec3 hitPosition) const override;
+	Vec3 GetMin() const { return m_BoundsMin; }
+	Vec3 GetMax() const { return m_BoundsMax; }
+	unsigned GetLongestAxis() const;
+
 private:
 	Vec3 m_BoundsMin, m_BoundsMax;
 	float m_HalfWidth, m_HalfHeight, m_HalfDepth;

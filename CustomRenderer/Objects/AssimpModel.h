@@ -4,6 +4,7 @@
 #include "../Math/Math.h"
 #include "Triangle.h"
 #include "AABox.h"
+#include "KDNode.h"
 
 class AssimpModel :	public Object
 {
@@ -29,5 +30,7 @@ private:
 	Vec2 m_LastHitUV;
 
 	AABox* m_BoundingBox = nullptr;
+
+	KDNode* m_KDNode = nullptr;
 };
 

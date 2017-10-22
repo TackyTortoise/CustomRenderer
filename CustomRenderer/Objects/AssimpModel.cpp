@@ -4,6 +4,7 @@
 #include <assimp/scene.h>
 #include <iostream>
 #include "Triangle.h"
+#include "KDNode.h"
 
 AssimpModel::AssimpModel(const char* filePath, const Vec3& pos, const Vec3& rotation, const Vec3& scale)
 {
@@ -20,6 +21,10 @@ AssimpModel::~AssimpModel()
 
 bool AssimpModel::IsHit(const Vec3& rayOrg, const Vec3& rayDir, HitInfo& hitInfo)
 {
+	float max = std::numeric_limits<float>::max();
+	float maxBox = std::numeric_limits<float>::max();
+	return m_KDNode->IsHit(rayOrg, rayDir, hitInfo, max, maxBox);
+
 	//check for bounding box hit
 	bool bbHit = m_BoundingBox->IsHit(rayOrg, rayDir, hitInfo);
 	if (!bbHit)
@@ -135,6 +140,8 @@ void AssimpModel::GenerateTriangles()
 		auto t = new Triangle(m_Vertices[m_Indices[i]], m_Vertices[m_Indices[i + 1]], m_Vertices[m_Indices[i + 2]]);
 		m_Triangles.push_back(t);
 	}
+
+	m_KDNode = m_KDNode->BuildTree(m_Triangles);
 }
 
 void AssimpModel::ClearData()
@@ -144,10 +151,17 @@ void AssimpModel::ClearData()
 		delete m_Triangles[i];
 		m_Triangles[i] = nullptr;
 	}
+	m_Triangles.clear();
 
 	if (m_BoundingBox)
 	{
 		delete m_BoundingBox;
 		m_BoundingBox = nullptr;
+	}
+
+	if (m_KDNode)
+	{
+		delete m_KDNode;
+		m_KDNode = nullptr;
 	}
 }
