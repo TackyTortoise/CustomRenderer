@@ -46,7 +46,7 @@ TestScene::TestScene() : Scene()
 	m_Objects.push_back(pTest);
 
 	m_Objects.push_back(new AABox(Vec3(-5, -.5, 20), 7, 7, 8));
-	m_Objects.back()->SetReflective(.85f);
+	m_Objects.back()->SetReflective(.75f);
 	m_Objects.back()->SetBaseColor(Color(255, 215, 0));
 	m_Objects.back()->SetTexture("../Textures/test.jpg");
 	//m_Objects.push_back(new AABox(Vec3(-1, -3.5, 20), 5, 2, 5));
@@ -57,7 +57,9 @@ TestScene::TestScene() : Scene()
 
 	m_Lights.push_back(new Light({ 10,30,0 }, { 0,-1,0 }, 2, 2));
 	//m_Lights.back()->SetColor(Color(255,0,0));
-	m_Lights.push_back(new Light({ -10,30,0 }, { 0,-1,0 }, 2, 2));
+	//m_Lights.push_back(new Light({ -10,20,0 }, { 0,-1,0 }, 2, 2));
+	//m_Lights.back()->SetColor(Color(0, 0, 255));
+	//m_Lights.push_back(new Light({ 0,10,0 }, { 0,-1,0 }, 2, 2));
 	//m_Lights.back()->SetColor(Color(0, 255, 0));
 	//m_Lights.push_back(new Light({ -0,100,0 }, { 0,-1,0 }, 2, 2));
 

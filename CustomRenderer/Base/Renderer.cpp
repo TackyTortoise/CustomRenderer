@@ -105,7 +105,7 @@ void Renderer::SetActiveScene(const Scene* const scene)
 
 void Renderer::RenderScene()
 {
-	std::size_t cores = std::thread::hardware_concurrency();
+	std::size_t cores = std::thread::hardware_concurrency() - 1; //keep 1 core for main thread
 	volatile std::atomic<std::size_t> count(0);
 	std::vector<std::future<void>> future_vector;
 
@@ -209,18 +209,18 @@ void Renderer::CalculatePixelColor(const int x, const int y)
 		//m_ReflectionDepth = m_TransparancyDepth = m_RefractionDepth = 0;
 		int depth = 0;
 		Color col = GetHitColor(closestObj, traceResult, rayDir, depth);
-		if (m_bEnableSrgb)
+		if (m_bEnableSrgb && m_CurrentRenderMode == ALL)
 		{
 			col.r = pow(col.r / 255.f, 1.f / 2.2f) * 255.f;
 			col.g = pow(col.g / 255.f, 1.f / 2.2f) * 255.f;
 			col.b = pow(col.b / 255.f, 1.f / 2.2f) * 255.f;
 		}
 		if (m_PixelMask[pixelIndex] != 1)
-			m_Pixels[pixelIndex] = /*Color(abs(orgHitNormal.x) *255.f, abs(orgHitNormal.y) *255.f, abs(orgHitNormal.z) *255.f);//*/col;
+			m_Pixels[pixelIndex] = col;
 	}
 	//On miss clear pixel
 	else if (m_PixelMask[pixelIndex] != 1)
-		m_Pixels[pixelIndex] = /*Color(rayDir.x *255.f, rayDir.y *255.f, rayDir.z *255.f); //*/m_ClearColor;
+		m_Pixels[pixelIndex] = m_ClearColor;
 
 	++m_MaskedPixelCount;
 
@@ -305,7 +305,7 @@ Color Renderer::GetHitColor(Object* co, HitInfo& hitInfo, const Vec3& rayDir, in
 	float shadowFactor = 1.f;
 	Color specColor;
 	Color pixelColor = objectColor;
-	Color combinedLightColor;
+	FloatColor combinedLightColor;
 	Color occludeColor;
 	//calculations for each light
 	for (int l = 0; l < m_LightCount; ++l)
@@ -317,10 +317,10 @@ Color Renderer::GetHitColor(Object* co, HitInfo& hitInfo, const Vec3& rayDir, in
 		Vec3 toLight = (lightPos - hitInfo.position).Normalized();
 
 		//adjust color to light color
-		combinedLightColor = combinedLightColor.ClampAdd(lightColor);
+		combinedLightColor += lightColor;
 
 		//diffuse
-		diffuseIntensity += Math::CalculateDiffuseIntensity(toLight, -rayDir, hitInfo.normal);// / m_LightCount;
+		diffuseIntensity += Math::CalculateDiffuseIntensity(toLight, -rayDir, hitInfo.normal);
 
 		//specular
 		if (shadowFactor > .1f)
@@ -328,11 +328,7 @@ Color Renderer::GetHitColor(Object* co, HitInfo& hitInfo, const Vec3& rayDir, in
 			auto halfVec = (toLight + -rayDir).Normalize();
 			float specStrength = Math::Clamp(hitInfo.normal.Dot(halfVec));
 			specStrength = pow(specStrength, co->GetShininess());
-			if (specStrength > 0.5f)
-				int c = 0;
 			specColor = specColor.ClampAdd((co->GetSpecColor() * specStrength).MultiplyNormalized(lightColor));
-			int t = 0;
-			//pixelColor = pixelColor.ClampAdd(specColor);
 		}
 
 		//shadow
@@ -350,14 +346,16 @@ Color Renderer::GetHitColor(Object* co, HitInfo& hitInfo, const Vec3& rayDir, in
 				if (cs != nullptr && cs != co)
 				{
 					if ((shadowHitInfo.position - shadowStart).Length2() < (lightPos - hitInfo.position).Length2())
+					{
 						shadowSum += m_ShadowIntensity;// *shadowRay.Dot(orgNormal);
+						occludeColor += lightColor * shadowRay.Dot(orgNormal) / m_ShadowSamples;
+					}
 				}
 			}
 			shadowSum /= m_ShadowSamples;
 			if (shadowSum > 1e-5f)
 			{
 				shadowFactor -= shadowSum / m_LightCount;
-				occludeColor += lightColor;
 			}
 		}
 
@@ -374,7 +372,13 @@ Color Renderer::GetHitColor(Object* co, HitInfo& hitInfo, const Vec3& rayDir, in
 		}
 	}
 
-	pixelColor = pixelColor.MultiplyNormalized(combinedLightColor);
+	//change pixel
+	if (!(occludeColor == Color(0)) && shadowFactor < m_ShadowIntensity)
+	{
+		occludeColor = ((combinedLightColor - occludeColor)).ToCharColor();
+	}
+	else
+		occludeColor = (combinedLightColor).ToCharColor();
 		
 	if (m_CurrentRenderMode == SHADOWS)
 		return Color(shadowFactor * 255);
@@ -435,8 +439,8 @@ Color Renderer::GetHitColor(Object* co, HitInfo& hitInfo, const Vec3& rayDir, in
 	pixelColor *= diffuseIntensity;
 	pixelColor = pixelColor.ClampAdd(specColor);
 
-
-	return  pixelColor * shadowFactor;
+	Color rCol = m_LightCount > 1 ? occludeColor.MultiplyNormalized(pixelColor) * shadowFactor : (pixelColor * shadowFactor).MultiplyNormalized(combinedLightColor.ToCharColor());
+	return rCol;
 }
 
 Color Renderer::GetReflection(const Vec3& rayDir, HitInfo& hitInfo, int& currentDepth)
@@ -455,6 +459,7 @@ Color Renderer::GetReflection(const Vec3& rayDir, HitInfo& hitInfo, int& current
 
 	return Color(0);
 
+	//attempt at blurry reflections
 	float cf[3];
 	memset(&cf, 0, 3 * sizeof(float));
 	for (int i = 0; i < 5; ++i)

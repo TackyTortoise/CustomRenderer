@@ -34,7 +34,7 @@ int main(int argc, char* argv[])
 	SDL_Renderer *renderer;
 	SDL_Init(SDL_INIT_VIDEO);
 	TTF_Init();
-	IMG_Init(IMG_INIT_JPG);
+	IMG_Init(IMG_INIT_JPG | IMG_INIT_PNG);
 	
 	std::srand(time(nullptr));
 	

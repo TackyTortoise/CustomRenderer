@@ -20,7 +20,7 @@ struct Color
 	Color operator* (const Color v) const { return{ r*v.r, g*v.g, b*v.b }; }
 	Color operator*= (const Color v) { r *= v.r, g *= v.g, b *= v.b; return *this; }
 
-	bool operator== (const Color& c) const { return r == c.r && g == c.g && b == c.b && a == c.a; }
+	bool operator== (const Color& c) const { return r == c.r && g == c.g && b == c.b; }
 
 	Color& ClampAdd(const Color& c)
 	{
@@ -52,5 +52,36 @@ struct Color
 		g = (float)g * (float)c.g / 255.f;
 		b = (float)b * (float)c.b / 255.f;
 		return *this;
+	}
+};
+
+struct FloatColor
+{
+	float b, g, r, a;
+	FloatColor() : r(0), g(0), b(0), a(0) {}
+	FloatColor(float v) : r(v), g(v), b(v), a(v) {}
+	FloatColor(float rr, float gg, float bb, float aa = 5) : r(rr), g(gg), b(bb) {}
+
+	FloatColor operator* (const float v) const { return{ (r*v), (g*v), (b*v) }; }
+	FloatColor operator*= (const float v) { r *= v, g *= v, b *= v; return *this; }
+	FloatColor operator/ (const float v) const { return{ (r / v), (g / v), (b / v) }; }
+
+	FloatColor operator+ (const float v) const { return{ (r + v), (g + v), (b + v) }; }
+	FloatColor operator+ (const FloatColor& c) const { return{ r + c.r, g + c.g, b + c.b }; }
+	FloatColor operator- (const FloatColor& c) const { return{ r - c.r, g - c.g, b - c.b }; }
+	FloatColor operator- (const Color& c) const { return{ r - c.r, g - c.g, b - c.b }; }
+	FloatColor operator+= (const FloatColor& c) { r += c.r, g += c.g, b += c.b; return *this; }
+	FloatColor operator+= (const Color& c) { r += c.r, g += c.g, b += c.b; return *this; }
+	FloatColor operator-= (const FloatColor& c) { r -= c.r, g -= c.g, b -= c.b; return *this; }
+	FloatColor operator-= (const Color& c) { r -= c.r, g -= c.g, b -= c.b; return *this; }
+	FloatColor operator* (const FloatColor v) const { return{ r*v.r, g*v.g, b*v.b }; }
+	FloatColor operator*= (const FloatColor v) { r *= v.r, g *= v.g, b *= v.b; return *this; }
+	FloatColor operator*= (const Color v) { r *= v.r, g *= v.g, b *= v.b; return *this; }
+
+	bool operator== (const Color& c) const { return r == c.r && g == c.g && b == c.b && a == c.a; }
+
+	Color ToCharColor() const
+	{
+		return Color(Math::Clamp(r, 0, 255), Math::Clamp(g, 0, 255), Math::Clamp(b, 0, 255));
 	}
 };
