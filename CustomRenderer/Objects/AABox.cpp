@@ -130,3 +130,8 @@ unsigned AABox::GetLongestAxis() const
 
 	return -1;
 }
+
+bool AABox::ContainsPoint(const Vec3& point) const
+{
+	return point > m_BoundsMin && point < m_BoundsMax;
+}

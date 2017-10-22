@@ -81,17 +81,21 @@ bool Triangle::IsHit(const Vec3& rayOrg, const Vec3& rayDir, HitInfo& hitInfo)
 
 Vec3 Triangle::GetNormalOnHit(Vec3 hitPosition) const
 {
+	//get barycentric coordinates
 	auto b = hitPosition - m_P0.position;
 	auto o1 = b.Dot(m_BaryRight) / m_EdgeBaryRatio0;
 	auto o2 = b.Dot(m_BaryUp) / m_EdgeBaryRatio1;
+	//return weighted normal
 	return m_P0.normal * (1.f - o1 - o2) + m_P1.normal * o1 + m_P2.normal * o2;
 }
 
 Vec2 Triangle::GetUvCoordOnHit(Vec3 hitPosition) const
 {
+	//get barycentric coordinates
 	auto b = hitPosition - m_P0.position;
 	auto o1 = b.Dot(m_BaryRight) / m_EdgeBaryRatio0;
 	auto o2 = b.Dot(m_BaryUp) / m_EdgeBaryRatio1;
+	//return weighted uv
 	return m_P0.uv * (1.f - o1 - o2) + m_P1.uv * o1 + m_P2.uv * o2;;
 }
 

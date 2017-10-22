@@ -15,6 +15,6 @@ public:
 
 	KDNode* BuildTree(std::vector<Triangle*>& triangles) const;
 
-	bool IsHit(const Vec3& rayOrg, const Vec3& rayDir, HitInfo& hitInfo, float& shortD, float& shortBoxD);
+	bool IsHit(const Vec3& rayOrg, const Vec3& rayDir, HitInfo& hitInfo, float& shortD);
 };
 

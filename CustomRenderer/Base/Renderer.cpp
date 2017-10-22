@@ -91,6 +91,7 @@ void Renderer::SetActiveScene(const Scene* const scene)
 	}
 
 	m_ActiveScene = scene;
+
 	//copy scene objects into raw pointer for efficiency
 	m_RenderObjects = &scene->GetObjectPointer()[0];
 	m_ObjectCount = scene->GetObjectPointer().size();
@@ -128,6 +129,7 @@ void Renderer::RenderScene()
 
 			int pixelIndex = rX + m_RenderWidth * rY;
 
+			//pixel was already drawn before
 			if (m_PixelMask[pixelIndex] == 1)
 			{
 				++m_FalseHitCounter;
@@ -162,7 +164,6 @@ void Renderer::RenderScene()
 
 void Renderer::ClearImage()
 {
-	//memset(m_Pixels, 0, m_RenderWidth * m_RenderHeight * sizeof(Color));
 	ClearPixelMask();
 	ClearPixelBuffer();
 	m_LastRenderTime = Timer::GetTotalTime();
@@ -199,24 +200,30 @@ void Renderer::CalculatePixelColor(const int x, const int y)
 	//Generate ray from camera to pixel
 	auto cam = m_ActiveScene->GetCamera();
 	Vec3 rayDir = cam->GetCameraRay(x, y, m_RenderWidth, m_RenderHeight);
-	//Vec3 orgHitPoint, orgHitNormal;
+
+	//trace primary ray
 	HitInfo traceResult;
 	auto pos = cam->GetPosition();
 	Object* closestObj = Trace(pos, rayDir, traceResult);
-	//On object hit Color it
+
+	//On object hit get color
 	if (closestObj != nullptr)
 	{
-		//m_ReflectionDepth = m_TransparancyDepth = m_RefractionDepth = 0;
 		int depth = 0;
 		Color col = GetHitColor(closestObj, traceResult, rayDir, depth);
+
+		//adjust color for gamma correction
 		if (m_bEnableSrgb && m_CurrentRenderMode == ALL)
 		{
 			col.r = pow(col.r / 255.f, 1.f / 2.2f) * 255.f;
 			col.g = pow(col.g / 255.f, 1.f / 2.2f) * 255.f;
 			col.b = pow(col.b / 255.f, 1.f / 2.2f) * 255.f;
 		}
+
 		if (m_PixelMask[pixelIndex] != 1)
+		{
 			m_Pixels[pixelIndex] = col;
+		}
 	}
 	//On miss clear pixel
 	else if (m_PixelMask[pixelIndex] != 1)
@@ -229,12 +236,8 @@ void Renderer::CalculatePixelColor(const int x, const int y)
 
 Object* Renderer::Trace(const Vec3& rayOrg, const Vec3& rayDir, HitInfo& result, Object* ignoreObject, bool keepIgnoreDistance) const
 {
-	//float d = 0;
 	float shortD = std::numeric_limits<float>::max();
-	//float ignoreShort = shortD;
 	Object* closeObject = nullptr;
-	//Vec3 normHit;
-	Vec3 closeNorm;
 
 	HitInfo hi;
 	//check each object in scene
@@ -258,11 +261,10 @@ Object* Renderer::Trace(const Vec3& rayOrg, const Vec3& rayDir, HitInfo& result,
 		}
 	}
 
-	//calculate where object was hit in world + return object normal on this point
+	//calculate where object was hit in world
 	if (closeObject != nullptr)
 	{
 		result.position = rayOrg + rayDir * shortD;
-		//result.normal = closeNorm;
 	}
 	return closeObject;
 }
@@ -290,8 +292,8 @@ Color Renderer::GetHitColor(Object* co, HitInfo& hitInfo, const Vec3& rayDir, in
 	auto objNormal = co->GetNormalMap();
 	if (objNormal != nullptr)
 	{
-		Color sampleColor = objNormal->GetPixelColor(texCoord.x, texCoord.y);
-		Vec3 sampleNormal = Vec3(sampleColor.r / 255.f, sampleColor.g / 255.f, sampleColor.b / 255.f) * 2 - Vec3(1);
+		Color sampleColor = objNormal->GetPixelColor(texCoord.x, texCoord.y); //sample color from normal map
+		Vec3 sampleNormal = Vec3(sampleColor.r / 255.f, sampleColor.g / 255.f, sampleColor.b / 255.f) * 2 - Vec3(1); //convert color to 0 to 1 range normal
 		hitInfo.normal = Math::TangentToWorld(sampleNormal, hitInfo.normal);
 	}
 
@@ -379,7 +381,7 @@ Color Renderer::GetHitColor(Object* co, HitInfo& hitInfo, const Vec3& rayDir, in
 	}
 	else
 		occludeColor = (combinedLightColor).ToCharColor();
-		
+
 	if (m_CurrentRenderMode == SHADOWS)
 		return Color(shadowFactor * 255);
 

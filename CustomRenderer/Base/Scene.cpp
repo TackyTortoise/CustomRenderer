@@ -43,7 +43,8 @@ Camera* Scene::SetupCamera(const RenderSettings& rs)
 
 void Scene::MoveCamera(const Vec3& movement) const
 {
-	m_Camera->GetTransform()->Move(movement);
+	auto adjustedMove = m_Camera->GetTransform()->GetRotationMatrix().TransformVector(movement);
+	m_Camera->GetTransform()->Move(adjustedMove);
 }
 
 void Scene::RotateCamera(const Vec3& rotation) const

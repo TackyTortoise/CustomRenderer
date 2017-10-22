@@ -13,6 +13,7 @@ public:
 	Vec3 GetMin() const { return m_BoundsMin; }
 	Vec3 GetMax() const { return m_BoundsMax; }
 	unsigned GetLongestAxis() const;
+	bool ContainsPoint(const Vec3& point) const;
 
 private:
 	Vec3 m_BoundsMin, m_BoundsMax;

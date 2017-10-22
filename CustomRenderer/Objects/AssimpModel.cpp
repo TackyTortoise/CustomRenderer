@@ -22,8 +22,7 @@ AssimpModel::~AssimpModel()
 bool AssimpModel::IsHit(const Vec3& rayOrg, const Vec3& rayDir, HitInfo& hitInfo)
 {
 	float max = std::numeric_limits<float>::max();
-	float maxBox = std::numeric_limits<float>::max();
-	return m_KDNode->IsHit(rayOrg, rayDir, hitInfo, max, maxBox);
+	return m_KDNode->IsHit(rayOrg, rayDir, hitInfo, max);
 
 	//check for bounding box hit
 	bool bbHit = m_BoundingBox->IsHit(rayOrg, rayDir, hitInfo);
@@ -118,7 +117,7 @@ void AssimpModel::LoadModelFromFile(const char* filePath)
 				Vec3 norm = m_Transform.GetRotationMatrix().TransformVector(Vec3(mesh->mNormals[index]));
 				aiVector3D aiuv = mesh->mTextureCoords[0][index];
 
-				Vec2 uv(-aiuv.x, -aiuv.y);
+				Vec2 uv(1 - aiuv.x, 1 - aiuv.y);
 				m_Vertices.push_back(PosNormUVVertex(pos, norm, uv));
 			}
 		}
@@ -135,10 +134,11 @@ void AssimpModel::LoadModelFromFile(const char* filePath)
 void AssimpModel::GenerateTriangles()
 {
 	//create triangle list from index buffer
+	m_Triangles.resize(m_Indices.size() / 3);
 	for (int i = 0; i < m_Indices.size() - 2; i += 3)
 	{
 		auto t = new Triangle(m_Vertices[m_Indices[i]], m_Vertices[m_Indices[i + 1]], m_Vertices[m_Indices[i + 2]]);
-		m_Triangles.push_back(t);
+		m_Triangles[i / 3] = t;
 	}
 
 	m_KDNode = m_KDNode->BuildTree(m_Triangles);

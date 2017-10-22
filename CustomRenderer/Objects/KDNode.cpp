@@ -15,6 +15,7 @@ KDNode::~KDNode()
 
 KDNode* KDNode::BuildTree(std::vector<Triangle*>& triangles) const
 {
+	//Create new node
 	KDNode* node = new KDNode();
 	node->m_Triangles = triangles;
 	node->m_LeftNode = nullptr;
@@ -28,7 +29,7 @@ KDNode* KDNode::BuildTree(std::vector<Triangle*>& triangles) const
 	Vec3 minPoint = Vec3(std::numeric_limits<float>::max());
 	Vec3 maxPoint = Vec3(std::numeric_limits<float>::min());
 
-	//Get center of triangle list and bounding box
+	//Get center of triangles and bounding box
 	auto ooCount = 1.f / triangles.size();
 	for (auto &t : triangles)
 	{
@@ -45,6 +46,7 @@ KDNode* KDNode::BuildTree(std::vector<Triangle*>& triangles) const
 		maxPoint.z = std::max(maxPoint.z, tMax.z);
 	}
 
+	//create all surrounding bounding box
 	auto center = (minPoint + maxPoint) / 2.f;
 	auto width = maxPoint.x - minPoint.x;
 	auto height = maxPoint.y - minPoint.y;
@@ -66,7 +68,7 @@ KDNode* KDNode::BuildTree(std::vector<Triangle*>& triangles) const
 			t->GetMidPoint().y <= midPoint.y ? leftTriangles.push_back(t) : rightTriangles.push_back(t);
 			break;
 		case 2:
-			t->GetMidPoint().x <= midPoint.x ? leftTriangles.push_back(t) : rightTriangles.push_back(t);
+			t->GetMidPoint().z <= midPoint.z ? leftTriangles.push_back(t) : rightTriangles.push_back(t);
 			break;
 		default:
 			std::cout << "invalid longes axis of bounding box in KDNode" << std::endl;
@@ -76,26 +78,28 @@ KDNode* KDNode::BuildTree(std::vector<Triangle*>& triangles) const
 
 	if (leftTriangles.size() > 0 && rightTriangles.size() != 0)
 		node->m_LeftNode = BuildTree(leftTriangles);
-	if (rightTriangles.size() > 0 && leftTriangles.size()!= 0)
+	if (rightTriangles.size() > 0 && leftTriangles.size() != 0)
 		node->m_RightNode = BuildTree(rightTriangles);
 
 	return node;
 }
 
-bool KDNode::IsHit(const Vec3& rayOrg, const Vec3& rayDir, HitInfo& hitInfo, float& shortD, float& shortBoxD)
+bool KDNode::IsHit(const Vec3& rayOrg, const Vec3& rayDir, HitInfo& hitInfo, float& shortD)
 {
+	//check bounding box hit
 	HitInfo boxHit;
 	auto hitBox = m_BoundingBox->IsHit(rayOrg, rayDir, boxHit);
-	if (!hitBox)
+	if (!hitBox && !m_BoundingBox->ContainsPoint(rayOrg))
 		return false;
 
 	if (m_LeftNode != nullptr || m_RightNode != nullptr)
 	{
+		//go into left and right leaf
 		bool hitLeft = false, hitRight = false;
 		if (m_LeftNode != nullptr)
-			hitLeft = m_LeftNode->IsHit(rayOrg, rayDir, hitInfo, shortD, shortBoxD);
+			hitLeft = m_LeftNode->IsHit(rayOrg, rayDir, hitInfo, shortD);
 		if (m_RightNode != nullptr)
-			hitRight = m_RightNode->IsHit(rayOrg, rayDir, hitInfo, shortD, shortBoxD);
+			hitRight = m_RightNode->IsHit(rayOrg, rayDir, hitInfo, shortD);
 		return hitLeft || hitRight;
 	}
 	//reached outward leaf
@@ -105,15 +109,14 @@ bool KDNode::IsHit(const Vec3& rayOrg, const Vec3& rayDir, HitInfo& hitInfo, flo
 	{
 		if (m_Triangles[i]->IsHit(rayOrg, rayDir, hi))
 		{
-			if (hi.distance < shortD && hi.distance > 1e-5)
+			if (hi.distance < shortD)
 			{
 				//save data for closest hit
-				hit = true;
 				shortD = hi.distance;
+				hit = true;
 				hitInfo = hi;
 			}
 		}
 	}
 	return hit;
-
 }

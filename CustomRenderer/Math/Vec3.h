@@ -48,6 +48,10 @@ public:
 	}
 
 	Vec3 operator-() const { return{ -x, -y, -z }; }
+
+	bool operator<(const Vec3& o) const	{return x < o.x && y < o.y && z < o.z;}
+
+	bool operator>(const Vec3& o) const	{return x > o.x && y > o.y && z > o.z;}
 #pragma endregion
 
 	float Length2() const { return x*x + y*y + z*z; }
