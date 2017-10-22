@@ -22,10 +22,9 @@ Vec3 Camera::GetCameraRay(int pixelX, int pixelY, float renderWidth, float rende
 	float cY = (1 - 2 * ((pixelY + .5f) / renderHeight)) * m_CamTan;
 
 	//create ray from camera to pixel
-	Vec3 rayOrg(0); //start from camera position 0,0,0
-	Vec3 rayDir = Vec3(cX, cY, 1.f) - rayOrg;
+	Vec3 rayDir = Vec3(cX, cY, 1.f) - Vec3::zero; //start from camera position 0,0,0
 
-	//multiply with camtoworld if cam is not in 0 transform
+	//multiply with camtoworld rotation if cam is not in 0 transform
 	rayDir = m_CamTransform->GetRotationMatrix().TransformVector(rayDir);
 	rayDir.Normalize();
 	return rayDir;

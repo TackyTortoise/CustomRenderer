@@ -14,9 +14,7 @@
 
 Renderer* Renderer::m_Instance = nullptr;
 
-Renderer::Renderer()
-{
-}
+Renderer::Renderer(){}
 
 Renderer::~Renderer()
 {
@@ -132,12 +130,15 @@ void Renderer::RenderScene()
 			//pixel was already drawn before
 			if (m_PixelMask[pixelIndex] == 1)
 			{
+				//track how many misses
 				++m_FalseHitCounter;
+				//after as many misses as there are pixels, clear mask, start rendering again
 				if (m_FalseHitCounter > m_RenderHeight * m_RenderWidth)
 				{
 					auto tt = Timer::GetTotalTime();
 					auto rt = tt - m_LastRenderTime;
 					m_LastRenderTime = tt;
+					//show time it took to render frame
 					std::cout << "Rerendering frame after " << rt << " seconds" << std::endl;
 					ClearPixelMask();
 				}
@@ -164,13 +165,14 @@ void Renderer::RenderScene()
 
 void Renderer::ClearImage()
 {
-	ClearPixelMask();
-	ClearPixelBuffer();
-	m_LastRenderTime = Timer::GetTotalTime();
+	ClearPixelMask(); //clear mask so pixels will be rerendered
+	ClearPixelBuffer(); //set pixel buffer to black
+	m_LastRenderTime = Timer::GetTotalTime(); //start rendertime from this frame
 }
 
 void Renderer::NextRenderMode()
 {
+	//switch buffer visualisation to next one
 	int n = m_CurrentRenderMode + 1;
 	n %= RenderMode::SIZE;
 	m_CurrentRenderMode = static_cast<RenderMode>(n);
@@ -180,6 +182,7 @@ void Renderer::NextRenderMode()
 
 void Renderer::PreviousRenderMode()
 {
+	//switch buffer visualisation to previous one
 	int n = m_CurrentRenderMode - 1;
 	if (n < 0)
 		n = SIZE - 1;
@@ -192,6 +195,7 @@ void Renderer::CalculatePixelColor(const int x, const int y)
 {
 	int pixelIndex = x + m_RenderWidth * y;
 
+	//ignore if pixel has already been calculated before
 	if (m_PixelMask[pixelIndex] == 1)
 	{
 		return;
@@ -209,10 +213,11 @@ void Renderer::CalculatePixelColor(const int x, const int y)
 	//On object hit get color
 	if (closestObj != nullptr)
 	{
-		int depth = 0;
+		int depth = 0; //current render depth tracker
+		//calculate pixel color
 		Color col = GetHitColor(closestObj, traceResult, rayDir, depth);
 
-		//adjust color for gamma correction
+		//adjust color for gamma correction if need be
 		if (m_bEnableSrgb && m_CurrentRenderMode == ALL)
 		{
 			col.r = pow(col.r / 255.f, 1.f / 2.2f) * 255.f;
@@ -220,6 +225,7 @@ void Renderer::CalculatePixelColor(const int x, const int y)
 			col.b = pow(col.b / 255.f, 1.f / 2.2f) * 255.f;
 		}
 
+		//fill pixel buffer with color
 		if (m_PixelMask[pixelIndex] != 1)
 		{
 			m_Pixels[pixelIndex] = col;
@@ -231,6 +237,7 @@ void Renderer::CalculatePixelColor(const int x, const int y)
 
 	++m_MaskedPixelCount;
 
+	//set pixel as rendered in mask
 	m_PixelMask[pixelIndex] = 1;
 }
 
@@ -243,6 +250,7 @@ Object* Renderer::Trace(const Vec3& rayOrg, const Vec3& rayDir, HitInfo& result,
 	//check each object in scene
 	for (int i = 0; i < m_ObjectCount; ++i)
 	{
+		//check intersection with object
 		if (m_RenderObjects[i]->IsHit(rayOrg, rayDir, hi) && hi.distance < shortD)
 		{
 			//ignore certain object e.g. self
@@ -271,6 +279,7 @@ Object* Renderer::Trace(const Vec3& rayOrg, const Vec3& rayDir, HitInfo& result,
 
 Color Renderer::GetHitColor(Object* co, HitInfo& hitInfo, const Vec3& rayDir, int& currentDepth)
 {
+	//return depth buffer if depth render mode
 	if (m_CurrentRenderMode == DEPTH)
 		return Color(hitInfo.distance / 100.f * 255.f);
 
@@ -294,15 +303,17 @@ Color Renderer::GetHitColor(Object* co, HitInfo& hitInfo, const Vec3& rayDir, in
 	{
 		Color sampleColor = objNormal->GetPixelColor(texCoord.x, texCoord.y); //sample color from normal map
 		Vec3 sampleNormal = Vec3(sampleColor.r / 255.f, sampleColor.g / 255.f, sampleColor.b / 255.f) * 2 - Vec3(1); //convert color to 0 to 1 range normal
-		hitInfo.normal = Math::TangentToWorld(sampleNormal, hitInfo.normal);
+		hitInfo.normal = Math::TangentToWorld(sampleNormal, hitInfo.normal); //convert normal from tangets space to world space
 	}
 
+	//return normals as color if normal render mode
 	if (m_CurrentRenderMode == NORMALS)
 	{
 		auto absNormCol = hitInfo.normal * 255;
 		return Color(abs(absNormCol.x), abs(absNormCol.y), abs(absNormCol.z));
 	}
 
+	//calculations influenced by light
 	float diffuseIntensity = 0.f;
 	float shadowFactor = 1.f;
 	Color specColor;
@@ -318,7 +329,7 @@ Color Renderer::GetHitColor(Object* co, HitInfo& hitInfo, const Vec3& rayDir, in
 		auto lightPos = light->GetPosition();
 		Vec3 toLight = (lightPos - hitInfo.position).Normalized();
 
-		//adjust color to light color
+		//adjust colors to light color
 		combinedLightColor += lightColor;
 
 		//diffuse
@@ -344,17 +355,24 @@ Color Renderer::GetHitColor(Object* co, HitInfo& hitInfo, const Vec3& rayDir, in
 			for (int i = 0; i < m_ShadowSamples; ++i)
 			{
 				auto shadowRay = (light->GetPointInAreaLight() - hitInfo.position).Normalized();
+				//trace from hitpoint to light
 				cs = Trace(shadowStart, shadowRay, shadowHitInfo);
+				//if something was hit -> point is in shadow
 				if (cs != nullptr && cs != co)
 				{
+					//check if hit was closer than light
 					if ((shadowHitInfo.position - shadowStart).Length2() < (lightPos - hitInfo.position).Length2())
 					{
 						shadowSum += m_ShadowIntensity;// *shadowRay.Dot(orgNormal);
+						//shadow color = color of lights that don't shade this point = this light color, inverted later
 						occludeColor += lightColor * shadowRay.Dot(orgNormal) / m_ShadowSamples;
 					}
 				}
 			}
+
 			shadowSum /= m_ShadowSamples;
+
+			//divide shadow factor by amount of light, as point is still lit by other lights in scene -> makes shadows lighter
 			if (shadowSum > 1e-5f)
 			{
 				shadowFactor -= shadowSum / m_LightCount;
@@ -367,23 +385,25 @@ Color Renderer::GetHitColor(Object* co, HitInfo& hitInfo, const Vec3& rayDir, in
 			cs = Trace(shadowStart, toLight, shadowHitInfo);
 			if (cs != nullptr && cs != co)
 			{
-				//chech if not hit something behind light
+				//check if not hit something behind light
 				if ((shadowHitInfo.position - shadowStart).Length2() < (lightPos - hitInfo.position).Length2())
 					shadowFactor -= m_ShadowIntensity / m_LightCount;
 			}
 		}
 	}
 
+	//Render shadows if shadow render mode
+	if (m_CurrentRenderMode == SHADOWS)
+		return Color(shadowFactor * 255);
+
 	//change pixel
 	if (!(occludeColor == Color(0)) && shadowFactor < m_ShadowIntensity)
 	{
-		occludeColor = ((combinedLightColor - occludeColor)).ToCharColor();
+		//invert light color from shadow hits
+		occludeColor = (combinedLightColor - occludeColor).ToCharColor();
 	}
 	else
-		occludeColor = (combinedLightColor).ToCharColor();
-
-	if (m_CurrentRenderMode == SHADOWS)
-		return Color(shadowFactor * 255);
+		occludeColor = (combinedLightColor).ToCharColor(); //used to multiply pixel color with light color
 
 
 	//Transparancy
@@ -391,6 +411,7 @@ Color Renderer::GetHitColor(Object* co, HitInfo& hitInfo, const Vec3& rayDir, in
 	if (transp > 0)
 	{
 		Vec3 direction = rayDir;
+
 		//refract ray direction if necessary (refractive)
 		float ior = co->GetRefractive();
 		bool refractive = abs(co->GetRefractive()) - 1.f > 1e-5;
@@ -400,18 +421,19 @@ Color Renderer::GetHitColor(Object* co, HitInfo& hitInfo, const Vec3& rayDir, in
 			direction = Math::RefractVector(1.f, ior, direction, hitInfo.normal);
 			schlick = Math::GetSchlick(rayDir, hitInfo.normal, 1.f, ior);
 		}
-		//Trace further to get transparancy color
-		//Vec3 transHit, transNorm;
+
+		//Trace further to get transparency color
 		HitInfo transHitInfo;
 		Object* transObj = Trace(hitInfo.position, direction, transHitInfo, co);
 		if (transObj != nullptr && currentDepth < m_MaxDepth)
 		{
 			++currentDepth;
-			//adjust color
+			//adjust color to transparency hit
 			diffuseIntensity += transp;
 			pixelColor *= 1 - transp;
 			Color transCol = GetHitColor(transObj, transHitInfo, direction, currentDepth) * (1 - schlick);
-			//"Fresnel" reflections on edges if refractive
+
+			//"Fresnel" by schlick approximation reflections on edges if refractive
 			if (refractive)
 			{
 				HitInfo reflinf;
@@ -420,6 +442,8 @@ Color Renderer::GetHitColor(Object* co, HitInfo& hitInfo, const Vec3& rayDir, in
 				Color reflectionColor = GetReflection(rayDir, reflinf, currentDepth);
 				transCol += reflectionColor * schlick;
 			}
+
+			//combine pixel color with transparency color
 			pixelColor = pixelColor.ClampAdd(transCol * transp);
 		}
 	}
@@ -429,19 +453,24 @@ Color Renderer::GetHitColor(Object* co, HitInfo& hitInfo, const Vec3& rayDir, in
 	if (refl > 1e-5 && currentDepth < m_MaxDepth)
 	{
 		pixelColor *= 1 - refl;
+		//start a bit away from hit point to avoid hitting self
 		HitInfo refinf;
 		refinf.position = hitInfo.position - rayDir;
 		refinf.normal = hitInfo.normal;
+		//Get reflected color
 		Color reflCol = GetReflection(rayDir, refinf, currentDepth);
+		//adjust pixel color
 		pixelColor += reflCol * refl;
 	}
 
-	//Diffuse color
+	//Color intensity
 	diffuseIntensity = Math::Clamp(diffuseIntensity, 0.15, 1);
 	pixelColor *= diffuseIntensity;
 	pixelColor = pixelColor.ClampAdd(specColor);
 
+	//adjust pixel color to light color
 	Color rCol = m_LightCount > 1 ? occludeColor.MultiplyNormalized(pixelColor) * shadowFactor : (pixelColor * shadowFactor).MultiplyNormalized(combinedLightColor.ToCharColor());
+	
 	return rCol;
 }
 
@@ -459,43 +488,12 @@ Color Renderer::GetReflection(const Vec3& rayDir, HitInfo& hitInfo, int& current
 		return  GetHitColor(reflectedObj, reflHitInfo, reflectedRay, currentDepth);
 	}
 
+	//return black if over max depth or no hits
 	return Color(0);
-
-	//attempt at blurry reflections
-	float cf[3];
-	memset(&cf, 0, 3 * sizeof(float));
-	for (int i = 0; i < 5; ++i)
-	{
-		auto reflectedRay = Math::ReflectVector(rayDir, hitInfo.normal);
-
-		auto randAdd = Vec3(Math::GetRandomFloat(-1.f, 1.f), Math::GetRandomFloat(-1.f, 1.f), Math::GetRandomFloat(-1.f, 1.f));
-		reflectedRay += randAdd * .1f;
-		reflectedRay.Normalize();
-
-		HitInfo reflHitInfo;
-		Object* reflectedObj = Trace(hitInfo.position, reflectedRay, reflHitInfo);
-		if (reflectedObj != nullptr && currentDepth < m_MaxDepth)
-		{
-			++currentDepth;
-			reflHitInfo.position += reflectedRay * .1f;
-			auto c = GetHitColor(reflectedObj, reflHitInfo, reflectedRay, currentDepth);
-			cf[0] += c.r;
-			cf[1] += c.g;
-			cf[2] += c.b;
-		}
-	}
-	cf[0] /= 5;
-	cf[1] /= 5;
-	cf[2] /= 5;
-	return Color(cf[0], cf[1], cf[2]);
 }
 
 void Renderer::ClearPixelMask()
 {
-	/*for (int i = 0; i < m_RenderWidth * m_RenderHeight; ++i)
-	{
-		m_PixelMask[i] = 0;
-	}*/
 	memset(m_PixelMask, 0, m_RenderWidth * m_RenderHeight);
 	m_MaskedPixelCount = 0;
 }
