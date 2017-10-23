@@ -12,8 +12,8 @@ Triangle::Triangle(const PosNormUVVertex& p0, const PosNormUVVertex& p1, const P
 	m_Edge1 = m_P2.position - m_P0.position;
 	m_Normal = new Vec3(m_Edge0.Cross(m_Edge1).Normalized());
 
-	m_BaryRight = m_Edge1.Cross(*m_Normal);
-	m_BaryUp = m_Edge0.Cross(*m_Normal);
+	m_BaryRight = m_Edge1.Cross(*m_Normal).Normalized();
+	m_BaryUp = m_Edge0.Cross(*m_Normal).Normalized();
 
 	m_EdgeBaryRatio0 = m_Edge0.Dot(m_BaryRight);
 	m_EdgeBaryRatio1 = m_Edge1.Dot(m_BaryUp);
@@ -58,6 +58,7 @@ bool Triangle::IsHit(const Vec3& rayOrg, const Vec3& rayDir, HitInfo& hitInfo)
 	//calculate hit position in world
 	auto hp = rayOrg + rayDir * t;
 	hitInfo.distance = t;
+	hitInfo.position = hp;
 
 	//check if hitpoint was inside triangle
 	auto w = hp - m_P0.position;

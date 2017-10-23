@@ -204,6 +204,7 @@ int main(int argc, char* argv[])
 
 	Renderer::Destroy();
 	SceneManager::Destroy();
+	MaterialManager::DestroyRemainingTextures();
 
 	//Clean up
 	SDL_DestroyWindow(window);

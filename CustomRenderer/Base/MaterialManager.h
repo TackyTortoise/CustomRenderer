@@ -19,6 +19,8 @@ public:
 	static bool UnLoadTexture(const char* filePath);
 	static bool UnLoadTexture(Texture* tex);
 
+	static void DestroyRemainingTextures();
+
 private:
 	static std::vector<TextureInfo> m_TextureLibrary;
 };

@@ -76,3 +76,14 @@ bool MaterialManager::UnLoadTexture(Texture* tex)
 	std::cout << "Failed to unload texture by pointer" << std::endl;
 	return false;
 }
+
+void MaterialManager::DestroyRemainingTextures()
+{
+	//Clear textures from memory
+	for (auto& t : m_TextureLibrary)
+	{
+		delete t.texture;
+		t.texture = nullptr;
+	}
+	m_TextureLibrary.clear();
+}

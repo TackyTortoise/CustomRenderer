@@ -51,9 +51,9 @@ TestScene::TestScene() : Scene()
 	m_Objects.back()->SetTexture("../Textures/test.jpg");
 	//m_Objects.push_back(new AABox(Vec3(-1, -3.5, 20), 5, 2, 5));
 	m_Objects.push_back(new AABox(Vec3(5, 0, 20), 5, 6.5, 5, Color(29, 108, 129)));
-	m_Objects.back()->SetReflective(.9f);
+	//m_Objects.back()->SetReflective(.9f);
 	//m_Objects.back()->GetMaterial().SetTexScale(.5f);
-	m_Objects.back()->SetReflectivityMap("../Textures/hatch.png");
+	//m_Objects.back()->SetReflectivityMap("../Textures/hatch.png");
 	
 	//m_Objects.push_back(new AssimpModel("../Meshes/teapot.fbx", { 0.f,0.f,10.f }, {-(float)M_PI / 5.f,-(float)M_PI / 5.f,0.f}, {.1f,.1f,.1f}));
 	//m_Objects.back()->SetTexture("../Textures/test.jpg");

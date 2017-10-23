@@ -22,7 +22,7 @@ bool AABox::IsHit(const Vec3& rayOrg, const Vec3& rayDir, HitInfo& hitInfo)
 	float tMaxX = (m_BoundsMax.x - rayOrg.x) / rayDir.x;
 
 	if (tMinX > tMaxX)
-	{
+	{ //swap min and max if necessary
 		auto oldMax = tMaxX;
 		tMaxX = tMinX;
 		tMinX = oldMax;
@@ -71,6 +71,7 @@ bool AABox::IsHit(const Vec3& rayOrg, const Vec3& rayDir, HitInfo& hitInfo)
 
 	if (secondHit < firstHit)
 		firstHit = secondHit;
+
 	hitInfo.distance = firstHit;
 	hitInfo.position = rayOrg + rayDir * hitInfo.distance;
 	hitInfo.normal = GetNormalOnHit(hitInfo.position);

@@ -379,7 +379,7 @@ Color Renderer::GetHitColor(Object* co, HitInfo& hitInfo, const Vec3& rayDir, in
 					//check if hit was closer than light
 					if ((shadowHitInfo.position - shadowStart).Length2() < (lightPos - hitInfo.position).Length2())
 					{
-						shadowSum += m_ShadowIntensity;// *shadowRay.Dot(orgNormal);
+						shadowSum += m_ShadowIntensity;
 						//shadow color = color of lights that don't shade this point = this light color, inverted later
 						occludeColor += lightColor * shadowRay.Dot(orgNormal) / m_ShadowSamples;
 					}
@@ -412,7 +412,7 @@ Color Renderer::GetHitColor(Object* co, HitInfo& hitInfo, const Vec3& rayDir, in
 	if (m_CurrentRenderMode == SHADOWS)
 		return Color(shadowFactor * 255);
 
-	//change pixel
+
 	if (!(occludeColor == Color(0)) && shadowFactor < m_ShadowIntensity)
 	{
 		//invert light color from shadow hits
