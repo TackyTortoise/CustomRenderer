@@ -14,7 +14,7 @@
 
 Renderer* Renderer::m_Instance = nullptr;
 
-Renderer::Renderer(){}
+Renderer::Renderer() {}
 
 Renderer::~Renderer()
 {
@@ -153,11 +153,26 @@ void Renderer::RenderScene()
 				future_vector.emplace_back(
 					std::async([=]()
 				{
-					CalculatePixelColor(rX, rY);
+					if (m_RenderSettings.antiAliasSampleCount <= 1)
+						m_Pixels[pixelIndex] = CalculatePixelColor(rX, rY);
+
+					else
+					{
+						FloatColor totalCol;
+						for (int s = 0; s < m_RenderSettings.antiAliasSampleCount; ++s)
+						{
+							totalCol += CalculatePixelColor(rX, rY, true);
+						}
+						totalCol /= m_RenderSettings.antiAliasSampleCount;
+						m_Pixels[pixelIndex] = totalCol.ToCharColor();
+					}
+
+					//set pixel as rendered in mask
+					m_PixelMask[pixelIndex] = 1;
 				}));
 			}
 #else
-			CalculatePixelColor(rX, rY);
+			m_Pixels[pixelIndex] = CalculatePixelColor(rX, rY);
 #endif
 		}
 	}
@@ -191,19 +206,19 @@ void Renderer::PreviousRenderMode()
 	m_LastRenderTime = Timer::GetTotalTime();
 }
 
-void Renderer::CalculatePixelColor(const int x, const int y)
+Color Renderer::CalculatePixelColor(const int x, const int y, bool multiSample)
 {
 	int pixelIndex = x + m_RenderWidth * y;
 
 	//ignore if pixel has already been calculated before
 	if (m_PixelMask[pixelIndex] == 1)
 	{
-		return;
+		return m_Pixels[pixelIndex];
 	}
 
 	//Generate ray from camera to pixel
 	auto cam = m_ActiveScene->GetCamera();
-	Vec3 rayDir = cam->GetCameraRay(x, y, m_RenderWidth, m_RenderHeight);
+	Vec3 rayDir = cam->GetCameraRay(x, y, m_RenderWidth, m_RenderHeight, multiSample);
 
 	//trace primary ray
 	HitInfo traceResult;
@@ -228,17 +243,18 @@ void Renderer::CalculatePixelColor(const int x, const int y)
 		//fill pixel buffer with color
 		if (m_PixelMask[pixelIndex] != 1)
 		{
-			m_Pixels[pixelIndex] = col;
+			return col;
 		}
 	}
 	//On miss clear pixel
 	else if (m_PixelMask[pixelIndex] != 1)
-		m_Pixels[pixelIndex] = m_ClearColor;
+	{
+		return m_ClearColor;
+	}
 
 	++m_MaskedPixelCount;
 
-	//set pixel as rendered in mask
-	m_PixelMask[pixelIndex] = 1;
+	return m_Pixels[pixelIndex];
 }
 
 Object* Renderer::Trace(const Vec3& rayOrg, const Vec3& rayDir, HitInfo& result, Object* ignoreObject, bool keepIgnoreDistance) const
@@ -410,6 +426,13 @@ Color Renderer::GetHitColor(Object* co, HitInfo& hitInfo, const Vec3& rayDir, in
 	float transp = co->GetTransparancy();
 	if (transp > 0)
 	{
+		auto transTex = co->GetTransparencyMap();
+		if (transTex != nullptr)
+		{
+			auto transSample = transTex->GetPixelColor(texCoord.x, texCoord.y);
+			transp *= transSample.g / 255;
+		}
+
 		Vec3 direction = rayDir;
 
 		//refract ray direction if necessary (refractive)
@@ -452,6 +475,13 @@ Color Renderer::GetHitColor(Object* co, HitInfo& hitInfo, const Vec3& rayDir, in
 	float refl = co->GetReflective();
 	if (refl > 1e-5 && currentDepth < m_MaxDepth)
 	{
+		auto reflTex = co->GetReflectivityMap();
+		if (reflTex != nullptr)
+		{
+			auto reflSample = reflTex->GetPixelColor(texCoord.x, texCoord.y);
+			refl *= reflSample.r / 255.f;
+		}
+
 		pixelColor *= 1 - refl;
 		//start a bit away from hit point to avoid hitting self
 		HitInfo refinf;
@@ -470,7 +500,7 @@ Color Renderer::GetHitColor(Object* co, HitInfo& hitInfo, const Vec3& rayDir, in
 
 	//adjust pixel color to light color
 	Color rCol = m_LightCount > 1 ? occludeColor.MultiplyNormalized(pixelColor) * shadowFactor : (pixelColor * shadowFactor).MultiplyNormalized(combinedLightColor.ToCharColor());
-	
+
 	return rCol;
 }
 

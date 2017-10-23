@@ -42,6 +42,12 @@ public:
 	void SetNormalMap(const char* path) { m_Material.SetNormalMap(path); }
 	Texture* GetNormalMap() const { return m_Material.bUseNormalMap ? m_Material.normalMap : nullptr; }
 
+	void SetReflectivityMap(const char* path) { m_Material.SetReflectivityMap(path); }
+	Texture* GetReflectivityMap() const { return m_Material.bUseReflectivityMap ? m_Material.reflectivityMap : nullptr; }
+
+	void SetTransparencyMap(const char* path) { m_Material.SetTransparencyMap(path); }
+	Texture* GetTransparencyMap() const { return m_Material.bUseTransparencyMap ? m_Material.transparencyMap : nullptr; }
+
 	Material& GetMaterial() { return m_Material; }
 
 protected:

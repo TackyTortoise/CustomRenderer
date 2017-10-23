@@ -15,9 +15,9 @@ Vec3 Light::GetPointInAreaLight() const
 {
 	//generate random point on light quad
 	Vec3 p = m_Position;
-	float u = -1 + static_cast <float> (rand()) / static_cast <float> (RAND_MAX / 2);
+	float u = Math::GetRandomFloat(-1.f, 1.f);
 	p += m_Right * u * m_Width;
-	u = -1 + static_cast <float> (rand()) / static_cast <float> (RAND_MAX / 2);
+	u = Math::GetRandomFloat(-1.f, 1.f);
 	p += m_Up * u * m_Height;
 	return p;
 }

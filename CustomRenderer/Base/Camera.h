@@ -10,7 +10,7 @@ public:
 	const Vec3& GetPosition() const { return m_CamTransform->GetPosition(); }
 	float GetFov() const { return m_Fov; }
 	float GetAspectRatio() const { return m_AspectRatio; }
-	Vec3 GetCameraRay(int pixelX, int pixelY, float renderWidth, float renderHeight) const;
+	Vec3 GetCameraRay(int pixelX, int pixelY, float renderWidth, float renderHeight, bool random = false) const;
 
 	Transform* GetTransform() const { return  m_CamTransform; }
 

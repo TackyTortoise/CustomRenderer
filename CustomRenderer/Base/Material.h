@@ -17,6 +17,10 @@ struct Material
 	Texture* texture = nullptr;
 	bool bUseNormalMap = false;
 	Texture* normalMap = nullptr;
+	bool bUseReflectivityMap = false;
+	Texture* reflectivityMap = nullptr;
+	bool bUseTransparencyMap = false;
+	Texture* transparencyMap = nullptr;
 	float m_TextureScale = 1.f;
 
 	Material():texture(nullptr), normalMap(nullptr)
@@ -45,6 +49,18 @@ struct Material
 	{
 		normalMap = MaterialManager::LoadTexture(path);
 		bUseNormalMap = normalMap != nullptr;
+	}
+
+	void SetReflectivityMap(const char* path)
+	{
+		reflectivityMap = MaterialManager::LoadTexture(path);
+		bUseReflectivityMap = reflectivityMap != nullptr;
+	}
+
+	void SetTransparencyMap(const char* path)
+	{
+		transparencyMap = MaterialManager::LoadTexture(path);
+		bUseTransparencyMap = transparencyMap != nullptr;
 	}
 
 	void SetTexScale(float s)

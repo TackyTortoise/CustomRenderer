@@ -48,7 +48,8 @@ int main(int argc, char* argv[])
 	settings.texWidth = settings.screenWidth / downScaling;
 	settings.texHeight = settings.screenHeight / downScaling;
 	settings.blockCount = 75;
-	settings.shadowSampleCount = 16;
+	settings.shadowSampleCount = 2;
+	settings.antiAliasSampleCount = 16;
 	settings.cameraFOV = 60;
 	settings.maxRenderDepth = 10;
 	settings.enableSrgb = false;

@@ -77,6 +77,7 @@ struct FloatColor
 	FloatColor operator* (const FloatColor v) const { return{ r*v.r, g*v.g, b*v.b }; }
 	FloatColor operator*= (const FloatColor v) { r *= v.r, g *= v.g, b *= v.b; return *this; }
 	FloatColor operator*= (const Color v) { r *= v.r, g *= v.g, b *= v.b; return *this; }
+	FloatColor operator/= (const Color v) { r /= v.r, g /= v.g, b /= v.b; return *this; }
 
 	bool operator== (const Color& c) const { return r == c.r && g == c.g && b == c.b && a == c.a; }
 
