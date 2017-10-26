@@ -13,4 +13,5 @@ struct RenderSettings
 	bool enableSrgb = false;
 	Color clearColor = Color(12, 12, 12);
 	float cameraFOV = 60;
+	bool autoRerender = true;
 };

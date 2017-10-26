@@ -23,13 +23,14 @@
 #include "Scenes/RefractionScene.h"
 #include "Scenes/TeapotScene.h"
 #include "Objects/Triangle.h"
+#include "Scenes/GlassScene.h"
 
 using namespace std;
 
 int main(int argc, char* argv[])
 {
 	_CrtSetDbgFlag(_CRTDBG_ALLOC_MEM_DF | _CRTDBG_LEAK_CHECK_DF); // check memory leaks
-	//_CrtSetBreakAlloc(185);
+	//_CrtSetBreakAlloc(669549);
 	//create sdl window and renderer
 	SDL_Window *window;
 	SDL_Renderer *renderer;
@@ -49,10 +50,11 @@ int main(int argc, char* argv[])
 	settings.texHeight = settings.screenHeight / downScaling;
 	settings.blockCount = 75;
 	settings.shadowSampleCount = 2;
-	settings.antiAliasSampleCount = 16;
+	settings.antiAliasSampleCount = 4;
 	settings.cameraFOV = 60;
 	settings.maxRenderDepth = 10;
 	settings.enableSrgb = false;
+	settings.autoRerender = false;
 
 	Renderer::GetInstance()->Init(settings);
 	
@@ -80,12 +82,13 @@ int main(int argc, char* argv[])
 	SceneManager::GetInstance()->AddScene(new ReflectiveSpheresScene());
 	SceneManager::GetInstance()->AddScene(new RefractionScene());
 	SceneManager::GetInstance()->AddScene(new TeapotScene());
+	SceneManager::GetInstance()->AddScene(new GlassScene());
 
 	//initialize renderer
 	Renderer* sceneRenderer = Renderer::GetInstance();
 
 	SceneManager::GetInstance()->SetActiveScene(0);
-
+	sceneRenderer->RenderScene();
 	const float camSpeed = 2.f;
 
 	bool quitApplication = false;
@@ -143,6 +146,7 @@ int main(int argc, char* argv[])
 					auto activeScene = SceneManager::GetInstance()->GetActiveScene();
 					activeScene->MoveCamera(Vec3(0, camSpeed, 0) * Timer::GetDeltaTime());
 					Renderer::GetInstance()->ClearImage();
+					sceneRenderer->RenderScene();
 				}
 				if (event.key.keysym.scancode == SDL_SCANCODE_Q)
 				{
@@ -193,7 +197,7 @@ int main(int argc, char* argv[])
 		//present texture on screen
 		if (Timer::GetTotalTime() - lastPresent > 1 / 30.f)
 		{
-			SDL_UpdateTexture(texture, nullptr, &sceneRenderer->GetPixels()[0], settings.texWidth * 4);
+			SDL_UpdateTexture(texture, nullptr, sceneRenderer->GetPixels(), settings.texWidth * 4);
 			SDL_RenderCopy(renderer, texture, nullptr, nullptr);
 			SDL_RenderPresent(renderer);
 			lastPresent = Timer::GetTotalTime();

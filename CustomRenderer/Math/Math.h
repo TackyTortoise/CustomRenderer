@@ -5,6 +5,8 @@
 #include "Matrix4x4.h"
 #include "Transform.h"
 #include "HitInfo.h"
+#include <algorithm>
+
 //#include "Color.h"
 
 class Math
@@ -34,27 +36,45 @@ public:
 		return ray + axis * -2 * ray.Dot(axis);
 	}
 
-	static Vec3 RefractVector(float ior1, float ior2, Vec3 rayDir, Vec3 normal)
+	static Vec3 RefractVector(float ior, Vec3 rayDir, Vec3 normal)
 	{
-		float ct = -rayDir.Dot(normal);
-		float i1 = ior1, i2 = ior2;
+		float cosi = Clamp(rayDir.Dot(normal), -1, 1);
+		float etai = 1, etat = ior;
+		Vec3 n = normal;
+		if (cosi < 0) { cosi = -cosi; }
+		else { std::swap(etai, etat); n = -normal; }
+		float eta = etai / etat;
+		float k = 1 - eta * eta * (1 - cosi * cosi);
+		return k < 0 ? 0 : eta * rayDir + (eta * cosi - sqrtf(k)) * n;
+
+		/*float i1 = 1, i2 = ior;
+		float ct = rayDir.Dot(normal);
+		if (ct < 0)
+		{
+			std::swap(i1, i2);
+		}
+		else
+			ct = -rayDir.Dot(normal);
 		//going into or out of object
-		auto refCoef = ct > 0.f ? i1 / i2 : i2 / i1;
-		Vec3 refRay = rayDir * refCoef + normal * (refCoef * ct - sqrt(1 - pow(refCoef, 2) * (1 - pow(ct, 2))));
-		return refRay.Normalized();
+		auto refCoef = i1 / i2;
+		Vec3 refRay = rayDir * refCoef + normal * (refCoef * ct - sqrt(1 - refCoef * refCoef * (1 - ct * ct)));
+		return refRay.Normalized();*/
 	}
 
-	static float GetSchlick(const Vec3& incident, const Vec3& normal, float ior1, float ior2)
+	static float GetSchlick(const Vec3& incident, const Vec3& normal, float ior)
 	{
-		float r0 = (ior1 - ior2) / (ior1 + ior2);
-		r0 *= r0;
-		float ct = -normal.Dot(incident);
-		if (ior1 > ior2)
+		float i1 = 1, i2 = ior;
+		auto idn = -incident.Dot(normal);
+		if (idn < 0)
 		{
-			auto refr = RefractVector(ior1, ior2, incident, normal);
-			ct = -normal.Dot(refr);
+			std::swap(i1, i2);
 		}
-		return r0 + (1 - r0) * pow(1 - ct, 5);
+		else
+			idn = incident.Dot(normal);
+
+		float r0 = pow((i1 - i2) / (i1 + i2), 2.f);
+		
+		return r0 + (1 - r0) * pow(1.f + idn, 5);
 	}
 
 	static Vec3 TangentToWorld(const Vec3& sample, const Vec3& normal)

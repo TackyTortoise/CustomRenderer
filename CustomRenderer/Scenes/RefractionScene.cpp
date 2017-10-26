@@ -80,7 +80,7 @@ RefractionScene::RefractionScene()
 	s->SetRefractive(rv);
 	m_Objects.push_back(s);
 
-	m_Lights.push_back(new Light({ 0,0,40 }, { 0,-1,0 }, 1, 1));
+	m_Lights.push_back(new Light({ 0,3.f,25 }, { 0,-1,0 }, 1, 1));
 }
 
 

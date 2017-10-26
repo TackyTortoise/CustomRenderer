@@ -43,7 +43,7 @@ bool Triangle::IsHit(const Vec3& rayOrg, const Vec3& rayDir, HitInfo& hitInfo)
 	auto normal = *m_Normal;
 	float ndr = normal.Dot(rayDir);
 	//normal pointing away from ray
-	if (fabs(ndr) < 1e-5 || ndr > 0)
+	if (fabs(ndr) < 1e-5 )//|| ndr > 0)
 		return false;
 
 	//check if hit plane on which triangle is situated

@@ -15,7 +15,7 @@ TeapotScene::TeapotScene()
 
 	auto bunny = new AssimpModel("../Meshes/stanford-bunny.fbx", Vec3(0,0,5), Vec3(-M_PI / 2, M_PI,0));
 	bunny->SetBaseColor(Color(217, 144, 88));
-	bunny->SetReflective(.5f);
+	//bunny->SetReflective(.5f);
 	bunny->SetMetallic(true);
 	m_Objects.push_back(bunny);
 

@@ -9,6 +9,7 @@
 #include <atomic>
 #include <future>
 #include <numeric>
+#include <random>
 
 #define MULTITHREADEDRENDER
 
@@ -48,11 +49,6 @@ void Renderer::Init(const RenderSettings& rs)
 	m_Pixels = new Color[m_RenderWidth * m_RenderHeight];
 	m_PixelMask = new char[m_RenderWidth * m_RenderHeight];
 	SetBlockCount(rs.blockCount);
-
-	m_MaxDepth = rs.maxRenderDepth;
-	m_ShadowSamples = rs.shadowSampleCount;
-	m_bEnableSrgb = rs.enableSrgb;
-	m_ClearColor = rs.clearColor;
 
 	m_LastRenderTime = Timer::GetTotalTime();
 }
@@ -104,8 +100,10 @@ void Renderer::SetActiveScene(const Scene* const scene)
 
 void Renderer::RenderScene()
 {
-	std::size_t cores = std::thread::hardware_concurrency() - 1; //keep 1 core for main thread
-	volatile std::atomic<std::size_t> count(0);
+	if (m_bDone && !m_RenderSettings.autoRerender)
+		return;
+
+	std::size_t cores = std::thread::hardware_concurrency();
 	std::vector<std::future<void>> future_vector;
 
 	for (int x = 0; x < m_RenderWidth; x += m_RegionSize.x)
@@ -114,18 +112,19 @@ void Renderer::RenderScene()
 		{
 			//choose random pixel within block
 			int rX;
-			do
-			{
+			do {
 				rX = x + rand() % (int)ceil(m_RegionSize.x);
 			} while (rX >= m_RenderWidth);
 
 			int rY;
-			do
-			{
+			do {
 				rY = y + rand() % (int)ceil(m_RegionSize.y);
 			} while (rY >= m_RenderHeight);
 
 			int pixelIndex = rX + m_RenderWidth * rY;
+
+			if (pixelIndex > m_RenderWidth * m_RenderHeight)
+				continue;
 
 			//pixel was already drawn before
 			if (m_PixelMask[pixelIndex] == 1)
@@ -140,7 +139,10 @@ void Renderer::RenderScene()
 					m_LastRenderTime = tt;
 					//show time it took to render frame
 					std::cout << "Rerendering frame after " << rt << " seconds" << std::endl;
-					ClearPixelMask();
+					m_bDone = true;
+					if (m_RenderSettings.autoRerender)
+						ClearPixelMask();
+					return;
 				}
 				continue;
 			}
@@ -148,35 +150,32 @@ void Renderer::RenderScene()
 			m_FalseHitCounter = 0;
 
 #ifdef MULTITHREADEDRENDER
-			if (cores--)
+			future_vector.emplace_back(
+				std::async(std::launch::async, [=]()
 			{
-				future_vector.emplace_back(
-					std::async([=]()
+				if (m_RenderSettings.antiAliasSampleCount <= 1)
+					m_Pixels[pixelIndex] = CalculatePixelColor(rX, rY);
+
+				else
 				{
-					if (m_RenderSettings.antiAliasSampleCount <= 1)
-						m_Pixels[pixelIndex] = CalculatePixelColor(rX, rY);
-
-					else
+					FloatColor totalCol;
+					for (int s = 0; s < m_RenderSettings.antiAliasSampleCount; ++s)
 					{
-						FloatColor totalCol;
-						for (int s = 0; s < m_RenderSettings.antiAliasSampleCount; ++s)
-						{
-							totalCol += CalculatePixelColor(rX, rY, true);
-						}
-						totalCol /= m_RenderSettings.antiAliasSampleCount;
-						m_Pixels[pixelIndex] = totalCol.ToCharColor();
+						totalCol += CalculatePixelColor(rX, rY, true);
 					}
+					totalCol /= m_RenderSettings.antiAliasSampleCount;
+					m_Pixels[pixelIndex] = totalCol.ToCharColor();
+				}
 
-					//set pixel as rendered in mask
-					m_PixelMask[pixelIndex] = 1;
-				}));
-			}
+				//set pixel as rendered in mask
+				m_PixelMask[pixelIndex] = 1;
+			}));
 #else
 			m_Pixels[pixelIndex] = CalculatePixelColor(rX, rY);
 #endif
+			}
 		}
 	}
-}
 
 void Renderer::ClearImage()
 {
@@ -228,12 +227,11 @@ Color Renderer::CalculatePixelColor(const int x, const int y, bool multiSample)
 	//On object hit get color
 	if (closestObj != nullptr)
 	{
-		int depth = 0; //current render depth tracker
 		//calculate pixel color
-		Color col = GetHitColor(closestObj, traceResult, rayDir, depth);
+		Color col = GetHitColor(closestObj, traceResult, rayDir, 0);
 
 		//adjust color for gamma correction if need be
-		if (m_bEnableSrgb && m_CurrentRenderMode == ALL)
+		if (m_RenderSettings.enableSrgb && m_CurrentRenderMode == ALL)
 		{
 			col.r = pow(col.r / 255.f, 1.f / 2.2f) * 255.f;
 			col.g = pow(col.g / 255.f, 1.f / 2.2f) * 255.f;
@@ -249,7 +247,7 @@ Color Renderer::CalculatePixelColor(const int x, const int y, bool multiSample)
 	//On miss clear pixel
 	else if (m_PixelMask[pixelIndex] != 1)
 	{
-		return m_ClearColor;
+		return m_RenderSettings.clearColor;
 	}
 
 	++m_MaskedPixelCount;
@@ -293,7 +291,7 @@ Object* Renderer::Trace(const Vec3& rayOrg, const Vec3& rayDir, HitInfo& result,
 	return closeObject;
 }
 
-Color Renderer::GetHitColor(Object* co, HitInfo& hitInfo, const Vec3& rayDir, int& currentDepth)
+Color Renderer::GetHitColor(Object* co, HitInfo& hitInfo, const Vec3& rayDir, int currentDepth)
 {
 	//return depth buffer if depth render mode
 	if (m_CurrentRenderMode == DEPTH)
@@ -365,10 +363,10 @@ Color Renderer::GetHitColor(Object* co, HitInfo& hitInfo, const Vec3& rayDir, in
 		auto shadowStart = hitInfo.position + toLight * 0.01f;
 		Object* cs = nullptr;
 		//soft shadows
-		if (m_ShadowSamples > 1)
+		if (m_RenderSettings.shadowSampleCount > 1)
 		{
 			float shadowSum = 0.f;
-			for (int i = 0; i < m_ShadowSamples; ++i)
+			for (int i = 0; i < m_RenderSettings.shadowSampleCount; ++i)
 			{
 				auto shadowRay = (light->GetPointInAreaLight() - hitInfo.position).Normalized();
 				//trace from hitpoint to light
@@ -379,14 +377,14 @@ Color Renderer::GetHitColor(Object* co, HitInfo& hitInfo, const Vec3& rayDir, in
 					//check if hit was closer than light
 					if ((shadowHitInfo.position - shadowStart).Length2() < (lightPos - hitInfo.position).Length2())
 					{
-						shadowSum += m_ShadowIntensity;
+						shadowSum += m_ShadowIntensity * orgNormal.Dot(shadowRay);
 						//shadow color = color of lights that don't shade this point = this light color, inverted later
-						occludeColor += lightColor * shadowRay.Dot(orgNormal) / m_ShadowSamples;
+						occludeColor += lightColor * shadowRay.Dot(orgNormal) / m_RenderSettings.shadowSampleCount;
 					}
 				}
 			}
 
-			shadowSum /= m_ShadowSamples;
+			shadowSum /= m_RenderSettings.shadowSampleCount;
 
 			//divide shadow factor by amount of light, as point is still lit by other lights in scene -> makes shadows lighter
 			if (shadowSum > 1e-5f)
@@ -396,7 +394,7 @@ Color Renderer::GetHitColor(Object* co, HitInfo& hitInfo, const Vec3& rayDir, in
 		}
 
 		//hard shadows
-		else if (m_ShadowSamples == 1)
+		else if (m_RenderSettings.shadowSampleCount == 1)
 		{
 			cs = Trace(shadowStart, toLight, shadowHitInfo);
 			if (cs != nullptr && cs != co)
@@ -441,28 +439,29 @@ Color Renderer::GetHitColor(Object* co, HitInfo& hitInfo, const Vec3& rayDir, in
 		float schlick = 0.f;
 		if (refractive)
 		{
-			direction = Math::RefractVector(1.f, ior, direction, hitInfo.normal);
-			schlick = Math::GetSchlick(rayDir, hitInfo.normal, 1.f, ior);
+			direction = Math::RefractVector(ior, direction, hitInfo.normal);
+			schlick = Math::GetSchlick(rayDir, hitInfo.normal, ior);
+			//if (schlick > 1.f)
+			//	std::cout << "schlick pls " << schlick << std::endl;
+			//if (schlick > 0.025f)
+			//return Color(schlick*255);
 		}
-
 		//Trace further to get transparency color
 		HitInfo transHitInfo;
-		Object* transObj = Trace(hitInfo.position, direction, transHitInfo, co);
-		if (transObj != nullptr && currentDepth < m_MaxDepth)
+		Object* transObj = Trace(hitInfo.position + rayDir * 1e-5, direction, transHitInfo);
+		if (transObj != nullptr && currentDepth < m_RenderSettings.maxRenderDepth)
 		{
-			++currentDepth;
 			//adjust color to transparency hit
 			diffuseIntensity += transp;
 			pixelColor *= 1 - transp;
-			Color transCol = GetHitColor(transObj, transHitInfo, direction, currentDepth) * (1 - schlick);
+			Color transCol = GetHitColor(transObj, transHitInfo, direction, currentDepth + 1);;
 
 			//"Fresnel" by schlick approximation reflections on edges if refractive
-			if (refractive)
+			if (refractive && schlick > 0.05f)
 			{
-				HitInfo reflinf;
-				reflinf.position = hitInfo.position;
-				reflinf.normal = transHitInfo.normal;
-				Color reflectionColor = GetReflection(rayDir, reflinf, currentDepth);
+				Color reflectionColor = GetReflection(rayDir, hitInfo, currentDepth);
+				//return reflectionColor;
+				transCol *= 1 - schlick;
 				transCol += reflectionColor * schlick;
 			}
 
@@ -473,7 +472,7 @@ Color Renderer::GetHitColor(Object* co, HitInfo& hitInfo, const Vec3& rayDir, in
 
 	//Reflection
 	float refl = co->GetReflective();
-	if (refl > 1e-5 && currentDepth < m_MaxDepth)
+	if (refl > 1e-5 && currentDepth < m_RenderSettings.maxRenderDepth)
 	{
 		auto reflTex = co->GetReflectivityMap();
 		if (reflTex != nullptr)
@@ -482,14 +481,10 @@ Color Renderer::GetHitColor(Object* co, HitInfo& hitInfo, const Vec3& rayDir, in
 			refl *= reflSample.r / 255.f;
 		}
 
-		pixelColor *= 1 - refl;
-		//start a bit away from hit point to avoid hitting self
-		HitInfo refinf;
-		refinf.position = hitInfo.position - rayDir;
-		refinf.normal = hitInfo.normal;
 		//Get reflected color
-		Color reflCol = GetReflection(rayDir, refinf, currentDepth);
+		Color reflCol = GetReflection(rayDir, hitInfo, currentDepth);
 		//adjust pixel color
+		pixelColor *= 1 - refl;
 		pixelColor += reflCol * refl;
 	}
 
@@ -504,18 +499,21 @@ Color Renderer::GetHitColor(Object* co, HitInfo& hitInfo, const Vec3& rayDir, in
 	return rCol;
 }
 
-Color Renderer::GetReflection(const Vec3& rayDir, HitInfo& hitInfo, int& currentDepth)
+Color Renderer::GetReflection(const Vec3& rayDir, HitInfo& hitInfo, int currentDepth)
 {
 	//reflect incoming ray
 	auto reflectedRay = Math::ReflectVector(rayDir, hitInfo.normal);
 
+	//reflectedRay = (reflectedRay + Vec3::GetRandom().Normalized()).Normalized();
+
 	HitInfo reflHitInfo;
-	Object* reflectedObj = Trace(hitInfo.position, reflectedRay, reflHitInfo);
-	if (reflectedObj != nullptr && currentDepth < m_MaxDepth)
+	auto startPos = hitInfo.position + reflectedRay * 1e-5;
+	Object* reflectedObj = Trace(startPos, reflectedRay, reflHitInfo);
+	if (reflectedObj != nullptr && currentDepth < m_RenderSettings.maxRenderDepth)
 	{
-		++currentDepth;
+		//++currentDepth;
 		reflHitInfo.position += reflectedRay * .1f;
-		return  GetHitColor(reflectedObj, reflHitInfo, reflectedRay, currentDepth);
+		return  GetHitColor(reflectedObj, reflHitInfo, reflectedRay, currentDepth + 1);
 	}
 
 	//return black if over max depth or no hits
@@ -524,11 +522,13 @@ Color Renderer::GetReflection(const Vec3& rayDir, HitInfo& hitInfo, int& current
 
 void Renderer::ClearPixelMask()
 {
+	m_bDone = false;
 	memset(m_PixelMask, 0, m_RenderWidth * m_RenderHeight);
 	m_MaskedPixelCount = 0;
 }
 
 void Renderer::ClearPixelBuffer()
 {
+	m_bDone = false;
 	memset(m_Pixels, 0, m_RenderWidth * m_RenderHeight * sizeof(Color));
 }

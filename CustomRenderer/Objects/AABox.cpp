@@ -21,23 +21,15 @@ bool AABox::IsHit(const Vec3& rayOrg, const Vec3& rayDir, HitInfo& hitInfo)
 	float tMinX = (m_BoundsMin.x - rayOrg.x) / rayDir.x;
 	float tMaxX = (m_BoundsMax.x - rayOrg.x) / rayDir.x;
 
-	if (tMinX > tMaxX)
-	{ //swap min and max if necessary
-		auto oldMax = tMaxX;
-		tMaxX = tMinX;
-		tMinX = oldMax;
-	}
+	if (tMinX > tMaxX) //swap min and max if necessary
+		std::swap(tMaxX, tMinX);
 
 	//Get hit Y distance
 	float tMinY = (m_BoundsMin.y - rayOrg.y) / rayDir.y;
 	float tMaxY = (m_BoundsMax.y - rayOrg.y) / rayDir.y;
 
 	if (tMinY > tMaxY)
-	{
-		auto oldMax = tMaxY;
-		tMaxY = tMinY;
-		tMinY = oldMax;
-	}
+		std::swap(tMaxY, tMinY);
 
 	//x or y direction miss
 	if (tMaxY < tMinX || tMaxX < tMinY)
@@ -52,11 +44,7 @@ bool AABox::IsHit(const Vec3& rayOrg, const Vec3& rayDir, HitInfo& hitInfo)
 	float tMaxZ = (m_BoundsMax.z - rayOrg.z) / rayDir.z;
 
 	if (tMinZ > tMaxZ)
-	{
-		auto oldMax = tMaxZ;
-		tMaxZ = tMinZ;
-		tMinZ = oldMax;
-	}
+		std::swap(tMaxZ, tMinZ);
 
 	//Z miss
 	if (tMinZ > secondHit || tMaxZ < firstHit)

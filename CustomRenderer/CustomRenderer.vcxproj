@@ -129,6 +129,7 @@
   <ItemGroup>
     <ClCompile Include="Base\Camera.cpp" />
     <ClCompile Include="Base\MaterialManager.cpp" />
+    <ClCompile Include="Scenes\GlassScene.cpp" />
     <ClCompile Include="Objects\KDNode.cpp" />
     <ClCompile Include="Math\Matrix4x4.cpp" />
     <ClCompile Include="Objects\AssimpModel.cpp" />
@@ -154,6 +155,7 @@
     <ClInclude Include="Base\Material.h" />
     <ClInclude Include="Base\RenderSettings.h" />
     <ClInclude Include="Base\MaterialManager.h" />
+    <ClInclude Include="Scenes\GlassScene.h" />
     <ClInclude Include="Objects\KDNode.h" />
     <ClInclude Include="Math\HitInfo.h" />
     <ClInclude Include="Math\Matrix4x4.h" />

@@ -7,7 +7,7 @@ TestScene::TestScene() : Scene()
 	m_Objects.push_back(new Sphere(Vec3(5, 0, 15), 2, Color(70, 80, 255))); // reflective blue
 	m_Objects.back()->SetReflective(.99f);
 	m_Objects.push_back(new Sphere(Vec3(-5, 0, 10), 2, Color(60, 255, 100))); // transparant green
-	m_Objects.back()->SetTransparent(.7f);
+	m_Objects.back()->SetTransparent(.8f);
 	m_Objects.back()->SetRefractive(1.3325f);
 	m_Objects.push_back(new Sphere(Vec3(-4, 2.9, 8.5), .5, Color(255, 255, 70))); // yellow in air
 	m_Objects.push_back(new Sphere(Vec3(-3.2, -.25f, 10), .75, Color(140, 16, 140))); // purple in green
@@ -36,13 +36,13 @@ TestScene::TestScene() : Scene()
 	pTest->SetPosition({ 0, -5, 0 });
 	pTest->SetTexture("../Textures/rock.jpg");
 	pTest->SetNormalMap("../Textures/RockNormal.jpg");
-	pTest->SetReflective(.4f);
+	pTest->SetReflective(.8f);
 	pTest->GetMaterial().SetTexScale(1.f);
 	m_Objects.push_back(pTest);
 
 	pTest = new Plane();
 	pTest->SetPosition({ 0,50,0 });
-	pTest->SetBaseColor(Color(255, 0, 0));
+	pTest->SetBaseColor(Color(100, 149, 237));
 	m_Objects.push_back(pTest);
 
 	m_Objects.push_back(new AABox(Vec3(-5, -.5, 20), 7, 7, 8));
@@ -51,6 +51,8 @@ TestScene::TestScene() : Scene()
 	m_Objects.back()->SetTexture("../Textures/test.jpg");
 	//m_Objects.push_back(new AABox(Vec3(-1, -3.5, 20), 5, 2, 5));
 	m_Objects.push_back(new AABox(Vec3(5, 0, 20), 5, 6.5, 5, Color(29, 108, 129)));
+	m_Objects.back()->SetTransparent(.9f);
+	m_Objects.back()->SetRefractive(1.5f);
 	//m_Objects.back()->SetReflective(.9f);
 	//m_Objects.back()->GetMaterial().SetTexScale(.5f);
 	//m_Objects.back()->SetReflectivityMap("../Textures/hatch.png");

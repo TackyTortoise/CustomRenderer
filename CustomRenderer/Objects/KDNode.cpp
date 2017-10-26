@@ -11,6 +11,18 @@ KDNode::~KDNode()
 		delete m_BoundingBox;
 		m_BoundingBox = nullptr;
 	}
+
+	if (m_LeftNode)
+	{
+		delete m_LeftNode;
+		m_LeftNode = nullptr;
+	}
+
+	if (m_RightNode)
+	{
+		delete m_RightNode;
+		m_RightNode = nullptr;
+	}
 }
 
 KDNode* KDNode::BuildTree(std::vector<Triangle*>& triangles) const

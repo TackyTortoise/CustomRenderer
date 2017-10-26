@@ -44,9 +44,9 @@ private:
 
 	Object* Trace(const Vec3& rayOrg, const Vec3& rayDir, HitInfo& result, Object* ignoreObject = nullptr, bool keepIgnoreDistance = false) const;
 	
-	Color GetHitColor(Object* co, HitInfo& hitInfo, const Vec3& rayDir, int& currentDepth);
+	Color GetHitColor(Object* co, HitInfo& hitInfo, const Vec3& rayDir, int currentDepth);
 
-	Color GetReflection(const Vec3& rayDir, HitInfo& hitInfo, int& currentDepth);
+	Color GetReflection(const Vec3& rayDir, HitInfo& hitInfo, int currentDepth);
 
 	Color CalculatePixelColor(const int x, const int y, bool multiSample = false);
 	
@@ -72,18 +72,12 @@ private:
 	unsigned int m_BlockCount = 1;
 	Vec2 m_RegionSize;
 
-	Color m_ClearColor = Color(128, 128, 128);
-
 	const float m_ShadowIntensity = .8f;
-	char m_MaxDepth = 10;
-	//short m_ReflectionDepth = 0, m_TransparancyDepth = 0, m_RefractionDepth = 0;
-
-	int m_ShadowSamples = 1;
-
-	bool m_bEnableSrgb = false;
 
 	float m_LastRenderTime = 0.f;
 
 	RenderMode m_CurrentRenderMode = ALL;
+
+	bool m_bDone = false;
 };
 
