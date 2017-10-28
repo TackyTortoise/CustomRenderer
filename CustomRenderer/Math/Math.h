@@ -6,6 +6,8 @@
 #include "Transform.h"
 #include "HitInfo.h"
 #include <algorithm>
+#include <SDL_stdinc.h>
+#include <random>
 
 //#include "Color.h"
 
@@ -26,7 +28,7 @@ public:
 		return Clamp(normal.Dot(lightDir), min);
 	}
 
-	static int GetSign(const int v)
+	static int GetSign(const float v)
 	{
 		return v < 0 ? -1 : 1;
 	}
@@ -77,12 +79,18 @@ public:
 		return r0 + (1 - r0) * pow(1.f + idn, 5);
 	}
 
-	static Vec3 TangentToWorld(const Vec3& sample, const Vec3& normal)
+	static void CreateCoordSystem(const Vec3& normal, Vec3& tangent, Vec3& biTangent)
 	{
-		auto norm = normal;
+		tangent = abs(abs(normal.y) - 1.f) < 1e-5 ? Vec3(1, 0, 0) : Vec3(0, 1, 0).Cross(normal);
+		biTangent = normal.Cross(tangent);
+	}
+
+	static Vec3 TangentToWorld(const Vec3& sample, const Vec3& norm)
+	{
 		//if (norm.y - 1.f < 1)
-		auto tang = abs(abs(norm.y) - 1.f) < 1e-5 ? Vec3(1,0,0) : Vec3(0, 1, 0).Cross(norm);
-		auto bitan = norm.Cross(tang);
+		Vec3 tang, bitan;
+		CreateCoordSystem(norm, tang, bitan);
+
 		Matrix4x4 m = Matrix4x4::Identity;
 
 		m[0][0] = tang.x;
@@ -98,6 +106,29 @@ public:
 		m[2][2] = norm.z;
 
 		return m.TransformVector(sample).Normalized();
+	}
+
+	static Vec3 SampleSphere()
+	{
+		std::random_device rd;
+		std::mt19937 gen(rd());
+		std::uniform_real_distribution<> dis(-1, 1);
+
+		float t = (float)dis(gen);
+		float lambda = GetRandomFloat(0.f, 2 * M_PI);
+		auto x = sqrt(1 - t*t) * cos(lambda);
+		auto z = sqrt(1 - t*t) * sin(lambda);
+
+		return{ x,t,z };
+	}
+
+	static Vec3 SampleHemisphere(const Vec3& normal = Vec3(0,1,0), const Vec3& tangent = Vec3(1,0,0), const Vec3& biTangent = Vec3(0,0,1))
+	{
+		auto s = SampleSphere();
+		if (s.Dot(normal) < 0)
+			s.y = -s.y;
+
+		return{ s.x * tangent + s.y * normal + s.z * biTangent };
 	}
 
 #define SQRT_MAGIC_F 0x5f3759df 

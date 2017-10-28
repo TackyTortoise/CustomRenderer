@@ -288,6 +288,7 @@ Object* Renderer::Trace(const Vec3& rayOrg, const Vec3& rayDir, HitInfo& result,
 	{
 		result.position = rayOrg + rayDir * shortD;
 	}
+	result.hitObject = closeObject;
 	return closeObject;
 }
 
@@ -503,8 +504,32 @@ Color Renderer::GetReflection(const Vec3& rayDir, HitInfo& hitInfo, int currentD
 {
 	//reflect incoming ray
 	auto reflectedRay = Math::ReflectVector(rayDir, hitInfo.normal);
+	Vec3 norm = reflectedRay, tan, bitan;
+	Math::CreateCoordSystem(norm, tan, bitan);
+	
+	FloatColor totalCol;
+	auto roughness = hitInfo.hitObject->GetRoughness();
+	int rs = roughness > 0.f ? m_RenderSettings.roughnessSampleCount : 1;
+	for (int i = 0; i < rs; ++i)
+	{
+		auto dir = Math::SampleHemisphere(norm, tan, bitan);
+		dir = dir * roughness + reflectedRay * (1 - roughness);
+		HitInfo reflHitInfo;
+		auto startPos = hitInfo.position + dir * 1e-5;
+		Object* reflectedObj = Trace(startPos, dir, reflHitInfo, hitInfo.hitObject); //ignore self when tracing reflection
+		if (reflectedObj != nullptr && currentDepth < m_RenderSettings.maxRenderDepth)
+		{
+			//++currentDepth;
+			reflHitInfo.position += dir * .1f;
+			totalCol += GetHitColor(reflectedObj, reflHitInfo, dir, currentDepth + 1);
+		}
+	}
 
-	//reflectedRay = (reflectedRay + Vec3::GetRandom().Normalized()).Normalized();
+	//return black if over max depth or no hits
+	return (totalCol / rs).ToCharColor();
+
+	/*//reflect incoming ray
+	auto reflectedRay = Math::ReflectVector(rayDir, hitInfo.normal);
 
 	HitInfo reflHitInfo;
 	auto startPos = hitInfo.position + reflectedRay * 1e-5;
@@ -517,7 +542,7 @@ Color Renderer::GetReflection(const Vec3& rayDir, HitInfo& hitInfo, int currentD
 	}
 
 	//return black if over max depth or no hits
-	return Color(0);
+	return Color(0);*/
 }
 
 void Renderer::ClearPixelMask()

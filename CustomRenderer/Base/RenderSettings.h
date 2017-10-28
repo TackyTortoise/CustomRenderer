@@ -10,6 +10,7 @@ struct RenderSettings
 	int maxRenderDepth = 10;
 	int shadowSampleCount = 1;
 	int antiAliasSampleCount = 1;
+	int roughnessSampleCount = 1;
 	bool enableSrgb = false;
 	Color clearColor = Color(12, 12, 12);
 	float cameraFOV = 60;

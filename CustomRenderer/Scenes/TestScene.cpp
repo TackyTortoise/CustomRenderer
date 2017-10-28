@@ -6,6 +6,7 @@ TestScene::TestScene() : Scene()
 	m_Objects.push_back(new Sphere(Vec3(0, 0, 50), 2, Color(255, 50, 170))); // small pink in back
 	m_Objects.push_back(new Sphere(Vec3(5, 0, 15), 2, Color(70, 80, 255))); // reflective blue
 	m_Objects.back()->SetReflective(.99f);
+	m_Objects.back()->SetRoughness(.15f);
 	m_Objects.push_back(new Sphere(Vec3(-5, 0, 10), 2, Color(60, 255, 100))); // transparant green
 	m_Objects.back()->SetTransparent(.8f);
 	m_Objects.back()->SetRefractive(1.3325f);
@@ -51,11 +52,11 @@ TestScene::TestScene() : Scene()
 	m_Objects.back()->SetTexture("../Textures/test.jpg");
 	//m_Objects.push_back(new AABox(Vec3(-1, -3.5, 20), 5, 2, 5));
 	m_Objects.push_back(new AABox(Vec3(5, 0, 20), 5, 6.5, 5, Color(29, 108, 129)));
-	m_Objects.back()->SetTransparent(.9f);
-	m_Objects.back()->SetRefractive(1.5f);
-	//m_Objects.back()->SetReflective(.9f);
-	//m_Objects.back()->GetMaterial().SetTexScale(.5f);
-	//m_Objects.back()->SetReflectivityMap("../Textures/hatch.png");
+	//m_Objects.back()->SetTransparent(.9f);
+	//m_Objects.back()->SetRefractive(1.5f);
+	m_Objects.back()->SetReflective(.9f);
+	m_Objects.back()->GetMaterial().SetTexScale(.5f);
+	m_Objects.back()->SetReflectivityMap("../Textures/hatch.png");
 	
 	//m_Objects.push_back(new AssimpModel("../Meshes/teapot.fbx", { 0.f,0.f,10.f }, {-(float)M_PI / 5.f,-(float)M_PI / 5.f,0.f}, {.1f,.1f,.1f}));
 	//m_Objects.back()->SetTexture("../Textures/test.jpg");

@@ -50,10 +50,11 @@ int main(int argc, char* argv[])
 	settings.texHeight = settings.screenHeight / downScaling;
 	settings.blockCount = 75;
 	settings.shadowSampleCount = 2;
-	settings.antiAliasSampleCount = 4;
+	settings.antiAliasSampleCount = 16;
+	settings.roughnessSampleCount = 2;
 	settings.cameraFOV = 60;
 	settings.maxRenderDepth = 10;
-	settings.enableSrgb = false;
+	settings.enableSrgb = true;
 	settings.autoRerender = false;
 
 	Renderer::GetInstance()->Init(settings);

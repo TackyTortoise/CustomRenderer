@@ -27,6 +27,9 @@ public:
 	void SetReflective(const float v) { m_Material.reflectivity = v; }
 	float GetReflective() const { return m_Material.reflectivity; }
 
+	void SetRoughness(const float v) { m_Material.roughness = v; }
+	float GetRoughness() const { return m_Material.roughness; }
+
 	void SetRefractive(const float v) { m_Material.refractiveIndex = v; }
 	float GetRefractive() const { return m_Material.refractiveIndex; }
 

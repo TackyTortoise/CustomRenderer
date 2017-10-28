@@ -1,4 +1,5 @@
 #pragma once
+class Object;
 
 struct HitInfo
 {
@@ -6,4 +7,5 @@ struct HitInfo
 	Vec3 normal;
 	float distance;
 	Vec2 uvCoordinate;
+	Object* hitObject;
 };
