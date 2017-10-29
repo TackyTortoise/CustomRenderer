@@ -50,7 +50,7 @@ int main(int argc, char* argv[])
 	settings.texHeight = settings.screenHeight / downScaling;
 	settings.blockCount = 75;
 	settings.shadowSampleCount = 2;
-	settings.antiAliasSampleCount = 8;
+	settings.antiAliasSampleCount = 16;
 	settings.roughnessSampleCount = 2;
 	settings.dofSampleCount = 2;
 	settings.cameraFOV = 60;
@@ -86,10 +86,10 @@ int main(int argc, char* argv[])
 
 	//Set up scenes
 	SceneManager::GetInstance()->AddScene(new TestScene());
-	SceneManager::GetInstance()->AddScene(new ReflectiveSpheresScene());
+	//SceneManager::GetInstance()->AddScene(new ReflectiveSpheresScene());
 	//SceneManager::GetInstance()->AddScene(new RefractionScene());
 	//SceneManager::GetInstance()->AddScene(new TeapotScene());
-	//SceneManager::GetInstance()->AddScene(new GlassScene());
+	SceneManager::GetInstance()->AddScene(new GlassScene());
 
 	//initialize renderer
 	Renderer* sceneRenderer = Renderer::GetInstance();

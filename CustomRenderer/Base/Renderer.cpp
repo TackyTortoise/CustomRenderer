@@ -153,6 +153,14 @@ void Renderer::RenderScene()
 			future_vector.emplace_back(
 				std::async(std::launch::async, [=]()
 			{
+				if (m_CurrentRenderMode != ALL)
+				{
+					m_Pixels[pixelIndex] = CalculatePixelColor(rX, rY);
+					m_PixelMask[pixelIndex] = 1;
+					return;
+				}
+
+				//Total render
 				FloatColor totalCol;
 
 				//iterations for Depth of Field
@@ -226,9 +234,9 @@ Color Renderer::CalculatePixelColor(const int x, const int y)
 
 	//Generate ray from camera to pixel
 	auto cam = m_ActiveScene->GetCamera();
-	auto aa = m_RenderSettings.antiAliasSampleCount > 0;
+	auto aa = m_RenderSettings.antiAliasSampleCount > 0 && m_CurrentRenderMode == ALL;
 	Vec3 rayDir =
-		m_RenderSettings.dofSampleCount > 0 ?
+		m_RenderSettings.dofSampleCount > 0 && m_CurrentRenderMode == ALL ?
 		cam->GetCameraRayDOF(x, y, m_RenderWidth, m_RenderHeight, aa) :
 		cam->GetCameraRay(x, y, m_RenderWidth, m_RenderHeight, aa);
 
@@ -432,11 +440,11 @@ Color Renderer::GetHitColor(Object* co, HitInfo& hitInfo, const Vec3& rayDir, in
 		occludeColor = (combinedLightColor - occludeColor).ToCharColor();
 	}
 	else
-		occludeColor = (combinedLightColor).ToCharColor(); //used to multiply pixel color with light color
+		occludeColor = combinedLightColor.ToCharColor(); //used to multiply pixel color with light color
 
 
-	//Transparancy
-	float transp = co->GetTransparancy();
+	//Transparency
+	float transp = co->GetTransparency();
 	if (transp > 0)
 	{
 		auto transTex = co->GetTransparencyMap();

@@ -7,7 +7,7 @@ TestScene::TestScene() : Scene()
 	m_Objects.push_back(new Sphere(Vec3(5, 0, 15), 2, Color(70, 80, 255))); // reflective blue
 	m_Objects.back()->SetReflective(.99f);
 	m_Objects.back()->SetRoughness(.15f);
-	m_Objects.push_back(new Sphere(Vec3(-5, 0, 10), 2, Color(60, 255, 100))); // transparant green
+	m_Objects.push_back(new Sphere(Vec3(-5, 0, 10), 2, Color(60, 255, 100))); // transparent green
 	m_Objects.back()->SetTransparent(.8f);
 	m_Objects.back()->SetRefractive(1.3325f);
 	m_Objects.push_back(new Sphere(Vec3(-4, 2.9, 8.5), .5, Color(255, 255, 70))); // yellow in air
@@ -62,9 +62,9 @@ TestScene::TestScene() : Scene()
 	//m_Objects.back()->SetTexture("../Textures/test.jpg");
 
 	m_Lights.push_back(new Light({ 10,30,0 }, { 0,-1,0 }, 3, 3));
-	//m_Lights.back()->SetColor(Color(255,0,0));
-	//m_Lights.push_back(new Light({ -10,20,0 }, { 0,-1,0 }, 2, 2));
-	//m_Lights.back()->SetColor(Color(0, 0, 255));
+	m_Lights.back()->SetColor(Color(255,0,0));
+	m_Lights.push_back(new Light({ -10,20,0 }, { 0,-1,0 }, 2, 2));
+	m_Lights.back()->SetColor(Color(0, 0, 255));
 	//m_Lights.push_back(new Light({ 0,10,0 }, { 0,-1,0 }, 2, 2));
 	//m_Lights.back()->SetColor(Color(0, 255, 0));
 	//m_Lights.push_back(new Light({ -0,100,0 }, { 0,-1,0 }, 2, 2));

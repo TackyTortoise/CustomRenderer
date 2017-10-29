@@ -21,8 +21,8 @@ public:
 	virtual Vec3 GetNormalOnHit(Vec3 hitPosition) const = 0;
 	virtual Vec2 GetUvCoordOnHit(Vec3 hitPosition) const { return Vec2(0, 0); }
 
-	void SetTransparent(const float v) { m_Material.transparancy = v; }
-	float GetTransparancy() const { return m_Material.transparancy; }
+	void SetTransparent(const float v) { m_Material.transparency = v; }
+	float GetTransparency() const { return m_Material.transparency; }
 
 	void SetReflective(const float v) { m_Material.reflectivity = v; }
 	float GetReflective() const { return m_Material.reflectivity; }

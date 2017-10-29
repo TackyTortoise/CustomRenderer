@@ -8,7 +8,7 @@
 struct Material
 {
 	Color color = Color(255,0,255);
-	float transparancy = 0.f;
+	float transparency = 0.f;
 	float reflectivity = 0.f;
 	float roughness = 0.f;
 	float refractiveIndex = 1.f;
