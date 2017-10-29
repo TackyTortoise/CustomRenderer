@@ -108,6 +108,14 @@ public:
 		return m.TransformVector(sample).Normalized();
 	}
 
+	static Vec2 SampleDisk()
+	{
+		float lambda = GetRandomFloat(0.f, 2 * M_PI);
+		auto x = cos(lambda);
+		auto y = sin(lambda);
+		return{ x, y };
+	}
+
 	static Vec3 SampleSphere()
 	{
 		std::random_device rd;

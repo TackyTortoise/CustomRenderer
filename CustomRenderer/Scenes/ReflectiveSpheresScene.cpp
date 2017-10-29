@@ -37,6 +37,10 @@ ReflectiveSpheresScene::ReflectiveSpheresScene()
 	m_Objects.push_back(s);
 
 	m_Lights.push_back(new Light({ 4, .5,20 }, { 0,-1,0 }, 1, 1));
+
+	//m_Camera->EnableDOF(true);
+	//m_Camera->SetFocalDistance(20.f);
+	//m_Camera->SetAperture(.15f);
 }
 
 

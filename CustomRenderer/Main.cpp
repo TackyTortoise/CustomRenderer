@@ -50,10 +50,11 @@ int main(int argc, char* argv[])
 	settings.texHeight = settings.screenHeight / downScaling;
 	settings.blockCount = 75;
 	settings.shadowSampleCount = 2;
-	settings.antiAliasSampleCount = 16;
+	settings.antiAliasSampleCount = 8;
 	settings.roughnessSampleCount = 2;
+	settings.dofSampleCount = 2;
 	settings.cameraFOV = 60;
-	settings.maxRenderDepth = 10;
+	settings.maxRenderDepth = 5;
 	settings.enableSrgb = true;
 	settings.autoRerender = false;
 
@@ -78,12 +79,17 @@ int main(int argc, char* argv[])
 	
 	Timer::Init();
 
+	for (int i = 0; i < 20; ++i)
+	{
+		std::cout << Math::SampleDisk() << std::endl;
+	}
+
 	//Set up scenes
 	SceneManager::GetInstance()->AddScene(new TestScene());
 	SceneManager::GetInstance()->AddScene(new ReflectiveSpheresScene());
-	SceneManager::GetInstance()->AddScene(new RefractionScene());
-	SceneManager::GetInstance()->AddScene(new TeapotScene());
-	SceneManager::GetInstance()->AddScene(new GlassScene());
+	//SceneManager::GetInstance()->AddScene(new RefractionScene());
+	//SceneManager::GetInstance()->AddScene(new TeapotScene());
+	//SceneManager::GetInstance()->AddScene(new GlassScene());
 
 	//initialize renderer
 	Renderer* sceneRenderer = Renderer::GetInstance();

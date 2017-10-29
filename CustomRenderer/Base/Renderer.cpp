@@ -138,7 +138,7 @@ void Renderer::RenderScene()
 					auto rt = tt - m_LastRenderTime;
 					m_LastRenderTime = tt;
 					//show time it took to render frame
-					std::cout << "Rerendering frame after " << rt << " seconds" << std::endl;
+					std::cout << (m_RenderSettings.autoRerender ? "Rerendering" : "Rendered") << " frame after " << rt << " seconds" << std::endl;
 					m_bDone = true;
 					if (m_RenderSettings.autoRerender)
 						ClearPixelMask();
@@ -153,19 +153,28 @@ void Renderer::RenderScene()
 			future_vector.emplace_back(
 				std::async(std::launch::async, [=]()
 			{
-				if (m_RenderSettings.antiAliasSampleCount <= 1)
-					m_Pixels[pixelIndex] = CalculatePixelColor(rX, rY);
+				FloatColor totalCol;
 
-				else
+				//iterations for Depth of Field
+				auto dofMulti = m_RenderSettings.dofSampleCount > 0 && m_ActiveScene->GetCamera()->IsDOFEnabled()? 
+					m_RenderSettings.dofSampleCount : 1;
+
+				//iterations for Anti-Aliasing
+				auto aaMulti = m_RenderSettings.antiAliasSampleCount > 0 ? m_RenderSettings.antiAliasSampleCount : 1;
+
+				//total iterations
+				unsigned iterations = aaMulti * dofMulti;
+
+				//calculate pixel color for all iterations
+				for (int s = 0; s < iterations; ++s)
 				{
-					FloatColor totalCol;
-					for (int s = 0; s < m_RenderSettings.antiAliasSampleCount; ++s)
-					{
-						totalCol += CalculatePixelColor(rX, rY, true);
-					}
-					totalCol /= m_RenderSettings.antiAliasSampleCount;
-					m_Pixels[pixelIndex] = totalCol.ToCharColor();
+					totalCol += CalculatePixelColor(rX, rY);
 				}
+				//Average color
+				totalCol /= iterations;
+
+
+				m_Pixels[pixelIndex] = totalCol.ToCharColor();
 
 				//set pixel as rendered in mask
 				m_PixelMask[pixelIndex] = 1;
@@ -173,9 +182,9 @@ void Renderer::RenderScene()
 #else
 			m_Pixels[pixelIndex] = CalculatePixelColor(rX, rY);
 #endif
-			}
 		}
 	}
+}
 
 void Renderer::ClearImage()
 {
@@ -205,7 +214,7 @@ void Renderer::PreviousRenderMode()
 	m_LastRenderTime = Timer::GetTotalTime();
 }
 
-Color Renderer::CalculatePixelColor(const int x, const int y, bool multiSample)
+Color Renderer::CalculatePixelColor(const int x, const int y)
 {
 	int pixelIndex = x + m_RenderWidth * y;
 
@@ -217,7 +226,12 @@ Color Renderer::CalculatePixelColor(const int x, const int y, bool multiSample)
 
 	//Generate ray from camera to pixel
 	auto cam = m_ActiveScene->GetCamera();
-	Vec3 rayDir = cam->GetCameraRay(x, y, m_RenderWidth, m_RenderHeight, multiSample);
+	auto aa = m_RenderSettings.antiAliasSampleCount > 0;
+	Vec3 rayDir =
+		m_RenderSettings.dofSampleCount > 0 ?
+		cam->GetCameraRayDOF(x, y, m_RenderWidth, m_RenderHeight, aa) :
+		cam->GetCameraRay(x, y, m_RenderWidth, m_RenderHeight, aa);
+
 
 	//trace primary ray
 	HitInfo traceResult;
@@ -442,10 +456,6 @@ Color Renderer::GetHitColor(Object* co, HitInfo& hitInfo, const Vec3& rayDir, in
 		{
 			direction = Math::RefractVector(ior, direction, hitInfo.normal);
 			schlick = Math::GetSchlick(rayDir, hitInfo.normal, ior);
-			//if (schlick > 1.f)
-			//	std::cout << "schlick pls " << schlick << std::endl;
-			//if (schlick > 0.025f)
-			//return Color(schlick*255);
 		}
 		//Trace further to get transparency color
 		HitInfo transHitInfo;
@@ -506,10 +516,11 @@ Color Renderer::GetReflection(const Vec3& rayDir, HitInfo& hitInfo, int currentD
 	auto reflectedRay = Math::ReflectVector(rayDir, hitInfo.normal);
 	Vec3 norm = reflectedRay, tan, bitan;
 	Math::CreateCoordSystem(norm, tan, bitan);
-	
+
 	FloatColor totalCol;
 	auto roughness = hitInfo.hitObject->GetRoughness();
 	int rs = roughness > 0.f ? m_RenderSettings.roughnessSampleCount : 1;
+	rs = rs == 0 ? 1 : rs;
 	for (int i = 0; i < rs; ++i)
 	{
 		auto dir = Math::SampleHemisphere(norm, tan, bitan);
@@ -527,22 +538,6 @@ Color Renderer::GetReflection(const Vec3& rayDir, HitInfo& hitInfo, int currentD
 
 	//return black if over max depth or no hits
 	return (totalCol / rs).ToCharColor();
-
-	/*//reflect incoming ray
-	auto reflectedRay = Math::ReflectVector(rayDir, hitInfo.normal);
-
-	HitInfo reflHitInfo;
-	auto startPos = hitInfo.position + reflectedRay * 1e-5;
-	Object* reflectedObj = Trace(startPos, reflectedRay, reflHitInfo);
-	if (reflectedObj != nullptr && currentDepth < m_RenderSettings.maxRenderDepth)
-	{
-		//++currentDepth;
-		reflHitInfo.position += reflectedRay * .1f;
-		return  GetHitColor(reflectedObj, reflHitInfo, reflectedRay, currentDepth + 1);
-	}
-
-	//return black if over max depth or no hits
-	return Color(0);*/
 }
 
 void Renderer::ClearPixelMask()

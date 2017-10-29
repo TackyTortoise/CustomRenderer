@@ -50,4 +50,6 @@ void Scene::MoveCamera(const Vec3& movement) const
 void Scene::RotateCamera(const Vec3& rotation) const
 {
 	m_Camera->GetTransform()->Rotate(rotation);
+	m_Camera->GetRight(true);
+	m_Camera->GetUp(true);
 }
