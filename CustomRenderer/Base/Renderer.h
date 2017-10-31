@@ -49,6 +49,8 @@ private:
 	Color GetReflection(const Vec3& rayDir, HitInfo& hitInfo, int currentDepth);
 
 	Color CalculatePixelColor(const int x, const int y);
+
+	FloatColor GetGlobalIllumination(const HitInfo& hitInfo, const unsigned depth);
 	
 	void ClearPixelMask();
 	void ClearPixelBuffer();

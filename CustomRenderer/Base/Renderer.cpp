@@ -164,7 +164,7 @@ void Renderer::RenderScene()
 				FloatColor totalCol;
 
 				//iterations for Depth of Field
-				auto dofMulti = m_RenderSettings.dofSampleCount > 0 && m_ActiveScene->GetCamera()->IsDOFEnabled()? 
+				auto dofMulti = m_RenderSettings.dofSampleCount > 0 && m_ActiveScene->GetCamera()->IsDOFEnabled() ?
 					m_RenderSettings.dofSampleCount : 1;
 
 				//iterations for Anti-Aliasing
@@ -275,6 +275,30 @@ Color Renderer::CalculatePixelColor(const int x, const int y)
 	++m_MaskedPixelCount;
 
 	return m_Pixels[pixelIndex];
+}
+
+FloatColor Renderer::GetGlobalIllumination(const HitInfo& hitInfo, const unsigned depth)
+{
+	//Generate axies
+	Vec3 norm = hitInfo.normal, tan, bitan;
+	Math::CreateCoordSystem(norm, tan, bitan);
+
+	FloatColor indirectColor;
+	auto s = m_RenderSettings.GISampleCount;
+
+	for (int i = 0; i < s; ++i)
+	{
+		//Get random sample direction
+		Vec3 direction = Math::SampleHemisphere(norm,tan, bitan);
+		HitInfo GIHi;
+		auto hitobj = Trace(hitInfo.position, direction, GIHi, hitInfo.hitObject);
+		//Get color from sample raycast
+		if (hitobj != nullptr)
+			indirectColor += GetHitColor(hitobj, GIHi, direction, depth + 1) * direction.Dot(norm);
+	}
+	//average color
+	indirectColor /= s;
+	return indirectColor;
 }
 
 Object* Renderer::Trace(const Vec3& rayOrg, const Vec3& rayDir, HitInfo& result, Object* ignoreObject, bool keepIgnoreDistance) const
@@ -465,6 +489,7 @@ Color Renderer::GetHitColor(Object* co, HitInfo& hitInfo, const Vec3& rayDir, in
 			direction = Math::RefractVector(ior, direction, hitInfo.normal);
 			schlick = Math::GetSchlick(rayDir, hitInfo.normal, ior);
 		}
+
 		//Trace further to get transparency color
 		HitInfo transHitInfo;
 		Object* transObj = Trace(hitInfo.position + rayDir * 1e-5, direction, transHitInfo);
@@ -473,19 +498,18 @@ Color Renderer::GetHitColor(Object* co, HitInfo& hitInfo, const Vec3& rayDir, in
 			//adjust color to transparency hit
 			diffuseIntensity += transp;
 			pixelColor *= 1 - transp;
-			Color transCol = GetHitColor(transObj, transHitInfo, direction, currentDepth + 1);;
+			FloatColor transCol = GetHitColor(transObj, transHitInfo, direction, currentDepth + 1);;
 
 			//"Fresnel" by schlick approximation reflections on edges if refractive
 			if (refractive && schlick > 0.05f)
 			{
 				Color reflectionColor = GetReflection(rayDir, hitInfo, currentDepth);
-				//return reflectionColor;
 				transCol *= 1 - schlick;
 				transCol += reflectionColor * schlick;
 			}
 
 			//combine pixel color with transparency color
-			pixelColor = pixelColor.ClampAdd(transCol * transp);
+			pixelColor = pixelColor.ClampAdd((transCol * transp).ToCharColor());
 		}
 	}
 
@@ -509,11 +533,15 @@ Color Renderer::GetHitColor(Object* co, HitInfo& hitInfo, const Vec3& rayDir, in
 
 	//Color intensity
 	diffuseIntensity = Math::Clamp(diffuseIntensity, 0.15, 1);
-	pixelColor *= diffuseIntensity;
-	pixelColor = pixelColor.ClampAdd(specColor);
 
 	//adjust pixel color to light color
-	Color rCol = m_LightCount > 1 ? occludeColor.MultiplyNormalized(pixelColor) * shadowFactor : (pixelColor * shadowFactor).MultiplyNormalized(combinedLightColor.ToCharColor());
+	FloatColor lightColor = m_LightCount > 1 ? occludeColor : combinedLightColor;
+	FloatColor directLightColor = (lightColor * diffuseIntensity * shadowFactor).ToCharColor();
+	FloatColor indirectLightColor = currentDepth < m_RenderSettings.GIMaxDepth ? GetGlobalIllumination(hitInfo, 0) : Color(0);
+	FloatColor totalLightColor = directLightColor + indirectLightColor;
+
+	FloatColor pc = pixelColor.MultiplyNormalized(totalLightColor.ToCharColor());
+	Color rCol = pc.ToCharColor().ClampAdd(specColor);
 
 	return rCol;
 }
@@ -522,7 +550,7 @@ Color Renderer::GetReflection(const Vec3& rayDir, HitInfo& hitInfo, int currentD
 {
 	//reflect incoming ray
 	auto reflectedRay = Math::ReflectVector(rayDir, hitInfo.normal);
-	Vec3 norm = reflectedRay, tan, bitan;
+	Vec3 norm = hitInfo.normal, tan, bitan;
 	Math::CreateCoordSystem(norm, tan, bitan);
 
 	FloatColor totalCol;
@@ -531,20 +559,23 @@ Color Renderer::GetReflection(const Vec3& rayDir, HitInfo& hitInfo, int currentD
 	rs = rs == 0 ? 1 : rs;
 	for (int i = 0; i < rs; ++i)
 	{
+		//Take random direction
 		auto dir = Math::SampleHemisphere(norm, tan, bitan);
+		//Mix random direction and perfect reflectino
 		dir = dir * roughness + reflectedRay * (1 - roughness);
+
+		//Trace new direction
 		HitInfo reflHitInfo;
 		auto startPos = hitInfo.position + dir * 1e-5;
 		Object* reflectedObj = Trace(startPos, dir, reflHitInfo, hitInfo.hitObject); //ignore self when tracing reflection
 		if (reflectedObj != nullptr && currentDepth < m_RenderSettings.maxRenderDepth)
 		{
-			//++currentDepth;
 			reflHitInfo.position += dir * .1f;
 			totalCol += GetHitColor(reflectedObj, reflHitInfo, dir, currentDepth + 1);
 		}
 	}
 
-	//return black if over max depth or no hits
+	//Average result
 	return (totalCol / rs).ToCharColor();
 }
 

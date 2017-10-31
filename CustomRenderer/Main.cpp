@@ -6,13 +6,8 @@
 #include "SDL_ttf.h"
 #include "SDL_image.h"
 #include <iostream>
-#include <vector>
-#include <string>
 #include <ctime>
 
-#include "Math.h"
-#include "Objects/Object.h"
-#include "Objects/Sphere.h"
 #include "Base/Renderer.h"
 #include "Base/RenderSettings.h"
 #include "Base/Timer.h"
@@ -22,8 +17,8 @@
 #include "Scenes/ReflectiveSpheresScene.h"
 #include "Scenes/RefractionScene.h"
 #include "Scenes/TeapotScene.h"
-#include "Objects/Triangle.h"
 #include "Scenes/GlassScene.h"
+#include "Scenes/GIScene.h"
 
 using namespace std;
 
@@ -52,9 +47,11 @@ int main(int argc, char* argv[])
 	settings.shadowSampleCount = 2;
 	settings.antiAliasSampleCount = 16;
 	settings.roughnessSampleCount = 2;
-	settings.dofSampleCount = 2;
+	settings.dofSampleCount = 0;
 	settings.cameraFOV = 60;
-	settings.maxRenderDepth = 5;
+	settings.maxRenderDepth = 10;
+	settings.GIMaxDepth = 0;
+	settings.GISampleCount = 50;
 	settings.enableSrgb = true;
 	settings.autoRerender = false;
 
@@ -78,18 +75,14 @@ int main(int argc, char* argv[])
 	}
 	
 	Timer::Init();
-
-	for (int i = 0; i < 20; ++i)
-	{
-		std::cout << Math::SampleDisk() << std::endl;
-	}
-
+		
 	//Set up scenes
 	SceneManager::GetInstance()->AddScene(new TestScene());
-	//SceneManager::GetInstance()->AddScene(new ReflectiveSpheresScene());
-	//SceneManager::GetInstance()->AddScene(new RefractionScene());
-	//SceneManager::GetInstance()->AddScene(new TeapotScene());
+	SceneManager::GetInstance()->AddScene(new ReflectiveSpheresScene());
+	SceneManager::GetInstance()->AddScene(new RefractionScene());
 	SceneManager::GetInstance()->AddScene(new GlassScene());
+	SceneManager::GetInstance()->AddScene(new GIScene());
+	SceneManager::GetInstance()->AddScene(new TeapotScene());
 
 	//initialize renderer
 	Renderer* sceneRenderer = Renderer::GetInstance();

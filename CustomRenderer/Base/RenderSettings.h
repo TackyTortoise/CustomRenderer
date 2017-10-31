@@ -9,9 +9,11 @@ struct RenderSettings
 	int blockCount = 75;
 	int maxRenderDepth = 10;
 	int shadowSampleCount = 1;
-	int antiAliasSampleCount = 1;
+	int antiAliasSampleCount = 0;
 	int roughnessSampleCount = 1;
 	int dofSampleCount = 0;
+	int GISampleCount = 0;
+	int GIMaxDepth = 0;
 	bool enableSrgb = false;
 	Color clearColor = Color(12, 12, 12);
 	float cameraFOV = 60;

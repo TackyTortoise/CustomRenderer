@@ -37,10 +37,10 @@ Vec3 Camera::GetCameraRay(int pixelX, int pixelY, float renderWidth, float rende
 	}
 
 	//create ray from camera to pixel
-	Vec3 rayDir = Vec3(cX, cY, 1.f);// -Vec3::zero; //start from camera position 0,0,0
+	Vec3 rayDir = Vec3(cX, cY, 1.f); //start from camera position 0,0,0
 
 	//multiply with camtoworld rotation if cam is not in 0 rotation transform
-		rayDir = m_CamTransform->GetRotationMatrix().TransformVector(rayDir);
+	rayDir = m_CamTransform->GetRotationMatrix().TransformVector(rayDir);
 
 	rayDir.Normalize();
 	return rayDir;

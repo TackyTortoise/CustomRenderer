@@ -40,14 +40,20 @@ public:
 
 	static Vec3 RefractVector(float ior, Vec3 rayDir, Vec3 normal)
 	{
-		float cosi = Clamp(rayDir.Dot(normal), -1, 1);
-		float etai = 1, etat = ior;
+		float i1 = 1, i2 = ior;
+
+		float ct = Clamp(rayDir.Dot(normal), -1, 1);
 		Vec3 n = normal;
-		if (cosi < 0) { cosi = -cosi; }
-		else { std::swap(etai, etat); n = -normal; }
-		float eta = etai / etat;
-		float k = 1 - eta * eta * (1 - cosi * cosi);
-		return k < 0 ? 0 : eta * rayDir + (eta * cosi - sqrtf(k)) * n;
+		if (ct < 0)		
+			ct = -ct;		
+		else
+		{
+			std::swap(i1, i2); n = -normal;
+		}
+
+		float refCoef = i1 / i2;
+		float k = 1 - refCoef * refCoef * (1 - ct * ct);
+		return k < 0 ? Vec3::zero : refCoef * rayDir + (refCoef * ct - sqrtf(k)) * n;
 
 		/*float i1 = 1, i2 = ior;
 		float ct = rayDir.Dot(normal);
@@ -133,10 +139,11 @@ public:
 	static Vec3 SampleHemisphere(const Vec3& normal = Vec3(0,1,0), const Vec3& tangent = Vec3(1,0,0), const Vec3& biTangent = Vec3(0,0,1))
 	{
 		auto s = SampleSphere();
-		if (s.Dot(normal) < 0)
-			s.y = -s.y;
+		Vec3 r(s.x * tangent + s.y * normal + s.z * biTangent);
+		if (r.Dot(normal) < 0)
+			r = -r;
 
-		return{ s.x * tangent + s.y * normal + s.z * biTangent };
+		return r;
 	}
 
 #define SQRT_MAGIC_F 0x5f3759df 
