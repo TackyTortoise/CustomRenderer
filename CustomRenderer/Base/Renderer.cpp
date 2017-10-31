@@ -10,6 +10,7 @@
 #include <future>
 #include <numeric>
 #include <random>
+#include <SDL_ttf.h>
 
 #define MULTITHREADEDRENDER
 
@@ -101,7 +102,19 @@ void Renderer::SetActiveScene(const Scene* const scene)
 void Renderer::RenderScene()
 {
 	if (m_bDone && !m_RenderSettings.autoRerender)
+	{
+		if (m_FullRender)
+			return;
+
+		int missed = CheckUndrawn();
+		m_FullRender = true;
+		if (missed > 0)
+		{
+			std::cout << "Missed " << missed << " pixels while rendering, rendering it now" << std::endl;
+			m_FullRender = false;
+		}
 		return;
+	}
 
 	std::size_t cores = std::thread::hardware_concurrency();
 	std::vector<std::future<void>> future_vector;
@@ -301,7 +314,7 @@ FloatColor Renderer::GetGlobalIllumination(const HitInfo& hitInfo, const unsigne
 	return indirectColor;
 }
 
-Object* Renderer::Trace(const Vec3& rayOrg, const Vec3& rayDir, HitInfo& result, Object* ignoreObject, bool keepIgnoreDistance) const
+Object* Renderer::Trace(const Vec3& rayOrg, const Vec3& rayDir, HitInfo& result, const Object* ignoreObject, bool keepIgnoreDistance) const
 {
 	float shortD = std::numeric_limits<float>::max();
 	Object* closeObject = nullptr;
@@ -590,4 +603,52 @@ void Renderer::ClearPixelBuffer()
 {
 	m_bDone = false;
 	memset(m_Pixels, 0, m_RenderWidth * m_RenderHeight * sizeof(Color));
+}
+
+void Renderer::DrawText(SDL_Renderer* renderer, const char* aText, const char* aFontFile, int aX, int aY)
+{
+	TTF_Font* font = TTF_OpenFont(aFontFile, 24);
+	if (!font)
+		std::cout << "Failed to load font" << std::endl;
+
+	SDL_Color fg = { 173,16,16,255 };
+	SDL_Surface* surface = TTF_RenderText_Solid(font, aText, fg);
+
+	SDL_Texture* optimizedSurface = SDL_CreateTextureFromSurface(renderer, surface);
+
+	SDL_Rect sizeRect;
+	sizeRect.x = 0;
+	sizeRect.y = 0;
+	sizeRect.w = surface->w;
+	sizeRect.h = surface->h;
+
+	SDL_Rect posRect;
+	posRect.x = aX;
+	posRect.y = aY;
+	posRect.w = sizeRect.w;
+	posRect.h = sizeRect.h;
+
+	SDL_RenderCopy(renderer, optimizedSurface, &sizeRect, &posRect);
+	SDL_DestroyTexture(optimizedSurface);
+	SDL_FreeSurface(surface);
+	TTF_CloseFont(font);
+}
+
+int Renderer::CheckUndrawn()
+{
+	int size = m_RenderWidth * m_RenderHeight;
+	int count = 0;
+	for (int i = 0; i < size; ++i)
+	{
+		if (m_PixelMask[i] == 0)
+		{
+			++count;
+			int x = i % (int)m_RenderWidth;
+			int y = i / m_RenderWidth;
+			m_Pixels[i] = CalculatePixelColor(x, y);
+			m_PixelMask[i] = 1;
+		}
+	}
+
+	return count;
 }

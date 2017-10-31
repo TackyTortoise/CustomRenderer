@@ -13,8 +13,8 @@ public:
 	static Scene* GetActiveScene() { return m_ActiveScene; }
 	void AddScene(Scene* scene);
 
-	void NextScene();
-	void PreviousScene();
+	bool NextScene();
+	bool PreviousScene();
 	void SetActiveScene(unsigned index);
 
 private:

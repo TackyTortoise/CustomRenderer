@@ -60,6 +60,10 @@ bool AABox::IsHit(const Vec3& rayOrg, const Vec3& rayDir, HitInfo& hitInfo)
 	if (secondHit < firstHit)
 		firstHit = secondHit;
 
+	//check if ray is maybe leaving object e.g. refraction
+	if (firstHit < 0)
+		firstHit = secondHit;
+
 	hitInfo.distance = firstHit;
 	hitInfo.position = rayOrg + rayDir * hitInfo.distance;
 	hitInfo.normal = GetNormalOnHit(hitInfo.position);

@@ -39,21 +39,8 @@ int main(int argc, char* argv[])
 	const float downScaling = 1.f / 1.f;
 
 	RenderSettings settings;
-	settings.screenWidth = 800;
-	settings.screenHeight = 600;
-	settings.texWidth = settings.screenWidth / downScaling;
-	settings.texHeight = settings.screenHeight / downScaling;
-	settings.blockCount = 75;
-	settings.shadowSampleCount = 2;
-	settings.antiAliasSampleCount = 16;
-	settings.roughnessSampleCount = 2;
-	settings.dofSampleCount = 0;
-	settings.cameraFOV = 60;
-	settings.maxRenderDepth = 10;
-	settings.GIMaxDepth = 0;
-	settings.GISampleCount = 50;
-	settings.enableSrgb = true;
-	settings.autoRerender = false;
+	settings.LoadFromFile("../Data/RenderSettings.txt");
+	settings.DownScaleRender(downScaling);
 
 	Renderer::GetInstance()->Init(settings);
 	
@@ -63,19 +50,25 @@ int main(int argc, char* argv[])
 
 	SDL_SetRenderDrawColor(renderer, settings.clearColor.r, settings.clearColor.g, settings.clearColor.b, 255);
 	SDL_RenderClear(renderer);
-	
+
 	//create rendertarget texture
 	SDL_Texture* texture = SDL_CreateTexture(renderer, SDL_PIXELFORMAT_ARGB8888, SDL_TEXTUREACCESS_STREAMING, settings.texWidth, settings.texHeight);
 
 	// Check that the window was successfully created
-	if (window == nullptr) 
+	if (window == nullptr)
 	{
 		printf("Could not create window: %s\n", SDL_GetError());
 		return 1;
 	}
 	
 	Timer::Init();
-		
+
+	//initialize renderer
+	Renderer* sceneRenderer = Renderer::GetInstance();
+
+	sceneRenderer->DrawText(renderer, "Loading scene data...", "../Data/arial.ttf", 20,20);
+	SDL_RenderPresent(renderer);
+
 	//Set up scenes
 	SceneManager::GetInstance()->AddScene(new TestScene());
 	SceneManager::GetInstance()->AddScene(new ReflectiveSpheresScene());
@@ -84,12 +77,9 @@ int main(int argc, char* argv[])
 	SceneManager::GetInstance()->AddScene(new GIScene());
 	SceneManager::GetInstance()->AddScene(new TeapotScene());
 
-	//initialize renderer
-	Renderer* sceneRenderer = Renderer::GetInstance();
-
 	SceneManager::GetInstance()->SetActiveScene(0);
-	sceneRenderer->RenderScene();
-	const float camSpeed = 2.f;
+
+	const float camSpeed = 4.f;
 
 	bool quitApplication = false;
 	float lastPresent = 0.f;
@@ -110,12 +100,20 @@ int main(int argc, char* argv[])
 				//load next scene
 				if (event.key.keysym.scancode == SDL_SCANCODE_RIGHT)
 				{
-					SceneManager::GetInstance()->NextScene();
+					if (SceneManager::GetInstance()->NextScene())
+					{
+						sceneRenderer->DrawText(renderer, "Calculating first iteration...", "../Data/arial.ttf", 20, 20);
+						SDL_RenderPresent(renderer);
+					}
 				}
 				//load previous scene
 				if (event.key.keysym.scancode == SDL_SCANCODE_LEFT)
 				{
-					SceneManager::GetInstance()->PreviousScene();
+					if (SceneManager::GetInstance()->PreviousScene())
+					{
+						sceneRenderer->DrawText(renderer, "Calculating first iteration...", "../Data/arial.ttf", 20, 20);
+						SDL_RenderPresent(renderer);
+					}
 				}
 				if (event.key.keysym.scancode == SDL_SCANCODE_D)
 				{

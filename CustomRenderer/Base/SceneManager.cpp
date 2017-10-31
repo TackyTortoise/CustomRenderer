@@ -46,27 +46,30 @@ void SceneManager::AddScene(Scene* scene)
 	}
 }
 
-void SceneManager::NextScene()
+bool SceneManager::NextScene()
 {
 	if (m_Scenes.size() <= 1)
-		return;
+		return false;
 	++m_CurrentSceneNumber;
 	m_CurrentSceneNumber %= m_Scenes.size();
 	SetActiveScene(m_CurrentSceneNumber);
+	return true;
 }
 
-void SceneManager::PreviousScene()
+bool SceneManager::PreviousScene()
 {
 	if (m_Scenes.size() <= 1)
-		return;
+		return false;
 	--m_CurrentSceneNumber;
 	if (m_CurrentSceneNumber < 0)
 		m_CurrentSceneNumber = m_Scenes.size() - 1;
 	SetActiveScene(m_CurrentSceneNumber);
+	return true;
 }
 
 void SceneManager::SetActiveScene(unsigned index)
 {
+	m_CurrentSceneNumber = index > m_Scenes.size() ? 0 : index;
 	m_ActiveScene = m_Scenes[index];
 	Renderer::GetInstance()->SetActiveScene(m_Scenes[index]);
 }

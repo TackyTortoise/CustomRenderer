@@ -129,6 +129,7 @@
   <ItemGroup>
     <ClCompile Include="Base\Camera.cpp" />
     <ClCompile Include="Base\MaterialManager.cpp" />
+    <ClCompile Include="Base\RenderSettings.cpp" />
     <ClCompile Include="Scenes\GIScene.cpp" />
     <ClCompile Include="Scenes\GlassScene.cpp" />
     <ClCompile Include="Objects\KDNode.cpp" />

@@ -1,5 +1,8 @@
 #pragma once
 
+#include <regex>
+#include "../Math/Color.h"
+
 struct RenderSettings
 {
 	int screenWidth = 800;
@@ -18,4 +21,11 @@ struct RenderSettings
 	Color clearColor = Color(12, 12, 12);
 	float cameraFOV = 60;
 	bool autoRerender = true;
+
+	bool LoadFromFile(const char* path);
+
+	void DownScaleRender(const float f);
+
+private:
+	int FindValueInFile(const std::string& text, const std::string& value) const;
 };

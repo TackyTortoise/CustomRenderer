@@ -39,10 +39,12 @@ public:
 	void NextRenderMode();
 	void PreviousRenderMode();
 
+	void DrawText(SDL_Renderer* renderer, const char* aText, const char* aFontFile, int aX, int aY);
+
 private:
 	static Renderer* m_Instance;
 
-	Object* Trace(const Vec3& rayOrg, const Vec3& rayDir, HitInfo& result, Object* ignoreObject = nullptr, bool keepIgnoreDistance = false) const;
+	Object* Trace(const Vec3& rayOrg, const Vec3& rayDir, HitInfo& result, const Object* ignoreObject = nullptr, bool keepIgnoreDistance = false) const;
 	
 	Color GetHitColor(Object* co, HitInfo& hitInfo, const Vec3& rayDir, int currentDepth);
 
@@ -51,6 +53,8 @@ private:
 	Color CalculatePixelColor(const int x, const int y);
 
 	FloatColor GetGlobalIllumination(const HitInfo& hitInfo, const unsigned depth);
+
+	int CheckUndrawn();
 	
 	void ClearPixelMask();
 	void ClearPixelBuffer();
@@ -81,5 +85,6 @@ private:
 	RenderMode m_CurrentRenderMode = ALL;
 
 	bool m_bDone = false;
+	bool m_FullRender = false;
 };
 

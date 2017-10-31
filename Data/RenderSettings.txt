@@ -1,0 +1,14 @@
+Screenwidth = 800
+Screenheight = 600
+Blockcount = 75
+Shadowsamplecount = 2
+Antialiassamplecount = 2
+Roughnesssamplecount = 2
+DoFsamplecount = 2
+CameraFoV = 60
+Maxrenderdepth = 10
+GImaxdepth = 0
+GIsamplecount = 50
+EnableSRGB = 1
+Autorerender = 0
+DownScaling = 0
