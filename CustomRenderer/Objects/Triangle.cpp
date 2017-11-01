@@ -12,6 +12,7 @@ Triangle::Triangle(const PosNormUVVertex& p0, const PosNormUVVertex& p1, const P
 	m_Edge1 = m_P2.position - m_P0.position;
 	m_Normal = new Vec3(m_Edge0.Cross(m_Edge1).Normalized());
 
+	//Calculate barycentric variables
 	m_BaryRight = m_Edge1.Cross(*m_Normal).Normalized();
 	m_BaryUp = m_Edge0.Cross(*m_Normal).Normalized();
 
@@ -42,7 +43,7 @@ bool Triangle::IsHit(const Vec3& rayOrg, const Vec3& rayDir, HitInfo& hitInfo)
 {
 	auto normal = *m_Normal;
 	float ndr = normal.Dot(rayDir);
-	//normal pointing away from ray
+	//normal perpendicular to ray
 	if (fabs(ndr) < 1e-5 )//|| ndr > 0)
 		return false;
 
@@ -51,7 +52,7 @@ bool Triangle::IsHit(const Vec3& rayOrg, const Vec3& rayDir, HitInfo& hitInfo)
 	auto bdn = otp.Dot(normal);
 	float t = bdn / ndr;
 
-	//triangle behind rayorigin
+	//triangle plane behind rayorigin
 	if (t < 0)
 		return false;
 
@@ -97,7 +98,7 @@ Vec2 Triangle::GetUvCoordOnHit(Vec3 hitPosition) const
 	auto o1 = b.Dot(m_BaryRight) / m_EdgeBaryRatio0;
 	auto o2 = b.Dot(m_BaryUp) / m_EdgeBaryRatio1;
 	//return weighted uv
-	return m_P0.uv * (1.f - o1 - o2) + m_P1.uv * o1 + m_P2.uv * o2;;
+	return m_P0.uv * (1.f - o1 - o2) + m_P1.uv * o1 + m_P2.uv * o2;
 }
 
 Vec3 Triangle::GetMidPoint()
@@ -105,6 +106,7 @@ Vec3 Triangle::GetMidPoint()
 	if (m_MidPoint)
 		return *m_MidPoint;
 
+	//Calculate midpoint if it doesn't exit yet
 	m_MidPoint = new Vec3((m_P0.position + m_P1.position + m_P2.position) / 3.f);
 	return *m_MidPoint;
 }
@@ -114,6 +116,7 @@ AABox& Triangle::GetBoundingBox()
 	if (m_BoundingBox)
 		return *m_BoundingBox;
 
+	//Calculate bounding box if it doesn't exist yet
 	Vec3 min(std::numeric_limits<float>::max()), max(std::numeric_limits<float>::min());
 
 	//check point 0
@@ -143,6 +146,7 @@ AABox& Triangle::GetBoundingBox()
 	max.y = std::max(m_P2.position.y, max.y);
 	max.z = std::max(m_P2.position.z, max.z);
 
+	//create box
 	auto center = (min + max) / 2.f;
 	auto width = max.x - min.x;
 	auto height = max.y - min.y;

@@ -3,13 +3,9 @@
 
 std::vector<TextureInfo> MaterialManager::m_TextureLibrary;
 
-MaterialManager::MaterialManager()
-{
-}
+MaterialManager::MaterialManager(){}
 
-MaterialManager::~MaterialManager()
-{
-}
+MaterialManager::~MaterialManager(){}
 
 Texture* MaterialManager::LoadTexture(const char* filePath)
 {
@@ -58,11 +54,14 @@ bool MaterialManager::UnLoadTexture(const char* filePath)
 
 bool MaterialManager::UnLoadTexture(Texture* tex)
 {
+	//Look for texture in library
 	for (auto i = 0; i < m_TextureLibrary.size(); ++i)
 	{
 		if (m_TextureLibrary[i].texture == tex)
 		{
+			//Decrease reference count
 			--m_TextureLibrary[i].refCount;
+			//Destory texture if no references left
 			if (m_TextureLibrary[i].refCount <= 0)
 			{
 				delete m_TextureLibrary[i].texture;
@@ -79,7 +78,7 @@ bool MaterialManager::UnLoadTexture(Texture* tex)
 
 void MaterialManager::DestroyRemainingTextures()
 {
-	//Clear textures from memory
+	//Clear remaining textures from memory for safety
 	for (auto& t : m_TextureLibrary)
 	{
 		delete t.texture;

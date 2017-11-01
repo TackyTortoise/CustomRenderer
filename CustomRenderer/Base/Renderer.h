@@ -48,7 +48,14 @@ private:
 	
 	Color GetHitColor(Object* co, HitInfo& hitInfo, const Vec3& rayDir, int currentDepth);
 
-	Color GetReflection(const Vec3& rayDir, HitInfo& hitInfo, int currentDepth);
+	void CalculateDirectLighting(const Vec3& rayDir, const HitInfo& hitInfo, const Vec3& orgNormal, float& diffuseIntensity, float& shadowFactor, Color& specColor, FloatColor& combinedLightColor, Color& occludeColor) const;
+	void CalculateTransparency(Color& pixelColor, float transp, const Vec3& rayDir, const HitInfo& hitInfo, float& diffuseIntensity, const int currentDepth);
+	void CalculateReflection(Color& pixelColor, float refl, const Vec3& rayDir, const HitInfo& hitInfo, const int currentDepth);
+
+	Color GetObjectColor(const HitInfo& hitInfo) const;
+	Vec3 GetHitNormal(const HitInfo& hitInfo) const;
+
+	Color GetReflection(const Vec3& rayDir, const HitInfo& hitInfo, int currentDepth);
 
 	Color CalculatePixelColor(const int x, const int y);
 

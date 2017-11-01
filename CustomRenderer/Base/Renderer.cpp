@@ -35,6 +35,7 @@ void Renderer::Destroy()
 {
 	if (!m_Instance)
 		return;
+	
 	delete m_Instance;
 	m_Instance = nullptr;
 }
@@ -357,44 +358,69 @@ Color Renderer::GetHitColor(Object* co, HitInfo& hitInfo, const Vec3& rayDir, in
 	if (m_CurrentRenderMode == DEPTH)
 		return Color(hitInfo.distance / 100.f * 255.f);
 
-	Color objectColor = co->GetBaseColor();
-
-	//Sample texture if there is one
-	auto objTex = co->GetTexture();
-	auto texCoord = hitInfo.uvCoordinate / co->GetMaterial().GetScale();
-	if (objTex != nullptr)
-	{
-		objectColor = objTex->GetPixelColor(texCoord.x, texCoord.y);
-	}
+	Color objectColor = GetObjectColor(hitInfo);
 
 	if (m_CurrentRenderMode == BASECOLOR)
 		return objectColor;
 
-	Vec3 orgNormal = hitInfo.normal;
+	Color pixelColor = objectColor;
+	
 	//Sample normalmap if there is one
-	auto objNormal = co->GetNormalMap();
-	if (objNormal != nullptr)
-	{
-		Color sampleColor = objNormal->GetPixelColor(texCoord.x, texCoord.y); //sample color from normal map
-		Vec3 sampleNormal = Vec3(sampleColor.r / 255.f, sampleColor.g / 255.f, sampleColor.b / 255.f) * 2 - Vec3(1); //convert color to 0 to 1 range normal
-		hitInfo.normal = Math::TangentToWorld(sampleNormal, hitInfo.normal); //convert normal from tangets space to world space
-	}
+	Vec3 orgNormal = hitInfo.normal;
+	hitInfo.normal = GetHitNormal(hitInfo);
 
 	//return normals as color if normal render mode
 	if (m_CurrentRenderMode == NORMALS)
 	{
-		auto absNormCol = hitInfo.normal * 255;
-		return Color(abs(absNormCol.x), abs(absNormCol.y), abs(absNormCol.z));
+		auto absNormCol = hitInfo.normal;
+		return Color(abs(absNormCol.x * 255), abs(absNormCol.y * 255), abs(absNormCol.z * 255));
 	}
 
-	//calculations influenced by light
+	//variables for calculations influenced by light
 	float diffuseIntensity = 0.f;
 	float shadowFactor = 1.f;
 	Color specColor;
-	Color pixelColor = objectColor;
 	FloatColor combinedLightColor;
 	Color occludeColor;
+
 	//calculations for each light
+	CalculateDirectLighting(rayDir, hitInfo, orgNormal, diffuseIntensity, shadowFactor, specColor, combinedLightColor, occludeColor);
+
+	//Render shadows if shadow render mode
+	if (m_CurrentRenderMode == SHADOWS)
+		return Color(shadowFactor * 255);
+
+	//Transparency
+	float transp = co->GetTransparency();
+	if (transp > 0)
+	{
+		CalculateTransparency(pixelColor, transp, rayDir, hitInfo, diffuseIntensity, currentDepth);		
+	}
+
+	//Reflection
+	float refl = co->GetReflective();
+	if (refl > 0 && currentDepth < m_RenderSettings.maxRenderDepth)
+	{
+		CalculateReflection(pixelColor, refl, rayDir, hitInfo, currentDepth);
+	}
+
+	//Color intensity
+	diffuseIntensity = Math::Clamp(diffuseIntensity, 0.15, 1);
+
+	//adjust pixel color to light color
+	FloatColor lightColor = m_LightCount > 1 ? occludeColor : combinedLightColor;
+	FloatColor directLightColor = (lightColor * diffuseIntensity * shadowFactor).ToCharColor();
+	FloatColor indirectLightColor = currentDepth < m_RenderSettings.GIMaxDepth ? GetGlobalIllumination(hitInfo, 0) : Color(0);
+	FloatColor totalLightColor = directLightColor + indirectLightColor;
+
+	FloatColor pc = pixelColor.MultiplyNormalized(totalLightColor.ToCharColor());
+	Color rCol = pc.ToCharColor().ClampAdd(specColor);
+
+	return rCol;
+}
+
+void Renderer::CalculateDirectLighting(const Vec3& rayDir, const HitInfo& hitInfo, const Vec3& orgNormal, float& diffuseIntensity, float& shadowFactor, Color& specColor, FloatColor& combinedLightColor, Color& occludeColor) const
+{
 	for (int l = 0; l < m_LightCount; ++l)
 	{
 		//get light variables
@@ -414,8 +440,8 @@ Color Renderer::GetHitColor(Object* co, HitInfo& hitInfo, const Vec3& rayDir, in
 		{
 			auto halfVec = (toLight + -rayDir).Normalize();
 			float specStrength = Math::Clamp(hitInfo.normal.Dot(halfVec));
-			specStrength = pow(specStrength, co->GetShininess());
-			specColor = specColor.ClampAdd((co->GetSpecColor() * specStrength).MultiplyNormalized(lightColor));
+			specStrength = pow(specStrength, hitInfo.hitObject->GetShininess());
+			specColor = specColor.ClampAdd((hitInfo.hitObject->GetSpecColor() * specStrength).MultiplyNormalized(lightColor));
 		}
 
 		//shadow
@@ -432,7 +458,7 @@ Color Renderer::GetHitColor(Object* co, HitInfo& hitInfo, const Vec3& rayDir, in
 				//trace from hitpoint to light
 				cs = Trace(shadowStart, shadowRay, shadowHitInfo);
 				//if something was hit -> point is in shadow
-				if (cs != nullptr && cs != co)
+				if (cs != nullptr && cs != hitInfo.hitObject)
 				{
 					//check if hit was closer than light
 					if ((shadowHitInfo.position - shadowStart).Length2() < (lightPos - hitInfo.position).Length2())
@@ -457,7 +483,7 @@ Color Renderer::GetHitColor(Object* co, HitInfo& hitInfo, const Vec3& rayDir, in
 		else if (m_RenderSettings.shadowSampleCount == 1)
 		{
 			cs = Trace(shadowStart, toLight, shadowHitInfo);
-			if (cs != nullptr && cs != co)
+			if (cs != nullptr && cs != hitInfo.hitObject)
 			{
 				//check if not hit something behind light
 				if ((shadowHitInfo.position - shadowStart).Length2() < (lightPos - hitInfo.position).Length2())
@@ -466,11 +492,6 @@ Color Renderer::GetHitColor(Object* co, HitInfo& hitInfo, const Vec3& rayDir, in
 		}
 	}
 
-	//Render shadows if shadow render mode
-	if (m_CurrentRenderMode == SHADOWS)
-		return Color(shadowFactor * 255);
-
-
 	if (!(occludeColor == Color(0)) && shadowFactor < m_ShadowIntensity)
 	{
 		//invert light color from shadow hits
@@ -478,88 +499,103 @@ Color Renderer::GetHitColor(Object* co, HitInfo& hitInfo, const Vec3& rayDir, in
 	}
 	else
 		occludeColor = combinedLightColor.ToCharColor(); //used to multiply pixel color with light color
-
-
-	//Transparency
-	float transp = co->GetTransparency();
-	if (transp > 0)
-	{
-		auto transTex = co->GetTransparencyMap();
-		if (transTex != nullptr)
-		{
-			auto transSample = transTex->GetPixelColor(texCoord.x, texCoord.y);
-			transp *= transSample.g / 255;
-		}
-
-		Vec3 direction = rayDir;
-
-		//refract ray direction if necessary (refractive)
-		float ior = co->GetRefractive();
-		bool refractive = abs(co->GetRefractive()) - 1.f > 1e-5;
-		float schlick = 0.f;
-		if (refractive)
-		{
-			direction = Math::RefractVector(ior, direction, hitInfo.normal);
-			schlick = Math::GetSchlick(rayDir, hitInfo.normal, ior);
-		}
-
-		//Trace further to get transparency color
-		HitInfo transHitInfo;
-		Object* transObj = Trace(hitInfo.position + rayDir * 1e-5, direction, transHitInfo);
-		if (transObj != nullptr && currentDepth < m_RenderSettings.maxRenderDepth)
-		{
-			//adjust color to transparency hit
-			diffuseIntensity += transp;
-			pixelColor *= 1 - transp;
-			FloatColor transCol = GetHitColor(transObj, transHitInfo, direction, currentDepth + 1);;
-
-			//"Fresnel" by schlick approximation reflections on edges if refractive
-			if (refractive && schlick > 0.05f)
-			{
-				Color reflectionColor = GetReflection(rayDir, hitInfo, currentDepth);
-				transCol *= 1 - schlick;
-				transCol += reflectionColor * schlick;
-			}
-
-			//combine pixel color with transparency color
-			pixelColor = pixelColor.ClampAdd((transCol * transp).ToCharColor());
-		}
-	}
-
-	//Reflection
-	float refl = co->GetReflective();
-	if (refl > 1e-5 && currentDepth < m_RenderSettings.maxRenderDepth)
-	{
-		auto reflTex = co->GetReflectivityMap();
-		if (reflTex != nullptr)
-		{
-			auto reflSample = reflTex->GetPixelColor(texCoord.x, texCoord.y);
-			refl *= reflSample.r / 255.f;
-		}
-
-		//Get reflected color
-		Color reflCol = GetReflection(rayDir, hitInfo, currentDepth);
-		//adjust pixel color
-		pixelColor *= 1 - refl;
-		pixelColor += reflCol * refl;
-	}
-
-	//Color intensity
-	diffuseIntensity = Math::Clamp(diffuseIntensity, 0.15, 1);
-
-	//adjust pixel color to light color
-	FloatColor lightColor = m_LightCount > 1 ? occludeColor : combinedLightColor;
-	FloatColor directLightColor = (lightColor * diffuseIntensity * shadowFactor).ToCharColor();
-	FloatColor indirectLightColor = currentDepth < m_RenderSettings.GIMaxDepth ? GetGlobalIllumination(hitInfo, 0) : Color(0);
-	FloatColor totalLightColor = directLightColor + indirectLightColor;
-
-	FloatColor pc = pixelColor.MultiplyNormalized(totalLightColor.ToCharColor());
-	Color rCol = pc.ToCharColor().ClampAdd(specColor);
-
-	return rCol;
 }
 
-Color Renderer::GetReflection(const Vec3& rayDir, HitInfo& hitInfo, int currentDepth)
+void Renderer::CalculateTransparency(Color& pixelColor, float transp, const Vec3& rayDir, const HitInfo& hitInfo, float& diffuseIntensity, const int currentDepth)
+{
+	auto transTex = hitInfo.hitObject->GetTransparencyMap();
+	if (transTex != nullptr)
+	{
+		Vec2 texCoord = hitInfo.uvCoordinate / hitInfo.hitObject->GetMaterial().GetScale();
+		auto transSample = transTex->GetPixelColor(texCoord.x, texCoord.y);
+		transp *= transSample.g / 255;
+	}
+
+	Vec3 direction = rayDir;
+
+	//refract ray direction if necessary (refractive)
+	float ior = hitInfo.hitObject->GetRefractive();
+	bool refractive = abs(hitInfo.hitObject->GetRefractive()) - 1.f > 1e-5;
+	float schlick = 0.f;
+	if (refractive)
+	{
+		direction = Math::RefractVector(ior, direction, hitInfo.normal);
+		schlick = Math::GetSchlick(rayDir, hitInfo.normal, ior);
+	}
+
+	//Trace further to get transparency color
+	HitInfo transHitInfo;
+	Object* transObj = Trace(hitInfo.position + rayDir * 1e-5, direction, transHitInfo);
+	if (transObj != nullptr && currentDepth < m_RenderSettings.maxRenderDepth)
+	{
+		//adjust color to transparency hit
+		diffuseIntensity += transp;
+		pixelColor *= 1 - transp;
+		FloatColor transCol = GetHitColor(transObj, transHitInfo, direction, currentDepth + 1);;
+
+		//"Fresnel" by schlick approximation reflections on edges if refractive
+		if (refractive && schlick > 0.05f)
+		{
+			Color reflectionColor = GetReflection(rayDir, hitInfo, currentDepth);
+			transCol *= 1 - schlick;
+			transCol += reflectionColor * schlick;
+		}
+
+		//combine pixel color with transparency color
+		pixelColor = pixelColor.ClampAdd((transCol * transp).ToCharColor());
+	}
+}
+
+void Renderer::CalculateReflection(Color& pixelColor, float refl, const Vec3& rayDir, const HitInfo& hitInfo, const int currentDepth)
+{
+	auto reflTex = hitInfo.hitObject->GetReflectivityMap();
+	if (reflTex != nullptr)
+	{
+		Vec2 texCoord = hitInfo.uvCoordinate / hitInfo.hitObject->GetMaterial().GetScale();
+		auto reflSample = reflTex->GetPixelColor(texCoord.x, texCoord.y);
+		refl *= reflSample.r / 255.f;
+	}
+
+	auto schlick = Math::GetSchlick(rayDir, hitInfo.normal, 1.f);
+	refl = std::max(refl, schlick);
+
+	//Get reflected color
+	Color reflCol = GetReflection(rayDir, hitInfo, currentDepth);
+	//adjust pixel color
+	pixelColor *= 1 - refl;
+	pixelColor += reflCol * refl;
+}
+
+Color Renderer::GetObjectColor(const HitInfo& hitInfo) const
+{
+	auto bc = hitInfo.hitObject->GetBaseColor();
+
+	//Sample texture if there is one
+	auto objTex = hitInfo.hitObject->GetTexture();
+	auto texCoord = hitInfo.uvCoordinate / hitInfo.hitObject->GetMaterial().GetScale();
+	if (objTex != nullptr)
+	{
+		bc = objTex->GetPixelColor(texCoord.x, texCoord.y);
+	}
+
+	return bc;
+}
+
+Vec3 Renderer::GetHitNormal(const HitInfo& hitInfo) const
+{
+	auto objNormal = hitInfo.hitObject->GetNormalMap();
+	if (objNormal != nullptr)
+	{
+		Vec2 texCoord = hitInfo.uvCoordinate / hitInfo.hitObject->GetMaterial().GetScale();
+		Color sampleColor = objNormal->GetPixelColor(texCoord.x, texCoord.y); //sample color from normal map
+		Vec3 sampleNormal = Vec3(sampleColor.r / 255.f, sampleColor.g / 255.f, sampleColor.b / 255.f) * 2 - Vec3(1); //convert color to 0 to 1 range normal
+		return Math::TangentToWorld(sampleNormal, hitInfo.normal); //convert normal from tangets space to world space
+	}
+
+	return hitInfo.normal;
+}
+
+Color Renderer::GetReflection(const Vec3& rayDir, const HitInfo& hitInfo, int currentDepth)
 {
 	//reflect incoming ray
 	auto reflectedRay = Math::ReflectVector(rayDir, hitInfo.normal);

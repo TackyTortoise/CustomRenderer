@@ -21,38 +21,9 @@ AssimpModel::~AssimpModel()
 
 bool AssimpModel::IsHit(const Vec3& rayOrg, const Vec3& rayDir, HitInfo& hitInfo)
 {
+	//KD-Tree hit
 	float max = std::numeric_limits<float>::max();
 	return m_KDNode->IsHit(rayOrg, rayDir, hitInfo, max);
-
-	//check for bounding box hit
-	bool bbHit = m_BoundingBox->IsHit(rayOrg, rayDir, hitInfo);
-	if (!bbHit)
-		return false;
-
-	//calculate closest triangle intersection
-	float shortD = std::numeric_limits<float>::max();
-	bool hit = false;
-	HitInfo hi;
-	for (int i = 0; i < m_Triangles.size(); ++i)
-	{
-		if (m_Triangles[i]->IsHit(rayOrg, rayDir, hi))
-		{
-			if (hi.distance < shortD && hi.distance > 1e-5)
-			{
-				//save data for closest hit
-				hit = true;
-				shortD = hi.distance;
-				auto hp = rayOrg + rayDir * hi.distance;
-				//hitInfo.normal = hi.normal;
-				//hitInfo.uvCoordinate = hi.uvCoordinate;
-				hitInfo = hi;
-				//m_LastHitNormal = hitInfo.normal;
-				//m_LastHitUV = hi.uvCoordinate;
-			}
-		}
-	}
-	hitInfo.distance = shortD;
-	return hit;
 }
 
 Vec3 AssimpModel::GetNormalOnHit(Vec3 hitPosition) const
@@ -84,56 +55,38 @@ void AssimpModel::LoadModelFromFile(const char* filePath)
 	{
 		aiMesh* mesh = scene->mMeshes[i];
 		int iMeshFaces = mesh->mNumFaces;
+		//For each triangle
 		for (int j = 0; j < iMeshFaces; ++j)
 		{
+			//Get 3 vertices
 			for (int k = 0; k < 3; ++k)
 			{
 				const aiFace& face = mesh->mFaces[j];
 				unsigned index = face.mIndices[k];
+
+				//If vertex does not exist yet, save index
 				if (std::find(m_Indices.begin(), m_Indices.end(), index) != m_Indices.end())
 				{
 					m_Indices.push_back(index);
 					continue;
 				}
 
+				//Save vertex data
 				m_Indices.push_back(index);
 				Vec3 pos = m_Transform.GetTransformation().TransformVector(Vec3(mesh->mVertices[index]));
-
-				//calculate bounding box
-				if (pos.x < minimum.x)
-					minimum.x = pos.x;
-				if (pos.y < minimum.y)
-					minimum.y = pos.y;
-				if (pos.z < minimum.z)
-					minimum.z = pos.z;
-
-				if (pos.x > maximum.x)
-					maximum.x = pos.x;
-				if (pos.y > maximum.y)
-					maximum.y = pos.y;
-				if (pos.z > maximum.z)
-					maximum.z = pos.z;
-
 				Vec3 norm = m_Transform.GetRotationMatrix().TransformVector(Vec3(mesh->mNormals[index]));
 				aiVector3D aiuv = mesh->mTextureCoords[0][index];
-
 				Vec2 uv(1 - aiuv.x, 1 - aiuv.y);
+
 				m_Vertices.push_back(PosNormUVVertex(pos, norm, uv));
 			}
 		}
 	}
-
-	//create bounding box
-	auto center = (minimum + maximum) / 2.f;
-	auto width = maximum.x - minimum.x;
-	auto height = maximum.y - minimum.y;
-	auto depth = maximum.z - minimum.z;
-	m_BoundingBox = new AABox(center, width, height, depth);
 }
 
 void AssimpModel::GenerateTriangles()
 {
-	//create triangle list from index buffer
+	//Create triangle list from index buffer
 	m_Triangles.resize(m_Indices.size() / 3);
 	for (int i = 0; i < m_Indices.size() - 2; i += 3)
 	{

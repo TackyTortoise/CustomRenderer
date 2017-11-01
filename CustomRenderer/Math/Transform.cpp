@@ -1,13 +1,8 @@
 #include "Transform.h"
 
-Transform::Transform()
-{
-}
+Transform::Transform(){}
 
-
-Transform::~Transform()
-{
-}
+Transform::~Transform(){}
 
 void Transform::SetFullTransform(const Vec3& pos, const Vec3& rot, const Vec3& scale)
 {

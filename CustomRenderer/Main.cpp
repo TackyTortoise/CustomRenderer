@@ -33,21 +33,35 @@ int main(int argc, char* argv[])
 	TTF_Init();
 	IMG_Init(IMG_INIT_JPG | IMG_INIT_PNG);
 	
+	//seed random
 	std::srand(time(nullptr));
 	
 	//settings
 	const float downScaling = 1.f / 1.f;
 
 	RenderSettings settings;
+	/*settings.screenWidth = 800;
+	settings.screenHeight = 600;
+	settings.blockCount = 75;
+	settings.shadowSampleCount = 2;
+	settings.antiAliasSampleCount = 16;
+	settings.roughnessSampleCount = 2;
+	settings.dofSampleCount = 0;
+	settings.cameraFOV = 60;
+	settings.maxRenderDepth = 10;
+	settings.GIMaxDepth = 0;
+	settings.GISampleCount = 50;
+	settings.enableSrgb = true;
+	settings.autoRerender = false;*/
+
 	settings.LoadFromFile("../Data/RenderSettings.txt");
 	settings.DownScaleRender(downScaling);
-
-	Renderer::GetInstance()->Init(settings);
-	
+		
 	//create SDL window
 	SDL_CreateWindowAndRenderer(settings.screenWidth, settings.screenHeight, 0, &window, &renderer);
 	SDL_SetWindowTitle(window, "TDR - Dieter Tack");
 
+	//Create SDL renderer
 	SDL_SetRenderDrawColor(renderer, settings.clearColor.r, settings.clearColor.g, settings.clearColor.b, 255);
 	SDL_RenderClear(renderer);
 
@@ -55,17 +69,25 @@ int main(int argc, char* argv[])
 	SDL_Texture* texture = SDL_CreateTexture(renderer, SDL_PIXELFORMAT_ARGB8888, SDL_TEXTUREACCESS_STREAMING, settings.texWidth, settings.texHeight);
 
 	// Check that the window was successfully created
-	if (window == nullptr)
+	if (window == nullptr) 
 	{
 		printf("Could not create window: %s\n", SDL_GetError());
 		return 1;
 	}
 	
+	if (renderer == nullptr)
+	{
+		printf("Could not create renderer: %s\n", SDL_GetError());
+		return 1;
+	}
+
 	Timer::Init();
 
-	//initialize renderer
+	//Set up renderer
+	Renderer::GetInstance()->Init(settings);
 	Renderer* sceneRenderer = Renderer::GetInstance();
 
+	//Show loading message
 	sceneRenderer->DrawText(renderer, "Loading scene data...", "../Data/arial.ttf", 20,20);
 	SDL_RenderPresent(renderer);
 
@@ -77,6 +99,7 @@ int main(int argc, char* argv[])
 	SceneManager::GetInstance()->AddScene(new GIScene());
 	SceneManager::GetInstance()->AddScene(new TeapotScene());
 
+	//Set current scene
 	SceneManager::GetInstance()->SetActiveScene(0);
 
 	const float camSpeed = 4.f;
@@ -201,14 +224,16 @@ int main(int argc, char* argv[])
 			lastPresent = Timer::GetTotalTime();
 		}
 
+		//Update timer
 		Timer::EndFrame();
 	}
 
+	//Clean up
 	Renderer::Destroy();
 	SceneManager::Destroy();
 	MaterialManager::DestroyRemainingTextures();
 
-	//Clean up
+	//Clean up SDL
 	SDL_DestroyWindow(window);
 	SDL_DestroyTexture(texture);
 

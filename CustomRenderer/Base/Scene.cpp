@@ -7,7 +7,6 @@ Scene::Scene()
 	SetupCamera(Renderer::GetRenderSettings());
 }
 
-
 Scene::~Scene()
 {
 	for(int i = 0; i < m_Objects.size(); ++i)
@@ -49,7 +48,9 @@ void Scene::MoveCamera(const Vec3& movement) const
 
 void Scene::RotateCamera(const Vec3& rotation) const
 {
+	//Rotate camera
 	m_Camera->GetTransform()->Rotate(rotation);
+	//Update camera axes
 	m_Camera->GetRight(true);
 	m_Camera->GetUp(true);
 }

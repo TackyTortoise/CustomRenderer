@@ -3,9 +3,7 @@
 #include <iostream>
 #include "../Math/Color.h"
 
-Texture::Texture()
-{
-}
+Texture::Texture(){}
 
 Texture::~Texture()
 {
@@ -34,14 +32,8 @@ Color Texture::GetPixelColor(float u, float v) const
 	}
 
 	//wrap around uv's to [0,1]
-	while (u < 0.f)
-		u += 1.f;
-	while (u > 1.f)
-		u -= 1.f;
-	while (v < 0.f)
-		v += 1.f;
-	while (v > 1.f)
-		v -= 1.f;
+	u = (u < 0 ? 1 : 0) + std::fmod(u, 1.f);
+	v = (v < 0 ? 1 : 0) + std::fmod(v, 1.f);
 
 	//map from [0,1] to texture size
 	u = u * m_Surface->w;

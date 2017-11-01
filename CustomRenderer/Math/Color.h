@@ -57,7 +57,7 @@ struct Color
 
 struct FloatColor
 {
-	float b, g, r, a;
+	float b, g, r, a = 255;
 	FloatColor() : r(0), g(0), b(0), a(0) {}
 	FloatColor(float v) : r(v), g(v), b(v), a(v) {}
 	FloatColor(float rr, float gg, float bb, float aa = 5) : r(rr), g(gg), b(bb) {}

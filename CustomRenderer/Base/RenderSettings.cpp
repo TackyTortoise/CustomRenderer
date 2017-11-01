@@ -86,7 +86,7 @@ void RenderSettings::DownScaleRender(const float f)
 int RenderSettings::FindValueInFile(const std::string& text, const std::string& value) const
 {
 	std::sregex_iterator end;
-
+	//Look for line with setting
 	std::regex rgxLine(value + "[\\s]*=[\\s]*[\\d]+");
 	std::sregex_iterator nextLine(text.begin(), text.end(), rgxLine);
 	std::string line;
@@ -96,6 +96,7 @@ int RenderSettings::FindValueInFile(const std::string& text, const std::string& 
 		line = m.str();
 	}
 
+	//extract number from line
 	std::regex rgx("[\\d]+");
 	std::sregex_iterator next(line.begin(), line.end(), rgx);
 	int v = -1;

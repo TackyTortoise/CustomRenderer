@@ -1,7 +1,5 @@
 #include "GlassScene.h"
-#include "../Objects/AssimpModel.h"
-#include "../Objects/Plane.h"
-#include "../Objects/Sphere.h"
+#include "../Objects/CommonObjects.h"
 
 GlassScene::GlassScene()
 {
@@ -25,7 +23,7 @@ GlassScene::GlassScene()
 	pTest->SetPosition({ 0, 0, 0 });
 	pTest->SetTexture("../Data/Textures/checker.jpg");
 	//pTest->SetReflective(.4f);
-	pTest->GetMaterial().SetTexScale(1.f);
+	pTest->GetMaterial().SetTexScale(10.f);
 	m_Objects.push_back(pTest);
 
 	pTest = new Plane();

@@ -1,5 +1,6 @@
 #pragma once
 class Object;
+#include "Math.h"
 
 struct HitInfo
 {

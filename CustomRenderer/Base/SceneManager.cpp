@@ -4,9 +4,7 @@
 SceneManager* SceneManager::m_Instance = nullptr;
 Scene* SceneManager::m_ActiveScene = nullptr;
 
-SceneManager::SceneManager()
-{
-}
+SceneManager::SceneManager(){}
 
 SceneManager::~SceneManager()
 {
@@ -37,7 +35,7 @@ void SceneManager::Destroy()
 
 void SceneManager::AddScene(Scene* scene)
 {
-	//make sure to not add duplicate scenes
+	//Make sure to not add duplicate scenes
 	auto it = std::find(m_Scenes.begin(), m_Scenes.end(), scene);
 
 	if (it == m_Scenes.end())

@@ -38,7 +38,7 @@ TestScene::TestScene() : Scene()
 	pTest->SetTexture("../Data/Textures/rock.jpg");
 	pTest->SetNormalMap("../Data/Textures/RockNormal.jpg");
 	pTest->SetReflective(.8f);
-	pTest->GetMaterial().SetTexScale(1.f);
+	pTest->GetMaterial().SetTexScale(10.f);
 	m_Objects.push_back(pTest);
 
 	pTest = new Plane();

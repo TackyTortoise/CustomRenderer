@@ -29,7 +29,7 @@ TeapotScene::TeapotScene()
 	//plane->SetReflective(.75f);
 	plane->SetTexture("../Data/Textures/checker.jpg");
 	//plane->SetNormalMap("../Data/Textures/checkernormal.jpg");
-	plane->GetMaterial().SetTexScale(.2f);
+	plane->GetMaterial().SetTexScale(2.f);
 	m_Objects.push_back(plane);
 
 	plane = new Plane();

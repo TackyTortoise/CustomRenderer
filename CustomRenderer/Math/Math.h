@@ -1,5 +1,4 @@
 #pragma once
-#include "Vec3.h"
 #include "Vec2.h"
 #include "Math.h"
 #include "Matrix4x4.h"
@@ -9,14 +8,12 @@
 #include <SDL_stdinc.h>
 #include <random>
 
-//#include "Color.h"
-
 class Math
 {
 public:
 	static float Clamp(const float f, const float min = 0.f, const float max = 1.f)
 	{
-		if (f < min) 
+		if (f < min)
 			return min;
 		if (f > max)
 			return max;
@@ -33,7 +30,7 @@ public:
 		return v < 0 ? -1 : 1;
 	}
 
-	static Vec3 ReflectVector(const Vec3& ray,const Vec3& axis)
+	static Vec3 ReflectVector(const Vec3& ray, const Vec3& axis)
 	{
 		return ray + axis * -2 * ray.Dot(axis);
 	}
@@ -44,29 +41,20 @@ public:
 
 		float ct = Clamp(rayDir.Dot(normal), -1, 1);
 		Vec3 n = normal;
-		if (ct < 0)		
-			ct = -ct;		
+
+		//Going into object
+		if (ct < 0)
+			ct = -ct;
+		//Going out of object
 		else
 		{
-			std::swap(i1, i2); n = -normal;
+			std::swap(i1, i2);
+			n = -normal;
 		}
 
 		float refCoef = i1 / i2;
 		float k = 1 - refCoef * refCoef * (1 - ct * ct);
 		return k < 0 ? Vec3::zero : refCoef * rayDir + (refCoef * ct - sqrtf(k)) * n;
-
-		/*float i1 = 1, i2 = ior;
-		float ct = rayDir.Dot(normal);
-		if (ct < 0)
-		{
-			std::swap(i1, i2);
-		}
-		else
-			ct = -rayDir.Dot(normal);
-		//going into or out of object
-		auto refCoef = i1 / i2;
-		Vec3 refRay = rayDir * refCoef + normal * (refCoef * ct - sqrt(1 - refCoef * refCoef * (1 - ct * ct)));
-		return refRay.Normalized();*/
 	}
 
 	static float GetSchlick(const Vec3& incident, const Vec3& normal, float ior)
@@ -81,22 +69,24 @@ public:
 			idn = incident.Dot(normal);
 
 		float r0 = pow((i1 - i2) / (i1 + i2), 2.f);
-		
+
 		return r0 + (1 - r0) * pow(1.f + idn, 5);
 	}
 
 	static void CreateCoordSystem(const Vec3& normal, Vec3& tangent, Vec3& biTangent)
 	{
-		tangent = abs(abs(normal.y) - 1.f) < 1e-5 ? Vec3(1, 0, 0) : Vec3(0, 1, 0).Cross(normal);
+		tangent = abs(abs(normal.y) - 1.f) < 1e-5 ?
+			Vec3(1, 0, 0) :
+			Vec3(0, 1, 0).Cross(normal);
 		biTangent = normal.Cross(tangent);
 	}
 
 	static Vec3 TangentToWorld(const Vec3& sample, const Vec3& norm)
 	{
-		//if (norm.y - 1.f < 1)
 		Vec3 tang, bitan;
 		CreateCoordSystem(norm, tang, bitan);
 
+		//Create rotation to normal space
 		Matrix4x4 m = Matrix4x4::Identity;
 
 		m[0][0] = tang.x;
@@ -117,9 +107,10 @@ public:
 	static Vec2 SampleDisk()
 	{
 		float lambda = GetRandomFloat(0.f, 2 * M_PI);
-		auto x = cos(lambda);
-		auto y = sin(lambda);
-		return{ x, y };
+		auto r = GetRandomFloat();
+		auto x = sqrt(r) * cos(lambda);
+		auto y = sqrt(r) * sin(lambda);
+		return { x, y };
 	}
 
 	static Vec3 SampleSphere()
@@ -136,9 +127,12 @@ public:
 		return{ x,t,z };
 	}
 
-	static Vec3 SampleHemisphere(const Vec3& normal = Vec3(0,1,0), const Vec3& tangent = Vec3(1,0,0), const Vec3& biTangent = Vec3(0,0,1))
+	static Vec3 SampleHemisphere(const Vec3& normal = Vec3(0, 1, 0), const Vec3& tangent = Vec3(1, 0, 0), const Vec3& biTangent = Vec3(0, 0, 1))
 	{
+		//Sample sphere
 		auto s = SampleSphere();
+
+		//Turn around if pointing away from normal
 		Vec3 r(s.x * tangent + s.y * normal + s.z * biTangent);
 		if (r.Dot(normal) < 0)
 			r = -r;
@@ -146,22 +140,7 @@ public:
 		return r;
 	}
 
-#define SQRT_MAGIC_F 0x5f3759df 
-	static float  sqrt2(const float x)
-	{
-		const float xhalf = 0.5f*x;
-
-		union // get bits for floating value
-		{
-			float x;
-			int i;
-		} u;
-		u.x = x;
-		u.i = SQRT_MAGIC_F - (u.i >> 1);  // gives initial guess y0
-		return x*u.x*(1.5f - xhalf*u.x*u.x);// Newton step, repeating increases accuracy 
-	}
-
-	static float GetRandomFloat(const float low = 0, const float high = 1)
+	static float GetRandomFloat(const float low = 0.f, const float high = 1.f)
 	{
 		return low + static_cast <float> (rand()) / (static_cast <float> (RAND_MAX / (high - low)));
 	}

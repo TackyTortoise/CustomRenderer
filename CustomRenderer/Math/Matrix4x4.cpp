@@ -8,6 +8,7 @@ Matrix4x4::Matrix4x4()
 
 Matrix4x4::Matrix4x4(float e00, float e01, float e02, float e03, float e10, float e11, float e12, float e13, float e20, float e21, float e22, float e23, float e30, float e31, float e32, float e33)
 {
+	//Initialize values
 	m_Values[0][0] = e00;
 	m_Values[0][1] = e01;
 	m_Values[0][2] = e02;
@@ -29,10 +30,7 @@ Matrix4x4::Matrix4x4(float e00, float e01, float e02, float e03, float e10, floa
 	m_Values[3][3] = e33;
 }
 
-
-Matrix4x4::~Matrix4x4()
-{
-}
+Matrix4x4::~Matrix4x4(){}
 
 Matrix4x4 Matrix4x4::operator*(const Matrix4x4& o) const
 {
@@ -57,7 +55,7 @@ Vec3 Matrix4x4::TransformVector(const Vec3& v) const
 	r.y = v.x * m_Values[0][1] + v.y * m_Values[1][1] + v.z * m_Values[2][1] + m_Values[1][3];
 	r.z = v.x * m_Values[0][2] + v.y * m_Values[1][2] + v.z * m_Values[2][2] + m_Values[2][3];
 
-	//perspective division if necessary
+	//perspective division if necessary - ignored as it is nog needed
 	/*auto w = v.x * m_Values[0][3] + v.y * m_Values[1][3] + v.z * m_Values[2][3] + m_Values[3][3];
 	if (w != 1 && w != 0)
 	{

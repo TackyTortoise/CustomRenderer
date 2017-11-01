@@ -64,6 +64,7 @@ bool AABox::IsHit(const Vec3& rayOrg, const Vec3& rayDir, HitInfo& hitInfo)
 	if (firstHit < 0)
 		firstHit = secondHit;
 
+	//Save hit info
 	hitInfo.distance = firstHit;
 	hitInfo.position = rayOrg + rayDir * hitInfo.distance;
 	hitInfo.normal = GetNormalOnHit(hitInfo.position);
@@ -74,6 +75,7 @@ bool AABox::IsHit(const Vec3& rayOrg, const Vec3& rayDir, HitInfo& hitInfo)
 
 Vec3 AABox::GetNormalOnHit(Vec3 hitPosition) const
 {
+	//Check which side was hit, return normal
 	auto b = hitPosition - GetPosition();
 	b.x = abs(abs(b.x) - m_HalfWidth) < 0.0001f ? Math::GetSign(b.x) : 0;
 	b.y = abs(abs(b.y) - m_HalfHeight) < 0.0001f ? Math::GetSign(b.y) : 0;
@@ -88,6 +90,7 @@ Vec2 AABox::GetUvCoordOnHit(Vec3 hitPosition) const
 	diff.y /= m_HalfHeight;
 	diff.z /= m_HalfDepth;
 	float u, v;
+
 	//hit on left or right side
 	if (abs(abs(diff.x) - 1.f) < 1e-5)
 	{

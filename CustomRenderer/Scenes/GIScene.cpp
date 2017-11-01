@@ -1,6 +1,5 @@
 #include "GIScene.h"
-#include "../Objects/Plane.h"
-#include "../Objects/Sphere.h"
+#include "../Objects/CommonObjects.h"
 
 GIScene::GIScene()
 {

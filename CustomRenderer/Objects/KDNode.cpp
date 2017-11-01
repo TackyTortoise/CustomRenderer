@@ -67,7 +67,7 @@ KDNode* KDNode::BuildTree(std::vector<Triangle*>& triangles) const
 
 	std::vector<Triangle*> leftTriangles;
 	std::vector<Triangle*> rightTriangles;
-	//split over longes axis
+	//split over longest axis
 	int axis = node->m_BoundingBox->GetLongestAxis();
 	for (auto &t : triangles)
 	{
@@ -88,6 +88,7 @@ KDNode* KDNode::BuildTree(std::vector<Triangle*>& triangles) const
 		}
 	}
 
+	//Create child nodes
 	if (leftTriangles.size() > 0 && rightTriangles.size() != 0)
 		node->m_LeftNode = BuildTree(leftTriangles);
 	if (rightTriangles.size() > 0 && leftTriangles.size() != 0)
@@ -114,6 +115,7 @@ bool KDNode::IsHit(const Vec3& rayOrg, const Vec3& rayDir, HitInfo& hitInfo, flo
 			hitRight = m_RightNode->IsHit(rayOrg, rayDir, hitInfo, shortD);
 		return hitLeft || hitRight;
 	}
+
 	//reached outward leaf
 	bool hit = false;
 	HitInfo hi;
