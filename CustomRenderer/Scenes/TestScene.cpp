@@ -43,6 +43,7 @@ TestScene::TestScene() : Scene()
 
 	pTest = new Plane();
 	pTest->SetPosition({ 0,50,0 });
+	pTest->SetNormal(Vec3(0, -1, 0));
 	pTest->SetBaseColor(Color(100, 149, 237));
 	m_Objects.push_back(pTest);
 

@@ -35,7 +35,7 @@ void Renderer::Destroy()
 {
 	if (!m_Instance)
 		return;
-	
+
 	delete m_Instance;
 	m_Instance = nullptr;
 }
@@ -291,30 +291,6 @@ Color Renderer::CalculatePixelColor(const int x, const int y)
 	return m_Pixels[pixelIndex];
 }
 
-FloatColor Renderer::GetGlobalIllumination(const HitInfo& hitInfo, const unsigned depth)
-{
-	//Generate axies
-	Vec3 norm = hitInfo.normal, tan, bitan;
-	Math::CreateCoordSystem(norm, tan, bitan);
-
-	FloatColor indirectColor;
-	auto s = m_RenderSettings.GISampleCount;
-
-	for (int i = 0; i < s; ++i)
-	{
-		//Get random sample direction
-		Vec3 direction = Math::SampleHemisphere(norm,tan, bitan);
-		HitInfo GIHi;
-		auto hitobj = Trace(hitInfo.position, direction, GIHi, hitInfo.hitObject);
-		//Get color from sample raycast
-		if (hitobj != nullptr)
-			indirectColor += GetHitColor(hitobj, GIHi, direction, depth + 1) * direction.Dot(norm);
-	}
-	//average color
-	indirectColor /= s;
-	return indirectColor;
-}
-
 Object* Renderer::Trace(const Vec3& rayOrg, const Vec3& rayDir, HitInfo& result, const Object* ignoreObject, bool keepIgnoreDistance) const
 {
 	float shortD = std::numeric_limits<float>::max();
@@ -342,7 +318,7 @@ Object* Renderer::Trace(const Vec3& rayOrg, const Vec3& rayDir, HitInfo& result,
 			}
 		}
 	}
-
+	
 	//calculate where object was hit in world
 	if (closeObject != nullptr)
 	{
@@ -358,13 +334,17 @@ Color Renderer::GetHitColor(Object* co, HitInfo& hitInfo, const Vec3& rayDir, in
 	if (m_CurrentRenderMode == DEPTH)
 		return Color(hitInfo.distance / 100.f * 255.f);
 
+	//return UV's if UV render mode
+	if (m_CurrentRenderMode == UV)
+		return Color(hitInfo.uvCoordinate.x * 255, hitInfo.uvCoordinate.y * 255, 0);
+
 	Color objectColor = GetObjectColor(hitInfo);
 
 	if (m_CurrentRenderMode == BASECOLOR)
 		return objectColor;
 
 	Color pixelColor = objectColor;
-	
+
 	//Sample normalmap if there is one
 	Vec3 orgNormal = hitInfo.normal;
 	hitInfo.normal = GetHitNormal(hitInfo);
@@ -394,7 +374,7 @@ Color Renderer::GetHitColor(Object* co, HitInfo& hitInfo, const Vec3& rayDir, in
 	float transp = co->GetTransparency();
 	if (transp > 0)
 	{
-		CalculateTransparency(pixelColor, transp, rayDir, hitInfo, diffuseIntensity, currentDepth);		
+		CalculateTransparency(pixelColor, transp, rayDir, hitInfo, diffuseIntensity, currentDepth);
 	}
 
 	//Reflection
@@ -566,6 +546,30 @@ void Renderer::CalculateReflection(Color& pixelColor, float refl, const Vec3& ra
 	pixelColor += reflCol * refl;
 }
 
+FloatColor Renderer::GetGlobalIllumination(const HitInfo& hitInfo, const unsigned depth)
+{
+	//Generate axies
+	Vec3 norm = hitInfo.normal, tan, bitan;
+	Math::CreateCoordSystem(norm, tan, bitan);
+
+	FloatColor indirectColor;
+	auto s = m_RenderSettings.GISampleCount;
+
+	for (int i = 0; i < s; ++i)
+	{
+		//Get random sample direction
+		Vec3 direction = Math::SampleHemisphere(norm, tan, bitan);
+		HitInfo GIHi;
+		auto hitobj = Trace(hitInfo.position, direction, GIHi, hitInfo.hitObject);
+		//Get color from sample raycast
+		if (hitobj != nullptr)
+			indirectColor += GetHitColor(hitobj, GIHi, direction, depth + 1) * direction.Dot(norm);
+	}
+	//average color
+	indirectColor /= s;
+	return indirectColor;
+}
+
 Color Renderer::GetObjectColor(const HitInfo& hitInfo) const
 {
 	auto bc = hitInfo.hitObject->GetBaseColor();
@@ -573,6 +577,7 @@ Color Renderer::GetObjectColor(const HitInfo& hitInfo) const
 	//Sample texture if there is one
 	auto objTex = hitInfo.hitObject->GetTexture();
 	auto texCoord = hitInfo.uvCoordinate / hitInfo.hitObject->GetMaterial().GetScale();
+	
 	if (objTex != nullptr)
 	{
 		bc = objTex->GetPixelColor(texCoord.x, texCoord.y);

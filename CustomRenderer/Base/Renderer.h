@@ -11,6 +11,7 @@ enum RenderMode
 	NORMALS,
 	SHADOWS,
 	DEPTH,
+	UV,
 	SIZE,
 };
 
