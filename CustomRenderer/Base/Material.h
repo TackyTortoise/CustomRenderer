@@ -38,6 +38,8 @@ struct Material
 
 	void SetTexScale(float s){ m_TextureScale = s; }
 
+	void SetTexIsSRGB(bool v) const { texture->SetIsSRGB(v); }
+
 	float GetScale() const	{ return m_TextureScale; }
 
 	Texture* GetTexture() const

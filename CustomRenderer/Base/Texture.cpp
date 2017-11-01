@@ -47,7 +47,15 @@ Color Texture::GetPixelColor(float u, float v) const
 	SDL_GetRGB(pixelColor, m_Surface->format, &red, &green, &blue);
 	SDL_UnlockSurface(m_Surface);
 
-	return Color(red, green, blue, 255);
+	auto col = Color(red, green, blue, 255);
+	if (m_bIsSRGB)
+	{
+		col.r = pow(col.r / 255.f, 2.2f) * 255.f;
+		col.g = pow(col.g / 255.f, 2.2f) * 255.f;
+		col.b = pow(col.b / 255.f, 2.2f) * 255.f;
+	}
+
+	return col;
 }
 
 Uint32 Texture::GetPixel(int x, int y) const

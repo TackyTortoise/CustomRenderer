@@ -1,8 +1,8 @@
 Screenwidth = 800
 Screenheight = 600
 Blockcount = 75
-Shadowsamplecount = 16
-Antialiassamplecount = 0
+Shadowsamplecount = 2
+Antialiassamplecount = 16
 Roughnesssamplecount = 2
 DoFsamplecount = 0
 CameraFoV = 60
