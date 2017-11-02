@@ -45,6 +45,8 @@ public:
 private:
 	static Renderer* m_Instance;
 
+	void RenderPixel(const int x, const int y);
+
 	Object* Trace(const Vec3& rayOrg, const Vec3& rayDir, HitInfo& result, const Object* ignoreObject = nullptr, bool keepIgnoreDistance = false) const;
 	
 	Color GetHitColor(Object* co, HitInfo& hitInfo, const Vec3& rayDir, int currentDepth);
@@ -80,7 +82,6 @@ private:
 	Color* m_Pixels = nullptr;
 
 	char *m_PixelMask = nullptr;
- 	unsigned m_MaskedPixelCount = 0;
 	unsigned m_FalseHitCounter = 0;
 
 	unsigned int m_BlockCount = 1;

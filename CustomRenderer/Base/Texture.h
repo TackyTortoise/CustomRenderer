@@ -16,6 +16,6 @@ private:
 	Uint32 GetPixel(int x, int y) const;
 
 	SDL_Surface* m_Surface = nullptr;
-	bool m_bIsSRGB = true;
+	bool m_bIsSRGB = false;
 };
 

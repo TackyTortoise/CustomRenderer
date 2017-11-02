@@ -10,6 +10,7 @@ TeapotScene::TeapotScene()
 	AssimpModel* male = new AssimpModel("../Data/Meshes/FatMale.FBX", Vec3(0,-1,4), Vec3(-M_PI / 2, M_PI + 0.1f, 0.f));
 	male->SetTexture("../Data/Textures/male.png");
 	male->SetNormalMap("../Data/Textures/Prop_NormalMap.jpg");
+	male->GetMaterial().SetTexIsSRGB(false);
 	male->SetShininess(70.f);
 	m_Objects.push_back(male);/**/
 
@@ -21,6 +22,7 @@ TeapotScene::TeapotScene()
 
 	auto chicken = new AssimpModel("../Data/Meshes/chicken.fbx", Vec3(1, 0.7f, 6), Vec3(-M_PI / 2, 0, 0), Vec3(.03f));
 	chicken->SetTexture("../Data/Textures/chicken.jpg");
+	chicken->GetMaterial().SetTexIsSRGB(true);
 	chicken->SetShininess(5150.f);
 	m_Objects.push_back(chicken);/**/
 
