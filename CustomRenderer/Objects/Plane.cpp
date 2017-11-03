@@ -12,8 +12,8 @@ Plane::~Plane(){}
 bool Plane::IsHit(const Vec3& rayOrg, const Vec3& rayDir, HitInfo& hitInfo)
 {
 	auto rdn = rayDir.Dot(m_Normal);
-	//Check if perpendicular hit
-	if (abs(rdn) < 1e-5)
+	//Check if backside or perpendicular hit
+	if (rdn > -1e-5)
 		return false;
 
 	Vec3 between = m_Transform.GetPosition() - rayOrg;
@@ -25,6 +25,6 @@ bool Plane::IsHit(const Vec3& rayOrg, const Vec3& rayDir, HitInfo& hitInfo)
 	hitInfo.position = rayOrg + rayDir * hitInfo.distance;
 	auto ctp = hitInfo.position - m_Transform.GetPosition();
 	hitInfo.uvCoordinate = Vec2(ctp.Dot(m_Right), ctp.Dot(m_Up));
-	return (hitInfo.distance >= 0);
+	return hitInfo.distance >= 0;
 }
 

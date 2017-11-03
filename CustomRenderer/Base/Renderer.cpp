@@ -236,9 +236,10 @@ Color Renderer::CalculatePixelColor(const int x, const int y)
 		//Adjust color for gamma correction if need be
 		if (m_RenderSettings.enableSrgb && m_CurrentRenderMode == ALL)
 		{
-			col.r = pow(col.r / 255.f, 1.f / 2.2f) * 255.f;
-			col.g = pow(col.g / 255.f, 1.f / 2.2f) * 255.f;
-			col.b = pow(col.b / 255.f, 1.f / 2.2f) * 255.f;
+			auto gammaCorr = 1.f / 2.2f;
+			col.r = pow(col.r / 255.f, gammaCorr) * 255.f;
+			col.g = pow(col.g / 255.f, gammaCorr) * 255.f;
+			col.b = pow(col.b / 255.f, gammaCorr) * 255.f;
 		}
 
 		//Fill pixel buffer with color
@@ -557,7 +558,7 @@ void Renderer::CalculateReflection(Color& pixelColor, float refl, const Vec3& ra
 
 FloatColor Renderer::GetGlobalIllumination(const HitInfo& hitInfo, const unsigned depth)
 {
-	//Generate axies
+	//Generate axes
 	Vec3 norm = hitInfo.normal, tan, bitan;
 	Math::CreateCoordSystem(norm, tan, bitan);
 
