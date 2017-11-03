@@ -5,7 +5,7 @@
 
 Triangle::Triangle(const PosNormUVVertex& p0, const PosNormUVVertex& p1, const PosNormUVVertex& p2): m_P0(p0), m_P1(p1), m_P2(p2)
 {
-	m_Material.color = Color(255, 255, 0);
+	m_Material->color = Color(255, 255, 0);
 
 	//calculate planar normal
 	m_Edge0 = m_P1.position - m_P0.position;

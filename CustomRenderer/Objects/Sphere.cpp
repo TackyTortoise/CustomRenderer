@@ -4,13 +4,13 @@
 
 Sphere::Sphere() : m_Radius(0), m_Radius2(0)
 {
-	m_Material.color = Color(0, 0, 0);
+	m_Material->color = Color(0, 0, 0);
 }
 
 Sphere::Sphere(const Vec3& center, const float radius, const Color color) : m_Radius(radius), m_Radius2(radius * radius)
 {
 	SetPosition(center);
-	m_Material.color = color;
+	m_Material->color = color;
 }
 
 Sphere::~Sphere(){}

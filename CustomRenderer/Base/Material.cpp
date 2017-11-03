@@ -1,4 +1,6 @@
 #include "Material.h"
+#include "TextLoader.h"
+#include <locale>
 
 Material::Material() :texture(nullptr), normalMap(nullptr) {}
 

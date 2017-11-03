@@ -23,9 +23,5 @@ struct RenderSettings
 	bool autoRerender = true;
 
 	bool LoadFromFile(const char* path);
-
 	void DownScaleRender(const float f);
-
-private:
-	int FindValueInFile(const std::string& text, const std::string& value) const;
 };

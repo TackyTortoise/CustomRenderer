@@ -5,8 +5,9 @@
 #include "Texture.h"
 #include "MaterialManager.h"
 
-struct Material
+class Material
 {
+public:
 	Color color = Color(255,0,255);
 	float transparency = 0.f;
 	float reflectivity = 0.f;

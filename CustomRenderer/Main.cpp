@@ -93,11 +93,11 @@ int main(int argc, char* argv[])
 
 	//Set up scenes
 	SceneManager::GetInstance()->AddScene(new TestScene());
-	SceneManager::GetInstance()->AddScene(new ReflectiveSpheresScene());
-	SceneManager::GetInstance()->AddScene(new RefractionScene());
+	//SceneManager::GetInstance()->AddScene(new ReflectiveSpheresScene());
+	//SceneManager::GetInstance()->AddScene(new RefractionScene());
 	SceneManager::GetInstance()->AddScene(new GlassScene());
-	SceneManager::GetInstance()->AddScene(new GIScene());
-	SceneManager::GetInstance()->AddScene(new TeapotScene());
+	//SceneManager::GetInstance()->AddScene(new GIScene());
+	//SceneManager::GetInstance()->AddScene(new TeapotScene());
 
 	//Set current scene
 	SceneManager::GetInstance()->SetActiveScene(0);
@@ -231,7 +231,7 @@ int main(int argc, char* argv[])
 	//Clean up
 	Renderer::Destroy();
 	SceneManager::Destroy();
-	MaterialManager::DestroyRemainingTextures();
+	MaterialManager::Destroy();
 
 	//Clean up SDL
 	SDL_DestroyWindow(window);

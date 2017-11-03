@@ -10,7 +10,7 @@ TeapotScene::TeapotScene()
 	AssimpModel* male = new AssimpModel("../Data/Meshes/FatMale.FBX", Vec3(0,-1,4), Vec3(-M_PI / 2, M_PI + 0.1f, 0.f));
 	male->SetTexture("../Data/Textures/male.png");
 	male->SetNormalMap("../Data/Textures/Prop_NormalMap.jpg");
-	male->GetMaterial().SetTexIsSRGB(false);
+	male->GetMaterial()->SetTexIsSRGB(false);
 	male->SetShininess(70.f);
 	m_Objects.push_back(male);/**/
 
@@ -22,13 +22,13 @@ TeapotScene::TeapotScene()
 
 	auto chicken = new AssimpModel("../Data/Meshes/chicken.fbx", Vec3(1, 0.7f, 6), Vec3(-M_PI / 2, 0, 0), Vec3(.03f));
 	chicken->SetTexture("../Data/Textures/chicken.jpg");
-	chicken->GetMaterial().SetTexIsSRGB(true);
+	chicken->GetMaterial()->SetTexIsSRGB(true);
 	chicken->SetShininess(5150.f);
 	m_Objects.push_back(chicken);/**/
 
 	auto caseModel = new AssimpModel("../Data/Meshes/case.fbx", Vec3(2.5, -1, 7), Vec3(-M_PI / 2, -M_PI * .8f,0), Vec3(.1f));
 	caseModel->SetTexture("../Data/Textures/case.png");
-	caseModel->GetMaterial().SetTexIsSRGB(false);
+	caseModel->GetMaterial()->SetTexIsSRGB(false);
 	caseModel->SetNormalMap("../Data/Textures/casenormal.png");
 	m_Objects.push_back(caseModel);/**/
 
@@ -43,7 +43,7 @@ TeapotScene::TeapotScene()
 	//plane->SetRoughness(.05f);
 	plane->SetTexture("../Data/Textures/checker.jpg");
 	//plane->SetNormalMap("../Data/Textures/checkernormal.jpg");
-	plane->GetMaterial().SetTexScale(2.f);
+	plane->GetMaterial()->SetTexScale(2.f);
 	m_Objects.push_back(plane);
 
 	plane = new Plane();

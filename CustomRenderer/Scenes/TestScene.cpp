@@ -15,10 +15,7 @@ TestScene::TestScene() : Scene()
 	m_Objects.push_back(new Sphere(Vec3(5, -2.5, 13), 1, Color(180, 120, 255))); // small purple
 	m_Objects.push_back(new Sphere(Vec3(-2.5, -1, 45), 2, Color(124, 20, 77))); // burgundi
 	m_Objects.push_back(new Sphere(Vec3(-3, -2.5, 10), 1.5f, Color(108, 92, 50))); // khaki
-	m_Objects.back()->SetTexture("../Data/Textures/checker.jpg");
-	m_Objects.back()->SetNormalMap("../Data/Textures/checkernormal.jpg");
-	m_Objects.back()->GetMaterial().SetTexScale(.2f);
-	m_Objects.back()->SetShininess(1000.f);
+	m_Objects.back()->SetMaterial("Checker");
 	m_Objects.push_back(new Sphere(Vec3(4, 2, 9.5), .5, Color(244, 101, 44))); // orange
 
 	int tx = -20;
@@ -35,10 +32,7 @@ TestScene::TestScene() : Scene()
 	m_Objects[4]->SetMetallic(true);
 	Plane* pTest = new Plane();
 	pTest->SetPosition({ 0, -5, 0 });
-	pTest->SetTexture("../Data/Textures/rock.jpg");
-	pTest->SetNormalMap("../Data/Textures/RockNormal.jpg");
-	pTest->SetReflective(.8f);
-	pTest->GetMaterial().SetTexScale(10.f);
+	pTest->SetMaterial("RockFloor");
 	m_Objects.push_back(pTest);
 
 	pTest = new Plane();
@@ -56,21 +50,25 @@ TestScene::TestScene() : Scene()
 	//m_Objects.back()->SetTransparent(.9f);
 	//m_Objects.back()->SetRefractive(1.5f);
 	m_Objects.back()->SetReflective(.9f);
-	m_Objects.back()->GetMaterial().SetTexScale(.5f);
+	m_Objects.back()->GetMaterial()->SetTexScale(.5f);
 	m_Objects.back()->SetReflectivityMap("../Data/Textures/hatch.png");
 	
 	//m_Objects.push_back(new AssimpModel("../Data/Meshes/teapot.fbx", { 0.f,0.f,10.f }, {-(float)M_PI / 5.f,-(float)M_PI / 5.f,0.f}, {.1f,.1f,.1f}));
 	//m_Objects.back()->SetTexture("../Data/Textures/test.jpg");
 
 	m_Lights.push_back(new Light({ 10,30,0 }, { 0,-1,0 }, 3, 3));
-	m_Lights.back()->SetColor(Color(255,0,0));
-	m_Lights.push_back(new Light({ -10,20,0 }, { 0,-1,0 }, 2, 2));
-	m_Lights.back()->SetColor(Color(0, 0, 255));
+	//m_Lights.back()->SetColor(Color(255,0,0));
+	//m_Lights.push_back(new Light({ -10,20,0 }, { 0,-1,0 }, 2, 2));
+	//m_Lights.back()->SetColor(Color(0, 0, 255));
 	//m_Lights.push_back(new Light({ 0,10,0 }, { 0,-1,0 }, 2, 2));
 	//m_Lights.back()->SetColor(Color(0, 255, 0));
 	//m_Lights.push_back(new Light({ -0,100,0 }, { 0,-1,0 }, 2, 2));
 
 	//RotateCamera({ 0.f,0.f,(float)M_PI / 20.f });
+	/*for (auto &o : m_Objects)
+	{
+		o->SetMaterial("Glass");
+	}*/
 	
 	m_Camera->EnableDOF(true);
 	m_Camera->SetFocalDistance(10.f);

@@ -8,6 +8,7 @@ ReflectiveSpheresScene::ReflectiveSpheresScene()
 	pTest->SetReflective(.5f);
 	m_Objects.push_back(pTest);
 	pTest = new Plane();
+	pTest->SetNormal(Vec3(0, -1, 0));
 	pTest->SetPosition({ 0,50,0 });
 	pTest->SetBaseColor(Color(0, 0, 128));
 	m_Objects.push_back(pTest);

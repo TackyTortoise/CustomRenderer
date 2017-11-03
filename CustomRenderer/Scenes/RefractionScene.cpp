@@ -9,6 +9,7 @@ RefractionScene::RefractionScene()
 	//pTest->SetReflective(.3f);
 	m_Objects.push_back(pTest);
 	pTest = new Plane();
+	pTest->SetNormal(Vec3(0, -1, 0));
 	pTest->SetPosition({ 0,20,0 });
 	pTest->SetBaseColor(Color(0, 200, 0));
 	m_Objects.push_back(pTest);

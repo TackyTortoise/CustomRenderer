@@ -8,12 +8,10 @@ AABox::AABox(Vec3 pos, float width, float height, float depth, Color col): m_Hal
 	m_BoundsMin = pos - half;
 	m_BoundsMax = pos + half;
 
-	m_Material.color = col;
+	m_Material->color = col;
 }
 
-AABox::~AABox()
-{
-}
+AABox::~AABox(){}
 
 bool AABox::IsHit(const Vec3& rayOrg, const Vec3& rayDir, HitInfo& hitInfo)
 {

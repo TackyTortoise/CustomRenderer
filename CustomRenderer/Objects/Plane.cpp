@@ -2,7 +2,7 @@
 
 Plane::Plane()
 {
-	m_Material.color = Color(120, 120, 70);
+	m_Material->color = Color(120, 120, 70);
 	m_Right = Vec3(m_Normal.y, -m_Normal.x, m_Normal.z);
 	m_Up = m_Right.Cross(m_Normal).Normalized();
 }

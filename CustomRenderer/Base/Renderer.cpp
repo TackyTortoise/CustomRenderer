@@ -493,7 +493,7 @@ void Renderer::CalculateTransparency(Color& pixelColor, float transp, const Vec3
 	//Sample transparency texture if there is one
 	if (transTex != nullptr)
 	{
-		Vec2 texCoord = hitInfo.uvCoordinate / hitInfo.hitObject->GetMaterial().GetScale();
+		Vec2 texCoord = hitInfo.uvCoordinate / hitInfo.hitObject->GetMaterial()->GetScale();
 		auto transSample = transTex->GetPixelColor(texCoord.x, texCoord.y);
 		transp *= transSample.g / 255;
 	}
@@ -539,7 +539,7 @@ void Renderer::CalculateReflection(Color& pixelColor, float refl, const Vec3& ra
 	//Sample reflectivity map if there is one
 	if (reflTex != nullptr)
 	{
-		Vec2 texCoord = hitInfo.uvCoordinate / hitInfo.hitObject->GetMaterial().GetScale();
+		Vec2 texCoord = hitInfo.uvCoordinate / hitInfo.hitObject->GetMaterial()->GetScale();
 		auto reflSample = reflTex->GetPixelColor(texCoord.x, texCoord.y);
 		refl *= reflSample.r / 255.f;
 	}
@@ -586,7 +586,7 @@ Color Renderer::GetObjectColor(const HitInfo& hitInfo) const
 
 	//Sample texture if there is one
 	auto objTex = hitInfo.hitObject->GetTexture();
-	auto texCoord = hitInfo.uvCoordinate / hitInfo.hitObject->GetMaterial().GetScale();
+	auto texCoord = hitInfo.uvCoordinate / hitInfo.hitObject->GetMaterial()->GetScale();
 
 	if (objTex != nullptr)
 	{
@@ -601,7 +601,7 @@ Vec3 Renderer::GetHitNormal(const HitInfo& hitInfo) const
 	auto objNormal = hitInfo.hitObject->GetNormalMap();
 	if (objNormal != nullptr)
 	{
-		Vec2 texCoord = hitInfo.uvCoordinate / hitInfo.hitObject->GetMaterial().GetScale();
+		Vec2 texCoord = hitInfo.uvCoordinate / hitInfo.hitObject->GetMaterial()->GetScale();
 		Color sampleColor = objNormal->GetPixelColor(texCoord.x, texCoord.y); //sample color from normal map
 		Vec3 sampleNormal = Vec3(sampleColor.r / 255.f, sampleColor.g / 255.f, sampleColor.b / 255.f) * 2 - Vec3(1); //convert color to 0 to 1 range normal
 		return Math::TangentToWorld(sampleNormal, hitInfo.normal); //convert normal from tangets space to world space

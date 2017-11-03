@@ -153,6 +153,7 @@
     <ClCompile Include="Scenes\ReflectiveSpheresScene.cpp" />
     <ClCompile Include="Scenes\TestScene.cpp" />
     <ClCompile Include="Scenes\TeapotScene.cpp" />
+    <ClCompile Include="Base\TextLoader.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Base\Material.h" />
@@ -187,6 +188,7 @@
     <ClInclude Include="Scenes\ReflectiveSpheresScene.h" />
     <ClInclude Include="Scenes\TestScene.h" />
     <ClInclude Include="Scenes\TeapotScene.h" />
+    <ClInclude Include="Base\TextLoader.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
