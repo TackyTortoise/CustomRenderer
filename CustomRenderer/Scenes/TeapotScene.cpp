@@ -57,7 +57,7 @@ TeapotScene::TeapotScene()
 	m_Camera->GetTransform()->SetTranslation({ 0,2,0 });
 	m_Camera->GetTransform()->SetRotation({ (float)M_PI / 10.f , 0.f, 0.f });
 
-	m_Camera->EnableDOF(true);
+	//m_Camera->EnableDOF(true);
 	m_Camera->SetFocalDistance(4.f);
 	m_Camera->SetAperture(0.03f);
 }

@@ -1,0 +1,72 @@
+<Plane>
+Position = 0, -5, 0
+Normal = 0, 1, 0
+Material = Gold
+</Plane>
+
+<Plane>
+Position = 0, 50, 0
+Normal = 0, -1, 0
+Material = CornFlowerBlue
+</Plane>
+
+<Plane>
+Position = 0, 0, 25
+Normal = 0, 0, -1
+Material = Mirror
+</Plane>
+
+<Sphere>
+Position = -3, -2.5, 10
+Radius = 1.5
+Material = Glass
+</Sphere>
+
+<Box>
+Position = -5, 0, 20
+Width = 5
+Height = 3
+Depth = 5
+Material = BlueWater
+</Box>
+
+<Model>
+Mesh = FatMale.fbx
+Position = 0.5, -2, 10
+Rotation = -1.57, 3.14, 0
+Scale = 2.5
+Material = TestMaterial
+</Model>
+
+<Model>
+Mesh = Teapot.fbx
+Position = 5, 0.3, 16
+Rotation = -1.57, 0, 0
+Scale = 0.08
+Material = Chicken
+</Model>
+
+<Light>
+Position = 10, 30, 0
+Normal = 0, -1, 0
+Width = 3
+Height = 3
+Color = 0, 255, 0
+</Light>
+
+<Light>
+Position = -10, 20, 0
+Normal = 0, -1, 0
+Width = 2
+Height = 2
+Color = 0, 0, 255
+</Light>
+
+//Not necessary
+<Camera>
+Position = 8, 1, 2
+Rotation = 0.05, -0.5, 0
+EnableDoF = 0
+FocalDistance = 10.0
+Aperture = 0.1
+</Camera>

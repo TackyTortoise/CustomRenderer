@@ -1,5 +1,5 @@
-Screenwidth = 800
-Screenheight = 600
+Screenwidth = 1280
+Screenheight = 720
 Blockcount = 75
 Shadowsamplecount = 2
 Antialiassamplecount = 4

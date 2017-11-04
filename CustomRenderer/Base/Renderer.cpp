@@ -74,7 +74,7 @@ void Renderer::SetBlockCount(const int bc)
 {
 	//divide rendertexture in blocks from which you choose random pixels -> faster visual result
 	m_BlockCount = bc;
-	m_RegionSize.x = m_RenderWidth / static_cast<float>(bc);
+	m_RegionSize.x = m_RenderWidth / (static_cast<float>(bc) * (m_RenderWidth / m_RenderHeight));
 	m_RegionSize.y = m_RenderHeight / static_cast<float>(bc);
 }
 
