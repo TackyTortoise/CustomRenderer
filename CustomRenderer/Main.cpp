@@ -54,6 +54,7 @@ int main(int argc, char* argv[])
 	settings.enableSrgb = true;
 	settings.autoRerender = false;*/
 
+
 	settings.LoadFromFile("../Data/RenderSettings.txt");
 	settings.DownScaleRender(downScaling);
 		
@@ -91,6 +92,8 @@ int main(int argc, char* argv[])
 	sceneRenderer->DrawText(renderer, "Loading scene data...", "../Data/arial.ttf", 20,20);
 	SDL_RenderPresent(renderer);
 
+
+	SceneManager::LoadSceneFromText("../Data/TextScene.txt");
 	//Set up scenes
 	SceneManager::GetInstance()->AddScene(new TestScene());
 	//SceneManager::GetInstance()->AddScene(new ReflectiveSpheresScene());

@@ -17,10 +17,14 @@ public:
 	bool PreviousScene();
 	void SetActiveScene(unsigned index);
 
+	static Scene* LoadSceneFromText(const char* path, bool autoAdd = true);
+
 private:
 	static SceneManager* m_Instance;
 	static Scene* m_ActiveScene;
 	std::vector<Scene*> m_Scenes;
 	int m_CurrentSceneNumber = 0;
+
+
 };
 

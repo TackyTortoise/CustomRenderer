@@ -590,7 +590,7 @@ Color Renderer::GetObjectColor(const HitInfo& hitInfo) const
 
 	if (objTex != nullptr)
 	{
-		bc = objTex->GetPixelColor(texCoord.x, texCoord.y);
+		bc = bc.MultiplyNormalized(objTex->GetPixelColor(texCoord.x, texCoord.y));
 	}
 
 	return bc;

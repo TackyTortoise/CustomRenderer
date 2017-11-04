@@ -24,5 +24,9 @@ protected:
 	std::vector<Object*> m_Objects;
 	std::vector<Light*> m_Lights;
 	Camera* m_Camera = nullptr;
+
+	friend class SceneManager;
 };
+
+
 

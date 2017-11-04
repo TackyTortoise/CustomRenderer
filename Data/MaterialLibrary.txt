@@ -12,9 +12,15 @@ You can create materials with these properties (case and spacing insensitive)
 	NormalMap
 	ReflectivityMap
 	TransparencyMap
+	sRGBTexture
 	
 All textures are loaded from the Data/Textures folder
 These materials work with instancing, so if one is adjusted, all are
+
+<TestMaterial>
+Texture = test.jpg
+Reflectivity = 0.75
+</TestMaterial>
 
 <Glass>
 Color = 255, 255, 255
@@ -41,3 +47,13 @@ NormalMap = checkernormal.jpg
 TextureScale = 0.2
 Shininess = 1000.0
 </Checker>
+
+<Chicken>
+Texture = chicken.jpg
+Shininess = 5000
+sRGBTexture = 1
+</Chicken>
+
+<CornFlowerBlue>
+Color = 100, 149, 237
+</CornFlowerBlue>

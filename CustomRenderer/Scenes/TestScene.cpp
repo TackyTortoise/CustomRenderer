@@ -43,7 +43,7 @@ TestScene::TestScene() : Scene()
 
 	m_Objects.push_back(new AABox(Vec3(-5, -.5, 20), 7, 7, 8));
 	m_Objects.back()->SetReflective(.75f);
-	m_Objects.back()->SetBaseColor(Color(255, 215, 0));
+	//m_Objects.back()->SetBaseColor(Color(255, 215, 0));
 	m_Objects.back()->SetTexture("../Data/Textures/test.jpg");
 	//m_Objects.push_back(new AABox(Vec3(-1, -3.5, 20), 5, 2, 5));
 	m_Objects.push_back(new AABox(Vec3(5, 0, 20), 5, 6.5, 5, Color(29, 108, 129)));

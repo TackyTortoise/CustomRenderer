@@ -55,7 +55,7 @@ float TextLoader::FindFloatValueInString(const std::string& text, const std::str
 {
 	std::sregex_iterator end;
 	//Look for line with float
-	std::regex rgxLine(value + "[\\s]*=[\\s]*[-+]?[0-9]*\.?[0-9]+(?:f)?");
+	std::regex rgxLine(value + "[\\s]*=[\\s]*[-+]?[0-9]+\.?[0-9]*(?:f)?");
 	std::sregex_iterator nextLine(text.begin(), text.end(), rgxLine);
 	std::string line;
 	if (nextLine != end)
@@ -65,7 +65,7 @@ float TextLoader::FindFloatValueInString(const std::string& text, const std::str
 	}
 
 	//Extract number from line
-	std::regex rgx("[-+]?[0-9]*[.]?[0-9]+(?:f)?");
+	std::regex rgx("[-+]?[0-9]+\.?[0-9]*(?:f)?");
 	std::sregex_iterator next(line.begin(), line.end(), rgx);
 	float v = -1.f;
 	if (next != end)
@@ -76,6 +76,37 @@ float TextLoader::FindFloatValueInString(const std::string& text, const std::str
 	}
 
 	return v;
+}
+
+Vec3 TextLoader::FindVectorValueInString(const std::string& text, const std::string& value)
+{
+	std::sregex_iterator end;
+	//Look for line with color
+	std::regex rgxLine(value + "[\\s]*=[\\s]*[-+]?[0-9]+\.?[0-9]*(?:f)?[,][\\s]*[-+]?[0-9]+\.?[0-9]*(?:f)?[,][\\s]*[-+]?[0-9]+\.?[0-9]*(?:f)?");
+	std::sregex_iterator nextLine(text.begin(), text.end(), rgxLine);
+	std::string line;
+	if (nextLine != end)
+	{
+		std::smatch m = *nextLine;
+		line = m.str();
+	}
+
+	//Extract numbers from line
+	float values[3];
+	values[0] = -1;
+	std::regex rgx("[-+]?[0-9]+\.?[0-9]*(?:f)?");
+	std::sregex_iterator next(line.begin(), line.end(), rgx);
+	std::smatch res;
+	int ind = 0;
+	while (std::regex_search(line, res, rgx))
+	{
+		auto s = res[0].str();
+		values[ind] = stof(res[0].str());
+		++ind;
+		line = res.suffix();
+	}
+
+	return Vec3(values[0], values[1], values[2]);
 }
 
 FloatColor TextLoader::FindColorValueInString(const std::string& text, const std::string& value)
@@ -98,7 +129,7 @@ FloatColor TextLoader::FindColorValueInString(const std::string& text, const std
 	std::sregex_iterator next(line.begin(), line.end(), rgx);
 	std::smatch res;
 	int ind = 0;
-	while (std::regex_search(line, res, rgx)) 
+	while (std::regex_search(line, res, rgx))
 	{
 		values[ind] = stoi(res[0].str());
 		++ind;
@@ -112,7 +143,7 @@ std::string TextLoader::FindStringValueInString(const std::string& text, const s
 {
 	std::sregex_iterator end;
 	//Look for line with text identifier
-	std::regex rgxLine(value + "[\\s]*=[\\s]*[a-z]+[.][a-z]+");
+	std::regex rgxLine(value + "[\\s]*=[\\s]*[a-z]+[.]?[a-z]+");
 	std::sregex_iterator nextLine(text.begin(), text.end(), rgxLine);
 	std::string line;
 	if (nextLine != end)

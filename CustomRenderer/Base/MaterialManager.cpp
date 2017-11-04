@@ -7,9 +7,9 @@ std::string MaterialManager::m_MaterialLibraryText;
 std::vector<TextureInfo> MaterialManager::m_TextureLibrary;
 std::vector<MaterialInfo> MaterialManager::m_MaterialLibrary;
 
-MaterialManager::MaterialManager(){}
+MaterialManager::MaterialManager() {}
 
-MaterialManager::~MaterialManager(){}
+MaterialManager::~MaterialManager() {}
 
 void MaterialManager::Destroy()
 {
@@ -45,7 +45,10 @@ Material* MaterialManager::LoadMaterial(const std::string& materialName)
 	if (m_MaterialLibraryText.size() == 0)
 		m_MaterialLibraryText = TextLoader::TxtFileToString("../Data/MaterialLibrary.txt");
 
-	auto hash = std::hash<std::string>{}(materialName);
+	std::string nameLower = materialName;
+	std::transform(nameLower.begin(), nameLower.end(), nameLower.begin(), tolower);
+
+	auto hash = std::hash<std::string>{}(nameLower);
 	for (int i = 0; i < m_MaterialLibrary.size(); ++i)
 	{
 		if (m_MaterialLibrary[i].nameHash == hash)
@@ -57,16 +60,16 @@ Material* MaterialManager::LoadMaterial(const std::string& materialName)
 
 	//Load material properties
 	Material* result = new Material();
-
-	std::string nameLower = materialName;
-	std::transform(nameLower.begin(), nameLower.end(), nameLower.begin(), tolower);
 	std::string matStart = "<" + nameLower + ">";
 	std::string matEnd = "</" + nameLower + ">";
 	auto startInd = m_MaterialLibraryText.find(matStart);
 	auto endInd = m_MaterialLibraryText.find(matEnd);
 
 	if (startInd == std::string::npos || endInd == std::string::npos)
+	{
 		std::cout << "Failed to load material " << materialName << " from material library" << std::endl;
+		return nullptr;
+	}
 
 	//Get part that contains material
 	std::string matString = m_MaterialLibraryText.substr(startInd + matStart.size(), endInd - startInd - matStart.size());
@@ -134,7 +137,11 @@ Material* MaterialManager::LoadMaterial(const std::string& materialName)
 	f = TextLoader::FindFloatValueInString(matString, "texturescale");
 	result->m_TextureScale = f < 0 ? result->m_TextureScale : f;
 
-	MaterialInfo n;
+	int srgb = TextLoader::FindIntValueInString(matString, "srgbtexture");
+	if (srgb > 0)
+		result->texture->SetIsSRGB(srgb != 0);
+
+		MaterialInfo n;
 	n.nameHash = hash;
 	n.material = result;
 	n.refCount = 1;
