@@ -1,0 +1,10 @@
+EnableTestScenes = 1
+LoadScenesBelow = 1
+
+<Scene>
+File = TextScene.txt
+</Scene>
+
+<Scene>
+File = SceneFromTextExample.txt
+</Scene>

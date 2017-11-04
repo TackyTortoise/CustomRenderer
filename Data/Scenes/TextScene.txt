@@ -1,0 +1,58 @@
+<Plane>
+Position = 0, -5, 0
+Normal = 0, 1, 0
+Material = RockFloor
+</Plane>
+
+<Plane>
+Position = 0, 50, 0
+Normal = 0, -1, 0
+Material = CornFlowerBlue
+</Plane>
+
+<Sphere>
+Position = -3, -2.5, 10
+Radius = 1.5
+Material = Checker
+</Sphere>
+
+<Box>
+Position = 5, 0, 20
+Width = 5
+Height = 6.5
+Depth = 5
+Material = BlueWater
+</Box>
+
+<Model>
+Mesh = teapot.fbx
+Position = 0.5, 0, 10
+Rotation = -0.314, -0.314, 0.314
+Scale = 0.1
+Material = TestMaterial
+</Model>
+
+<Model>
+Mesh = chicken.fbx
+Position = 1, 0.3, 16
+Rotation = -1.57, 0, 0
+Scale = 0.08
+Material = Chicken
+</Model>
+
+<Light>
+Position = 10, 30, 0
+Normal = 0, -1, 0
+Width = 3
+Height = 3
+Color = 255, 255, 255
+</Light>
+
+//Not necessary
+<Camera>
+Position = 0, 1, 0
+Rotation = 0, 0, 0.157
+EnableDoF = 1
+FocalDistance = 10.0
+Aperture = 0.1
+</Camera>

@@ -15,7 +15,7 @@ You can create materials with these properties (case and spacing insensitive)
 	sRGBTexture
 	
 All textures are loaded from the Data/Textures folder
-These materials work with instancing, so if one is adjusted, all are
+These materials work with instancing, so if one is adjusted in code after loading, all objects that use this material are adjusted as well
 
 <TestMaterial>
 Texture = test.jpg
@@ -27,6 +27,11 @@ Color = 255, 255, 255
 Transparency = 0.98
 RefractiveIndex = 1.52
 </Glass>
+
+<Gold>
+Color = 255, 215, 0
+Reflectivity = 0.8
+</Gold>
 
 <BlueWater>
 Color = 116, 204, 244
@@ -54,6 +59,14 @@ Shininess = 5000
 sRGBTexture = 1
 </Chicken>
 
+<Mirror>
+Reflectivity = 1.0
+</Mirror>
+
 <CornFlowerBlue>
 Color = 100, 149, 237
 </CornFlowerBlue>
+
+<Grey>
+Color = 127, 127, 127
+</Grey>

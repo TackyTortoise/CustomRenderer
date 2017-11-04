@@ -69,11 +69,11 @@
   </ImportGroup>
   <PropertyGroup Label="UserMacros" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
-    <IncludePath>C:\AdditionalLibraries\SDL2_image-2.0.1\include;C:\AdditionalLibraries\Assimp\include;C:\AdditionalLibraries\SDL2\include;$(IncludePath)</IncludePath>
+    <IncludePath>$(SolutionDir)\AdditionalLibraries\SDL2_image-2.0.1\include;$(SolutionDir)\AdditionalLibraries\Assimp\include;$(SolutionDir)\AdditionalLibraries\SDL2\include;$(IncludePath)</IncludePath>
     <LibraryPath>$(VC_LibraryPath_x86);$(WindowsSDK_LibraryPath_x86);$(NETFXKitsDir)Lib\um\x86</LibraryPath>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
-    <IncludePath>C:\AdditionalLibraries\SDL2_image-2.0.1\include;C:\AdditionalLibraries\Assimp\include;C:\AdditionalLibraries\SDL2\include;$(IncludePath)</IncludePath>
+    <IncludePath>$(SolutionDir)\AdditionalLibraries\SDL2_image-2.0.1\include;$(SolutionDir)\AdditionalLibraries\Assimp\include;$(SolutionDir)\AdditionalLibraries\SDL2\include;$(IncludePath)</IncludePath>
   </PropertyGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <ClCompile>
@@ -82,7 +82,7 @@
       <SDLCheck>true</SDLCheck>
     </ClCompile>
     <Link>
-      <AdditionalLibraryDirectories>C:\AdditionalLibraries\SDL2_image-2.0.1\lib\x86;C:\AdditionalLibraries\Assimp\lib\x86;C:\AdditionalLibraries\SDL2\lib\x86;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <AdditionalLibraryDirectories>$(SolutionDir)\AdditionalLibraries\SDL2_image-2.0.1\lib\x86;$(SolutionDir)\AdditionalLibraries\Assimp\lib\x86;$(SolutionDir)\AdditionalLibraries\SDL2\lib\x86;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
       <AdditionalDependencies>SDL2.lib;SDL2main.lib;SDL2_ttf.lib;assimp.lib;SDL2_image.lib</AdditionalDependencies>
       <SubSystem>Console</SubSystem>
     </Link>
@@ -108,7 +108,7 @@
     <Link>
       <EnableCOMDATFolding>true</EnableCOMDATFolding>
       <OptimizeReferences>true</OptimizeReferences>
-      <AdditionalLibraryDirectories>C:\AdditionalLibraries\SDL2_image-2.0.1\lib\x86;C:\AdditionalLibraries\Assimp\lib\x86;C:\AdditionalLibraries\SDL2\lib\x86;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <AdditionalLibraryDirectories>$(SolutionDir)\AdditionalLibraries\SDL2_image-2.0.1\lib\x86;$(SolutionDir)\AdditionalLibraries\Assimp\lib\x86;$(SolutionDir)\AdditionalLibraries\SDL2\lib\x86;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
       <AdditionalDependencies>SDL2.lib;SDL2main.lib;SDL2_ttf.lib;assimp.lib;SDL2_image.lib</AdditionalDependencies>
       <SubSystem>Console</SubSystem>
     </Link>

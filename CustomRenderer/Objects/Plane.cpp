@@ -2,12 +2,11 @@
 
 Plane::Plane()
 {
-	m_Material->color = Color(120, 120, 70);
-	m_Right = Vec3(m_Normal.y, -m_Normal.x, m_Normal.z);
-	m_Up = m_Right.Cross(m_Normal).Normalized();
+	m_Material->color = Color(255);
+	SetNormal(m_Normal);
 }
 
-Plane::~Plane(){}
+Plane::~Plane() {}
 
 bool Plane::IsHit(const Vec3& rayOrg, const Vec3& rayDir, HitInfo& hitInfo)
 {
@@ -26,5 +25,11 @@ bool Plane::IsHit(const Vec3& rayOrg, const Vec3& rayDir, HitInfo& hitInfo)
 	auto ctp = hitInfo.position - m_Transform.GetPosition();
 	hitInfo.uvCoordinate = Vec2(ctp.Dot(m_Right), ctp.Dot(m_Up));
 	return hitInfo.distance >= 0;
+}
+
+void Plane::SetNormal(const Vec3& newNormal)
+{
+	m_Normal = newNormal;
+	Math::CreateCoordSystem(m_Normal, m_Right, m_Up);
 }
 

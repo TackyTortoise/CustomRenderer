@@ -92,15 +92,15 @@ int main(int argc, char* argv[])
 	sceneRenderer->DrawText(renderer, "Loading scene data...", "../Data/arial.ttf", 20,20);
 	SDL_RenderPresent(renderer);
 
-
-	SceneManager::LoadSceneFromText("../Data/TextScene.txt");
 	//Set up scenes
-	SceneManager::GetInstance()->AddScene(new TestScene());
+	//SceneManager::GetInstance()->AddScene(new TestScene());
 	//SceneManager::GetInstance()->AddScene(new ReflectiveSpheresScene());
 	//SceneManager::GetInstance()->AddScene(new RefractionScene());
-	SceneManager::GetInstance()->AddScene(new GlassScene());
+	//SceneManager::GetInstance()->AddScene(new GlassScene());
 	//SceneManager::GetInstance()->AddScene(new GIScene());
 	//SceneManager::GetInstance()->AddScene(new TeapotScene());
+	//SceneManager::LoadSceneFromText("../Data/TextScene.txt");
+	SceneManager::LoadSceneLibrary();
 
 	//Set current scene
 	SceneManager::GetInstance()->SetActiveScene(0);

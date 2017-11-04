@@ -2,11 +2,17 @@
 #include "Renderer.h"
 #include "TextLoader.h"
 #include "../Objects/CommonObjects.h"
+#include "../Scenes/TeapotScene.h"
+#include "../Scenes/GIScene.h"
+#include "../Scenes/GlassScene.h"
+#include "../Scenes/RefractionScene.h"
+#include "../Scenes/ReflectiveSpheresScene.h"
+#include "../Scenes/TestScene.h"
 
 SceneManager* SceneManager::m_Instance = nullptr;
 Scene* SceneManager::m_ActiveScene = nullptr;
 
-SceneManager::SceneManager(){}
+SceneManager::SceneManager() {}
 
 SceneManager::~SceneManager()
 {
@@ -74,6 +80,52 @@ void SceneManager::SetActiveScene(unsigned index)
 	Renderer::GetInstance()->SetActiveScene(m_Scenes[index]);
 }
 
+void SceneManager::LoadSceneLibrary()
+{
+	auto s = TextLoader::TxtFileToString("../Data/SceneLibrary.txt");
+	auto enableTestScenes = TextLoader::FindIntValueInString(s, "enabletestscenes");
+	auto enableCustomScenes = TextLoader::FindIntValueInString(s, "loadscenesbelow");
+
+	if (enableTestScenes > 0)
+	{
+		GetInstance()->AddScene(new TestScene());
+		GetInstance()->AddScene(new ReflectiveSpheresScene());
+		GetInstance()->AddScene(new RefractionScene());
+		GetInstance()->AddScene(new GlassScene());
+		GetInstance()->AddScene(new GIScene());
+		GetInstance()->AddScene(new TeapotScene());
+	}
+
+	if (enableCustomScenes > 0)
+	{
+		auto sInd = s.find("<scene>");
+		while (sInd != std::string::npos)
+		{
+			auto sEnd = s.find("</scene>");
+			if (sEnd == std::string::npos)
+			{
+				std::cout << "Scene definition has no end delimiter" << std::endl;
+				sInd = s.find("<scene>", sInd + 1);
+				continue;
+			}
+
+			auto sceneText = s.substr(sInd + 7, sEnd - sInd - 7);
+			auto fileName = TextLoader::FindStringValueInString(sceneText, "file");
+			auto path = "../Data/Scenes/" + fileName;
+			auto scene = GetInstance()->LoadSceneFromText(path.c_str());
+			GetInstance()->AddScene(scene);
+
+			sInd = s.find("<scene>", sInd + 1);
+		}
+	}
+
+	if (GetInstance()->m_Scenes.size() == 0)
+	{
+		std::cout << "Failed to load scenes from scene library, using testscene" << std::endl;
+		GetInstance()->AddScene(new TestScene());
+	}
+}
+
 Scene* SceneManager::LoadSceneFromText(const char* path, bool autoAdd)
 {
 	auto s = TextLoader::TxtFileToString(path);
@@ -124,7 +176,7 @@ Scene* SceneManager::LoadSceneFromText(const char* path, bool autoAdd)
 		auto r = TextLoader::FindFloatValueInString(sphereText, "radius");
 		auto mat = TextLoader::FindStringValueInString(sphereText, "material");
 
-		auto sphere = new Sphere(pos, r, Color(255,0,255));
+		auto sphere = new Sphere(pos, r, Color(255, 0, 255));
 		sphere->SetMaterial(mat.c_str());
 		newScene->m_Objects.push_back(sphere);
 
@@ -233,7 +285,8 @@ Scene* SceneManager::LoadSceneFromText(const char* path, bool autoAdd)
 			auto aperture = TextLoader::FindFloatValueInString(camText, "aperture");
 
 			newScene->MoveCamera(pos);
-			newScene->RotateCamera(rot);
+			if (rot.x != -1)
+				newScene->RotateCamera(rot);
 			newScene->m_Camera->EnableDOF(dof > 0);
 			newScene->m_Camera->SetFocalDistance(fd);
 			newScene->m_Camera->SetAperture(aperture);

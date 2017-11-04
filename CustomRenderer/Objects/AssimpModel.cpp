@@ -11,7 +11,7 @@ AssimpModel::AssimpModel(const char* filePath, const Vec3& pos, const Vec3& rota
 	m_Transform.SetFullTransform(pos, rotation, scale);
 	LoadModelFromFile(filePath);
 	GenerateTriangles();
-	m_Material->color = Color(255, 0, 255);
+	m_Material->color = Color(255);
 }
 
 AssimpModel::~AssimpModel()
