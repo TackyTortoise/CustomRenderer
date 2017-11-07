@@ -20,7 +20,7 @@ bool Sphere::IsHit(const Vec3& rayOrg, const Vec3& rayDir, HitInfo& hitInfo)
 	//Vector from origin to sphere
 	Vec3 between = m_Transform.GetPosition() - rayOrg;
 	float bdr = between.Dot(rayDir);
-	if (bdr < 0) //sphere behind origin
+	if (bdr < -m_Radius) //sphere behind origin
 		return false;
 
 	float centerOffsetSq = between.Length2() - bdr * bdr;
