@@ -60,6 +60,12 @@ Material* MaterialManager::LoadMaterial(const std::string& materialName)
 
 	//Load material properties
 	Material* result = new Material();
+	MaterialInfo n;
+	n.nameHash = hash;
+	n.material = result;
+	n.refCount = 1;
+	m_MaterialLibrary.push_back(n);
+
 	std::string matStart = "<" + nameLower + ">";
 	std::string matEnd = "</" + nameLower + ">";
 	auto startInd = m_MaterialLibraryText.find(matStart);
@@ -67,8 +73,8 @@ Material* MaterialManager::LoadMaterial(const std::string& materialName)
 
 	if (startInd == std::string::npos || endInd == std::string::npos)
 	{
-		std::cout << "Failed to load material " << materialName << " from material library" << std::endl;
-		return nullptr;
+		std::cout << "Failed to load material " << materialName << " from material library, using basic material instead" << std::endl;
+		return result;
 	}
 
 	//Get part that contains material
@@ -141,11 +147,6 @@ Material* MaterialManager::LoadMaterial(const std::string& materialName)
 	if (srgb > 0)
 		result->texture->SetIsSRGB(srgb != 0);
 
-		MaterialInfo n;
-	n.nameHash = hash;
-	n.material = result;
-	n.refCount = 1;
-	m_MaterialLibrary.push_back(n);
 	return result;
 }
 

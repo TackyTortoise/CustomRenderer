@@ -1,10 +1,10 @@
-Screenwidth = 1280
-Screenheight = 720
-Blockcount = 75
+Screenwidth = 800
+Screenheight = 600
+Blockcount = 100
 Shadowsamplecount = 2
-Antialiassamplecount = 4
+Antialiassamplecount = 8
 Roughnesssamplecount = 2
-DoFsamplecount = 2
+DoFsamplecount = 0
 CameraFoV = 60
 Maxrenderdepth = 10
 GImaxdepth = 0
