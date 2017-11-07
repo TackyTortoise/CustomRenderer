@@ -40,20 +40,6 @@ int main(int argc, char* argv[])
 	const float downScaling = 1.f / 1.f;
 
 	RenderSettings settings;
-	/*settings.screenWidth = 800;
-	settings.screenHeight = 600;
-	settings.blockCount = 75;
-	settings.shadowSampleCount = 2;
-	settings.antiAliasSampleCount = 16;
-	settings.roughnessSampleCount = 2;
-	settings.dofSampleCount = 0;
-	settings.cameraFOV = 60;
-	settings.maxRenderDepth = 10;
-	settings.GIMaxDepth = 0;
-	settings.GISampleCount = 50;
-	settings.enableSrgb = true;
-	settings.autoRerender = false;*/
-
 
 	settings.LoadFromFile("../Data/RenderSettings.txt");
 	settings.DownScaleRender(downScaling);
@@ -93,13 +79,6 @@ int main(int argc, char* argv[])
 	SDL_RenderPresent(renderer);
 
 	//Set up scenes
-	//SceneManager::GetInstance()->AddScene(new TestScene());
-	//SceneManager::GetInstance()->AddScene(new ReflectiveSpheresScene());
-	//SceneManager::GetInstance()->AddScene(new RefractionScene());
-	//SceneManager::GetInstance()->AddScene(new GlassScene());
-	//SceneManager::GetInstance()->AddScene(new GIScene());
-	//SceneManager::GetInstance()->AddScene(new TeapotScene());
-	//SceneManager::LoadSceneFromText("../Data/TextScene.txt");
 	SceneManager::LoadSceneLibrary();
 
 	//Set current scene

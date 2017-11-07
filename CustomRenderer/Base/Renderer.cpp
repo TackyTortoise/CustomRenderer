@@ -396,12 +396,11 @@ Color Renderer::GetHitColor(Object* co, HitInfo& hitInfo, const Vec3& rayDir, in
 	//adjust pixel color to light color
 	FloatColor lightColor = m_LightCount > 1 ? occludeColor : combinedLightColor;
 	FloatColor directLightColor = (lightColor * diffuseIntensity * shadowFactor).ToCharColor();
-	FloatColor indirectLightColor = currentDepth < m_RenderSettings.GIMaxDepth ? GetGlobalIllumination(hitInfo, 0) : Color(0);
+	FloatColor indirectLightColor = currentDepth < m_RenderSettings.GIMaxDepth ? GetGlobalIllumination(hitInfo, currentDepth) : Color(0);
 	FloatColor totalLightColor = directLightColor + indirectLightColor;
 
 	FloatColor pc = pixelColor.MultiplyNormalized(totalLightColor.ToCharColor());
 	Color rCol = pc.ToCharColor().ClampAdd(specColor);
-
 	return rCol;
 }
 
@@ -621,6 +620,8 @@ Color Renderer::GetReflection(const Vec3& rayDir, const HitInfo& hitInfo, int cu
 	auto roughness = hitInfo.hitObject->GetRoughness();
 	int rs = roughness > 0.f ? m_RenderSettings.roughnessSampleCount : 1;
 	rs = rs == 0 ? 1 : rs;
+	if (rs == 1)
+		roughness = 0.f;
 	for (int i = 0; i < rs; ++i)
 	{
 		//Take random direction

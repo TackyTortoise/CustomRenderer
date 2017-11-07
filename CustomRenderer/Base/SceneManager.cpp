@@ -75,9 +75,14 @@ bool SceneManager::PreviousScene()
 
 void SceneManager::SetActiveScene(unsigned index)
 {
-	m_CurrentSceneNumber = index > m_Scenes.size() ? 0 : index;
-	m_ActiveScene = m_Scenes[index];
-	Renderer::GetInstance()->SetActiveScene(m_Scenes[index]);
+	int newInd = index > m_Scenes.size() ? 0 : index;
+	if (m_Scenes[index]->m_Lights.size() < 1)
+	{
+		std::cout << "No lights in scene you're trying to load" << std::endl;
+	}
+	m_CurrentSceneNumber = newInd;
+	m_ActiveScene = m_Scenes[newInd];
+	Renderer::GetInstance()->SetActiveScene(m_Scenes[newInd]);
 }
 
 void SceneManager::LoadSceneLibrary()
