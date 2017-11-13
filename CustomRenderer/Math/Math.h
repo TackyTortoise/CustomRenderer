@@ -107,7 +107,10 @@ public:
 	static Vec2 SampleDisk()
 	{
 		float lambda = GetRandomFloat(0.f, 2 * M_PI);
-		auto r = GetRandomFloat();
+		std::random_device rd;
+		std::mt19937 gen(rd());
+		std::uniform_real_distribution<> dis(0, 1);
+		auto r = (float)dis(gen);
 		auto x = sqrt(r) * cos(lambda);
 		auto y = sqrt(r) * sin(lambda);
 		return { x, y };
@@ -117,10 +120,10 @@ public:
 	{
 		std::random_device rd;
 		std::mt19937 gen(rd());
-		std::uniform_real_distribution<> dis(-1, 1);
+		std::uniform_real_distribution<> dis(0, 2 * M_PI);
 
-		float t = (float)dis(gen);
-		float lambda = GetRandomFloat(0.f, 2 * M_PI);
+		float t = cos((float)dis(gen));
+		float lambda = (float)dis(gen);
 		auto x = sqrt(1 - t*t) * cos(lambda);
 		auto z = sqrt(1 - t*t) * sin(lambda);
 
@@ -131,12 +134,29 @@ public:
 	{
 		//Sample sphere
 		auto s = SampleSphere();
-
 		//Turn around if pointing away from normal
-		Vec3 r(s.x * tangent + s.y * normal + s.z * biTangent);
-		if (r.Dot(normal) < 0)
-			r = -r;
+		if (s.y < 0)
+			s.y = -s.y;
 
+		Vec3 r(s.x * tangent + s.y * normal + s.z * biTangent);
+
+		return r;
+	}
+
+	static Vec3 SampleCone(const Vec3& normal = Vec3(0, 1, 0), const Vec3& tangent = Vec3(1, 0, 0), const Vec3& biTangent = Vec3(0, 0, 1), float angle = M_PI)
+	{
+		std::random_device rd;
+		std::mt19937 gen(rd());
+		auto ymin = cos(angle / 2.f);
+		std::uniform_real_distribution<> dis(ymin, 1);
+
+		float y = (float)dis(gen);
+
+		Vec2 s = SampleDisk();
+		auto dr = sqrt(1 - pow(y, 2.f));
+		float x = s.x * dr;
+		float z = s.y * dr;
+		Vec3 r(x * tangent + y * normal + z * biTangent);
 		return r;
 	}
 
@@ -148,5 +168,26 @@ public:
 	static float DegToRad(const float deg)
 	{
 		return deg * M_PI / 180.0;
+	}
+
+	static float RadToDeg(const float rad)
+	{
+		return rad * (180.f / M_PI);
+	}
+
+	static float GetAngleBetweenVectorsRad(const Vec3& v1, const Vec3& v2)
+	{
+		auto l1 = v1.Length(), l2 = v2.Length();
+		auto dp = v1.Dot(v2);
+		auto cosa = dp / (l1 * l2);
+		return acos(cosa);
+	}
+
+	static float GetAngleBetweenVectorsDeg(const Vec3& v1, const Vec3& v2)
+	{
+		auto l1 = v1.Length(), l2 = v2.Length();
+		auto dp = v1.Dot(v2);
+		auto cosa = dp / (l1 * l2);
+		return RadToDeg(acos(cosa));
 	}
 };

@@ -33,7 +33,7 @@ Material = BlueWater
 <Model>
 Mesh = FatMale.fbx
 Position = 0.5, -2, 10
-Rotation = -1.57, 3.14, 0
+Rotation = -90.0, 180.0, 0.0
 Scale = 2.5
 Material = TestMaterial
 </Model>
@@ -41,7 +41,7 @@ Material = TestMaterial
 <Model>
 Mesh = Teapot.fbx
 Position = 5, 0.3, 16
-Rotation = -1.57, 0, 0
+Rotation = 0.0, 0.0, 0.0
 Scale = 0.08
 Material = Chicken
 </Model>
@@ -65,7 +65,7 @@ Color = 0, 0, 255
 //Not necessary
 <Camera>
 Position = 8, 1, 2
-Rotation = 0.05, -0.5, 0
+Rotation = 2.86, -28.5, 0
 EnableDoF = 0
 FocalDistance = 10.0
 Aperture = 0.1

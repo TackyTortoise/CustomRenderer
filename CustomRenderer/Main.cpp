@@ -32,7 +32,7 @@ int main(int argc, char* argv[])
 	SDL_Init(SDL_INIT_VIDEO);
 	TTF_Init();
 	IMG_Init(IMG_INIT_JPG | IMG_INIT_PNG);
-	
+
 	//seed random
 	std::srand(time(nullptr));
 	
@@ -43,7 +43,7 @@ int main(int argc, char* argv[])
 
 	settings.LoadFromFile("../Data/RenderSettings.txt");
 	settings.DownScaleRender(downScaling);
-		
+
 	//create SDL window
 	SDL_CreateWindowAndRenderer(settings.screenWidth, settings.screenHeight, 0, &window, &renderer);
 	SDL_SetWindowTitle(window, "TDR - Dieter Tack");
@@ -56,12 +56,12 @@ int main(int argc, char* argv[])
 	SDL_Texture* texture = SDL_CreateTexture(renderer, SDL_PIXELFORMAT_ARGB8888, SDL_TEXTUREACCESS_STREAMING, settings.texWidth, settings.texHeight);
 
 	// Check that the window was successfully created
-	if (window == nullptr) 
+	if (window == nullptr)
 	{
 		printf("Could not create window: %s\n", SDL_GetError());
 		return 1;
 	}
-	
+
 	if (renderer == nullptr)
 	{
 		printf("Could not create renderer: %s\n", SDL_GetError());
@@ -75,7 +75,7 @@ int main(int argc, char* argv[])
 	Renderer* sceneRenderer = Renderer::GetInstance();
 
 	//Show loading message
-	sceneRenderer->DrawText(renderer, "Loading scene data...", "../Data/arial.ttf", 20,20);
+	sceneRenderer->DrawText(renderer, "Loading scene data...", "../Data/arial.ttf", 20, 20);
 	SDL_RenderPresent(renderer);
 
 	//Set up scenes
@@ -185,9 +185,9 @@ int main(int argc, char* argv[])
 					Renderer::GetInstance()->ClearImage();
 				}
 				break;
-			/*case SDL_KEYUP:
-				printf("Key release detected\n");
-				break;*/
+				/*case SDL_KEYUP:
+					printf("Key release detected\n");
+					break;*/
 			case SDL_QUIT:
 				quitApplication = true;
 				break;

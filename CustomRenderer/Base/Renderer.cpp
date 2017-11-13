@@ -613,7 +613,7 @@ Color Renderer::GetReflection(const Vec3& rayDir, const HitInfo& hitInfo, int cu
 {
 	//reflect incoming ray
 	auto reflectedRay = Math::ReflectVector(rayDir, hitInfo.normal);
-	Vec3 norm = hitInfo.normal, tan, bitan;
+	Vec3 norm = reflectedRay, tan, bitan;
 	Math::CreateCoordSystem(norm, tan, bitan);
 
 	FloatColor totalCol;
@@ -625,9 +625,7 @@ Color Renderer::GetReflection(const Vec3& rayDir, const HitInfo& hitInfo, int cu
 	for (int i = 0; i < rs; ++i)
 	{
 		//Take random direction
-		auto dir = Math::SampleHemisphere(norm, tan, bitan);
-		//Mix random direction and perfect reflectino
-		dir = dir * roughness + reflectedRay * (1 - roughness);
+		auto dir = roughness > 0 ? Math::SampleCone(norm, tan, bitan, roughness * (M_PI)) : norm;
 
 		//Trace new direction
 		HitInfo reflHitInfo;

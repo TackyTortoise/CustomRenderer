@@ -4,14 +4,9 @@
 #include <sstream>
 #include <regex>
 
-TextLoader::TextLoader()
-{
-}
+TextLoader::TextLoader(){}
 
-
-TextLoader::~TextLoader()
-{
-}
+TextLoader::~TextLoader(){}
 
 std::string TextLoader::TxtFileToString(const char* filePath)
 {
