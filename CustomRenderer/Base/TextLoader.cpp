@@ -82,7 +82,7 @@ Vec3 TextLoader::FindVectorValueInString(const std::string& text, const std::str
 {
 	std::sregex_iterator end;
 	//Look for line with color
-	std::regex rgxLine(value + "[\\s]*=[\\s]*[-+]?[0-9]+\.?[0-9]*(?:f)?[,][\\s]*[-+]?[0-9]+\.?[0-9]*(?:f)?[,][\\s]*[-+]?[0-9]+\.?[0-9]*(?:f)?");
+	std::regex rgxLine(value + "[\\s]*=[\\s]*[-+]?[0-9]+\.?[0-9]*(?:f)?[\\s]*[,][\\s]*[-+]?[0-9]+\.?[0-9]*(?:f)?[\\s]*[,][\\s]*[-+]?[0-9]+\.?[0-9]*(?:f)?");
 	std::sregex_iterator nextLine(text.begin(), text.end(), rgxLine);
 	std::string line;
 	if (nextLine != end)
@@ -113,7 +113,7 @@ FloatColor TextLoader::FindColorValueInString(const std::string& text, const std
 {
 	std::sregex_iterator end;
 	//Look for line with color
-	std::regex rgxLine(value + "[\\s]*=[\\s]*[\\d]+[,][\\s]*[\\d]+[,][\\s]*[\\d]+");
+	std::regex rgxLine(value + "[\\s]*=[\\s]*[\\d]+[\\s]*[,][\\s]*[\\d]+[\\s]*[,][\\s]*[\\d]+");
 	std::sregex_iterator nextLine(text.begin(), text.end(), rgxLine);
 	std::string line;
 	if (nextLine != end)

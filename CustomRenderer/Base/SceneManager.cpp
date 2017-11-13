@@ -232,6 +232,9 @@ Scene* SceneManager::LoadSceneFromText(const char* path, bool autoAdd)
 		auto mesh = TextLoader::FindStringValueInString(modelText, "mesh");
 		auto pos = TextLoader::FindVectorValueInString(modelText, "position");
 		auto rot = TextLoader::FindVectorValueInString(modelText, "rotation");
+		rot.x = Math::DegToRad(rot.x);
+		rot.y = Math::DegToRad(rot.y);
+		rot.z = Math::DegToRad(rot.z);
 		auto scale = TextLoader::FindFloatValueInString(modelText, "scale");
 		auto mat = TextLoader::FindStringValueInString(modelText, "material");
 
@@ -285,6 +288,9 @@ Scene* SceneManager::LoadSceneFromText(const char* path, bool autoAdd)
 
 			auto pos = TextLoader::FindVectorValueInString(camText, "position");
 			auto rot = TextLoader::FindVectorValueInString(camText, "rotation");
+			rot.x = Math::DegToRad(rot.x);
+			rot.y = Math::DegToRad(rot.y);
+			rot.z = Math::DegToRad(rot.z);
 			auto dof = TextLoader::FindIntValueInString(camText, "enabledof");
 			auto fd = TextLoader::FindFloatValueInString(camText, "focaldistance");
 			auto aperture = TextLoader::FindFloatValueInString(camText, "aperture");

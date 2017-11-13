@@ -144,4 +144,9 @@ public:
 	{
 		return low + static_cast <float> (rand()) / (static_cast <float> (RAND_MAX / (high - low)));
 	}
+
+	static float DegToRad(const float deg)
+	{
+		return deg * M_PI / 180.0;
+	}
 };
