@@ -1,5 +1,6 @@
 #include "TestScene.h"
 #include "../Objects/CommonObjects.h"
+#include "../Objects/ObjectsIntersection.h"
 
 TestScene::TestScene() : Scene()
 {
@@ -52,6 +53,12 @@ TestScene::TestScene() : Scene()
 	m_Objects.back()->SetReflective(.9f);
 	m_Objects.back()->GetMaterial()->SetTexScale(.5f);
 	m_Objects.back()->SetReflectivityMap("../Data/Textures/hatch.png");
+
+	/*auto intersection = new ObjectsIntersection();
+	intersection->AddObject(new Sphere(Vec3(-3, 0, 15), 6.f, Color(255, 255, 0)));
+	intersection->AddObject(new Sphere(Vec3(3, 0, 15), 6.f, Color(255, 0, 255)));
+	intersection->AddObject(new Sphere(Vec3(0, 3, 15), 6.f, Color(0, 0, 255)));
+	m_Objects.push_back(intersection);*/
 	
 	//m_Objects.push_back(new AssimpModel("../Data/Meshes/teapot.fbx", { 0.f,0.f,10.f }, {-(float)M_PI / 5.f,-(float)M_PI / 5.f,0.f}, {.1f,.1f,.1f}));
 	//m_Objects.back()->SetTexture("../Data/Textures/test.jpg");

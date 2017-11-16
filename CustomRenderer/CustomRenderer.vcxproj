@@ -131,6 +131,7 @@
     <ClCompile Include="Base\Material.cpp" />
     <ClCompile Include="Base\MaterialManager.cpp" />
     <ClCompile Include="Base\RenderSettings.cpp" />
+    <ClCompile Include="Objects\ObjectsIntersection.cpp" />
     <ClCompile Include="Scenes\GIScene.cpp" />
     <ClCompile Include="Scenes\GlassScene.cpp" />
     <ClCompile Include="Objects\KDNode.cpp" />
@@ -159,6 +160,7 @@
     <ClInclude Include="Base\Material.h" />
     <ClInclude Include="Base\RenderSettings.h" />
     <ClInclude Include="Base\MaterialManager.h" />
+    <ClInclude Include="Objects\ObjectsIntersection.h" />
     <ClInclude Include="Scenes\GIScene.h" />
     <ClInclude Include="Scenes\GlassScene.h" />
     <ClInclude Include="Objects\KDNode.h" />

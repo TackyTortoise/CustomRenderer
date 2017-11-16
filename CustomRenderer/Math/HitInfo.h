@@ -6,7 +6,7 @@ struct HitInfo
 {
 	Vec3 position;
 	Vec3 normal;
-	float distance;
+	float distance = 0.f;
 	Vec2 uvCoordinate;
-	Object* hitObject;
+	Object* hitObject = nullptr;
 };

@@ -16,7 +16,7 @@
 
 Renderer* Renderer::m_Instance = nullptr;
 
-Renderer::Renderer(){}
+Renderer::Renderer() {}
 
 Renderer::~Renderer()
 {
@@ -330,7 +330,8 @@ Object* Renderer::Trace(const Vec3& rayOrg, const Vec3& rayDir, HitInfo& result,
 	{
 		result.position = rayOrg + rayDir * shortD;
 	}
-	result.hitObject = closeObject;
+	if (result.hitObject == nullptr)
+		result.hitObject = closeObject;
 	return closeObject;
 }
 
