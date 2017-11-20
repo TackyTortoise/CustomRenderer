@@ -17,6 +17,9 @@ struct RenderSettings
 	int dofSampleCount = 0;
 	int GISampleCount = 0;
 	int GIMaxDepth = 0;
+	float GIDistance = 10.f;
+	int AOSampleCount = 10;
+	float AODistance = 2.f;
 	bool enableSrgb = false;
 	Color clearColor = Color(12, 12, 12);
 	float cameraFOV = 60;

@@ -42,7 +42,7 @@ int main(int argc, char* argv[])
 	RenderSettings settings;
 
 	settings.LoadFromFile("../Data/RenderSettings.txt");
-	settings.DownScaleRender(downScaling);
+	//settings.DownScaleRender(downScaling);
 
 	//create SDL window
 	SDL_CreateWindowAndRenderer(settings.screenWidth, settings.screenHeight, 0, &window, &renderer);

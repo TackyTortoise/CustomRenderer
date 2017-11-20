@@ -1,5 +1,5 @@
 EnableTestScenes = 1 //Loads default test scenes
-LoadScenesBelow = 1 //Loads scenes defined below
+LoadScenesBelow = 0 //Loads scenes defined below
 
 <Scene>
 File = TextScene.txt

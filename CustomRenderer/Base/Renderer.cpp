@@ -397,8 +397,23 @@ Color Renderer::GetHitColor(Object* co, HitInfo& hitInfo, const Vec3& rayDir, in
 	//adjust pixel color to light color
 	FloatColor lightColor = m_LightCount > 1 ? occludeColor : combinedLightColor;
 	FloatColor directLightColor = (lightColor * diffuseIntensity * shadowFactor).ToCharColor();
-	FloatColor indirectLightColor = currentDepth < m_RenderSettings.GIMaxDepth ? GetGlobalIllumination(hitInfo, currentDepth) : Color(0);
+
+	float ao = 1.f;
+	FloatColor giColor;
+	if (m_RenderSettings.GISampleCount > 0 && m_RenderSettings.AOSampleCount > 0 && currentDepth < m_RenderSettings.GIMaxDepth)
+	{
+		GetGIAndAO(hitInfo, currentDepth, giColor, ao);
+	}
+	else
+	{
+		giColor = currentDepth < m_RenderSettings.GIMaxDepth ? GetGlobalIllumination(hitInfo, currentDepth) : Color(0);
+		if (m_RenderSettings.AOSampleCount > 0)
+			ao = GetAmbientOcclusion(hitInfo);
+	}
+
+	FloatColor indirectLightColor = giColor;
 	FloatColor totalLightColor = directLightColor + indirectLightColor;
+	totalLightColor *= ao;
 
 	FloatColor pc = pixelColor.MultiplyNormalized(totalLightColor.ToCharColor());
 	Color rCol = pc.ToCharColor().ClampAdd(specColor);
@@ -572,12 +587,80 @@ FloatColor Renderer::GetGlobalIllumination(const HitInfo& hitInfo, const unsigne
 		HitInfo GIHi;
 		auto hitobj = Trace(hitInfo.position, direction, GIHi, hitInfo.hitObject);
 		//Get color from sample raycast
-		if (hitobj != nullptr)
-			indirectColor += GetHitColor(hitobj, GIHi, direction, depth + 1) * direction.Dot(norm);
+		if (hitobj != nullptr && GIHi.distance < m_RenderSettings.GIDistance)
+		{
+			Color hitCol = GetHitColor(hitobj, GIHi, direction, depth + 1) * direction.Dot(norm);
+			auto addition = hitCol * direction.Dot(norm) / s;
+			addition *= 1 - GIHi.distance / m_RenderSettings.GIDistance;
+			indirectColor += hitCol;
+		}
 	}
 	//average color
 	indirectColor /= s;
 	return indirectColor;
+}
+
+float Renderer::GetAmbientOcclusion(const HitInfo& hitInfo)
+{
+	float factor = 0.f;
+	Vec3 norm = hitInfo.normal, tan, bitan;
+	Math::CreateCoordSystem(norm, tan, bitan);
+
+	auto s = m_RenderSettings.AOSampleCount;
+	float maxDistance = m_RenderSettings.AODistance;
+
+	for (int i = 0; i < s; ++i)
+	{
+		//Vec3 direction = Math::SampleCone(norm, tan, bitan, Math::DegToRad(90.f));
+		Vec3 direction = Math::SampleHemisphere(norm, tan, bitan);
+		HitInfo AOHit;
+		auto hitObj = Trace(hitInfo.position, direction, AOHit, hitInfo.hitObject);
+		if (hitObj != nullptr && AOHit.distance < maxDistance)
+		{
+			auto addition = direction.Dot(norm) / s;
+			addition *= 1 - AOHit.distance / maxDistance;
+			factor += addition;
+		}
+	}
+
+	return 1.f - factor;
+}
+
+void Renderer::GetGIAndAO(const HitInfo& hitInfo, const unsigned depth, FloatColor& GIResult, float& AOResult)
+{
+	//Generate axes
+	Vec3 norm = hitInfo.normal, tan, bitan;
+	Math::CreateCoordSystem(norm, tan, bitan);
+
+	float factor = 0.f;
+	FloatColor indirectColor;
+	float giMaxDistance = m_RenderSettings.GIDistance;
+	float aoMaxDistance = m_RenderSettings.AODistance;
+
+	//TODO: change it so that remaining samples per type are calculated afterwards instead of both the same
+	auto s = m_RenderSettings.AOSampleCount;
+	for (int i = 0; i < s; ++i)
+	{
+		Vec3 direction = Math::SampleHemisphere(norm, tan, bitan);
+		HitInfo thisHit;
+		auto hitObj = Trace(hitInfo.position, direction, thisHit, hitInfo.hitObject);
+		if (hitObj != nullptr && thisHit.distance < aoMaxDistance)
+		{
+			auto addition = direction.Dot(norm) / s;
+			addition *= 1 - thisHit.distance / aoMaxDistance;
+			factor += addition;
+		}
+		if (hitObj != nullptr && thisHit.distance < m_RenderSettings.GIDistance)
+		{
+			Color hitCol = GetHitColor(hitObj, thisHit, direction, depth + 1) * direction.Dot(norm);
+			auto addition = hitCol * direction.Dot(norm) / s;
+			addition *= 1 - thisHit.distance / m_RenderSettings.GIDistance;
+			indirectColor += hitCol;
+		}
+	}
+
+	AOResult = 1 - factor;
+	GIResult = indirectColor /= s;
 }
 
 Color Renderer::GetObjectColor(const HitInfo& hitInfo) const

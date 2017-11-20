@@ -93,11 +93,11 @@ void SceneManager::LoadSceneLibrary()
 
 	if (enableTestScenes > 0)
 	{
-		GetInstance()->AddScene(new TestScene());
-		/*GetInstance()->AddScene(new ReflectiveSpheresScene());
+		/*GetInstance()->AddScene(new TestScene());
+		GetInstance()->AddScene(new ReflectiveSpheresScene());
 		GetInstance()->AddScene(new RefractionScene());
-		GetInstance()->AddScene(new GlassScene());
-		GetInstance()->AddScene(new GIScene());
+		GetInstance()->AddScene(new GlassScene());*/
+		GetInstance()->AddScene(new GIScene());/*
 		GetInstance()->AddScene(new TeapotScene());*/
 	}
 

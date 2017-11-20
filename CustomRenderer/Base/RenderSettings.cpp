@@ -57,6 +57,18 @@ bool RenderSettings::LoadFromFile(const char* path)
 	v = TextLoader::FindIntValueInString(s, "gisamplecount");
 	GISampleCount = v < 0 ? GISampleCount : v;
 
+	//Global illumination distance
+	float f = TextLoader::FindFloatValueInString(s, "gidistance");
+	GIDistance = f < 0 ? GIDistance : f;
+
+	//Ambient occlusion sample count
+	v = TextLoader::FindIntValueInString(s, "aosamplecount");
+	AOSampleCount = v < 0 ? AOSampleCount : v;
+
+	//Ambient occlusion distance
+	f = TextLoader::FindFloatValueInString(s, "aodistance");
+	AODistance = f < 0 ? AODistance : f;
+
 	//sRGB
 	v = TextLoader::FindIntValueInString(s, "enablesrgb");
 	enableSrgb = v < 0 ? enableSrgb : v != 0;
@@ -64,6 +76,11 @@ bool RenderSettings::LoadFromFile(const char* path)
 	//Auto rerender
 	v = TextLoader::FindIntValueInString(s, "autorerender");
 	autoRerender = v < 0 ? autoRerender : v != 0;
+
+	//Render Downscaling
+	f = TextLoader::FindFloatValueInString(s, "downscaling");
+	if (f > 0)
+		DownScaleRender(f);
 
 	return true;
 }

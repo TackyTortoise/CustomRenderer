@@ -64,6 +64,10 @@ private:
 
 	FloatColor GetGlobalIllumination(const HitInfo& hitInfo, const unsigned depth);
 
+	float GetAmbientOcclusion(const HitInfo& hitInfo);
+
+	void GetGIAndAO(const HitInfo& hitInfo, const unsigned depth, FloatColor& GIResult, float& AOResult);
+
 	int CheckUndrawn();
 	
 	void ClearPixelMask();
