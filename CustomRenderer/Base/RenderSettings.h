@@ -18,6 +18,7 @@ struct RenderSettings
 	int GISampleCount = 0;
 	int GIMaxDepth = 0;
 	float GIDistance = 10.f;
+	int AOMaxDepth = 0;
 	int AOSampleCount = 10;
 	float AODistance = 2.f;
 	bool enableSrgb = false;

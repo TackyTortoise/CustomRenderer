@@ -61,6 +61,10 @@ bool RenderSettings::LoadFromFile(const char* path)
 	float f = TextLoader::FindFloatValueInString(s, "gidistance");
 	GIDistance = f < 0 ? GIDistance : f;
 
+	//Ambient occlusion max render depth
+	v = TextLoader::FindIntValueInString(s, "aomaxdepth");
+	AOMaxDepth = v < 0 ? AOMaxDepth : v;
+
 	//Ambient occlusion sample count
 	v = TextLoader::FindIntValueInString(s, "aosamplecount");
 	AOSampleCount = v < 0 ? AOSampleCount : v;
