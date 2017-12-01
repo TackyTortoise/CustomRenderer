@@ -16,9 +16,9 @@ Adjust render settings:
   
 Create own materials:  
 	Go to Data/MaterialLibrary.txt and add your own material in this format  
-	<name>  
+	<(name)>  
 		properties  
-	</name>  
+	</(name)>  
   
 Create own scenes:  
 	Create a txt file with your scene info inside Data/Scenes, see Data/Scenes/TextScene.txt for an example  
@@ -27,6 +27,6 @@ Create own scenes:
 		Rotation angles are defined in degrees    
 		
 	To load your own scene go to Data/SceneLibrary.txt and add your own scene in this format  
-	<Scene>  
+	< Scene >    
 	File = [scenename].txt  
-	</Scene>  
+	< /Scene >    
