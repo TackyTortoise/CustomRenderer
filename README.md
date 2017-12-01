@@ -1,6 +1,7 @@
 # CustomRenderer  
 This is a raytracer I wrote as part of my graduation work for the biggest part of 6 weeks.  
 It is written completely from scratch in C++, using SDL for window managment and input and Assimp for loading model data.  
+https://dietertack.wordpress.com/work/programming/ray-tracer/  
 
 # Controls
 wasd - move camera  
