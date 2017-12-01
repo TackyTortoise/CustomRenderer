@@ -26,7 +26,7 @@ Create own scenes:
 		These objects use materials by name from the MaterialLibrary.txt mentioned above  
 		Rotation angles are defined in degrees    
 		
-	To load your own scene go to Data/SceneLibrary.txt and add your own scene in this format  
-	< Scene >    
-	File = [scenename].txt  
-	< /Scene >    
+To load your own scene go to Data/SceneLibrary.txt and add your own scene in this format  
+< Scene >    
+File = [scenename].txt  
+< /Scene >    
